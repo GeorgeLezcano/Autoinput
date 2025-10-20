@@ -6,7 +6,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>App</RootNamespace>
-    <AssemblyName>App</AssemblyName>
+    <AssemblyName>Autoinput</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>

@@ -28,11 +28,44 @@ partial class MainForm
     /// </summary>
     private void InitializeComponent()
     {
-        this.components = new System.ComponentModel.Container();
-        this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-        this.ClientSize = new System.Drawing.Size(800, 450);
-        this.Text = "Main Form";
+        startButton = new Button();
+        stopButton = new Button();
+        SuspendLayout();
+        // 
+        // startButton
+        // 
+        startButton.Location = new Point(237, 388);
+        startButton.Name = "startButton";
+        startButton.Size = new Size(196, 79);
+        startButton.TabIndex = 0;
+        startButton.Text = "Start";
+        startButton.UseVisualStyleBackColor = true;
+        startButton.Click += StartButton_Click;
+        // 
+        // stopButton
+        // 
+        stopButton.Location = new Point(525, 388);
+        stopButton.Name = "stopButton";
+        stopButton.Size = new Size(196, 79);
+        stopButton.TabIndex = 1;
+        stopButton.Text = "Stop";
+        stopButton.UseVisualStyleBackColor = true;
+        stopButton.Click += StopButton_Click;
+        // 
+        // MainForm
+        // 
+        AutoScaleDimensions = new SizeF(8F, 20F);
+        AutoScaleMode = AutoScaleMode.Font;
+        ClientSize = new Size(961, 547);
+        Controls.Add(stopButton);
+        Controls.Add(startButton);
+        Name = "MainForm";
+        Text = "AutoInput";
+        ResumeLayout(false);
     }
 
     #endregion
+
+    private Button startButton;
+    private Button stopButton;
 }
