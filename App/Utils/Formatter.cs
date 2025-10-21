@@ -1,6 +1,6 @@
 namespace App.Utils;
 
-public static class LabelUtils
+public static class Formatter
 {
     /// <summary>
     /// Build the time elapsed label text.

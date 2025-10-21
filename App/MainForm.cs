@@ -27,8 +27,8 @@ public partial class MainForm : Form
     /// </summary>
     private void MainForm_Load(object sender, EventArgs e)
     {
-        inputCountLabel.Text = LabelUtils.SetInputCountLabel(inputCount);
-        timerLabel.Text = LabelUtils.SetTimeLabel(activeTimerSeconds);
+        inputCountLabel.Text = Formatter.SetInputCountLabel(inputCount);
+        timerLabel.Text = Formatter.SetTimeLabel(activeTimerSeconds);
         startStopButton.BackColor = Color.Green;
     }
 
@@ -63,7 +63,7 @@ public partial class MainForm : Form
     private void RunTimer_Tick(object sender, EventArgs e)
     {
         activeTimerSeconds++;
-        timerLabel.Text = LabelUtils.SetTimeLabel(activeTimerSeconds);
+        timerLabel.Text = Formatter.SetTimeLabel(activeTimerSeconds);
     }
 
     /// <summary>
@@ -72,7 +72,7 @@ public partial class MainForm : Form
     private void InputCount_Tick(object sender, EventArgs e)
     {
         inputCount++;
-        inputCountLabel.Text = LabelUtils.SetInputCountLabel(inputCount);
+        inputCountLabel.Text = Formatter.SetInputCountLabel(inputCount);
     }
 
     /// <summary>
@@ -83,8 +83,8 @@ public partial class MainForm : Form
         activeTimerSeconds = 0;
         inputCount = 0;
 
-        timerLabel.Text = LabelUtils.SetTimeLabel(activeTimerSeconds);
-        inputCountLabel.Text = LabelUtils.SetInputCountLabel(inputCount);
+        timerLabel.Text = Formatter.SetTimeLabel(activeTimerSeconds);
+        inputCountLabel.Text = Formatter.SetInputCountLabel(inputCount);
 
         intervalInput.Value = defaultInterval;
     }
