@@ -1,4 +1,5 @@
 using System.Windows.Forms;
+using App.Utils;
 
 namespace App;
 
@@ -26,8 +27,8 @@ public partial class MainForm : Form
     /// </summary>
     private void MainForm_Load(object sender, EventArgs e)
     {
-        SetInputCountLabel(inputCount);
-        SetTimeLabel(activeTimerSeconds);
+        inputCountLabel.Text = LabelUtils.SetInputCountLabel(inputCount);
+        timerLabel.Text = LabelUtils.SetTimeLabel(activeTimerSeconds);
         startStopButton.BackColor = Color.Green;
     }
 
@@ -62,7 +63,7 @@ public partial class MainForm : Form
     private void RunTimer_Tick(object sender, EventArgs e)
     {
         activeTimerSeconds++;
-        SetTimeLabel(activeTimerSeconds);
+        timerLabel.Text = LabelUtils.SetTimeLabel(activeTimerSeconds);
     }
 
     /// <summary>
@@ -71,29 +72,7 @@ public partial class MainForm : Form
     private void InputCount_Tick(object sender, EventArgs e)
     {
         inputCount++;
-        SetInputCountLabel(inputCount);
-    }
-
-    /// <summary>
-    /// Sets the time elapsed label text.
-    /// </summary>
-    /// <param name="seconds">The total time in seconds.</param>
-    private void SetTimeLabel(int seconds)
-    {
-        int hours = seconds / 3600;
-        int minutes = (seconds % 3600) / 60;
-        int secs = seconds % 60;
-
-        timerLabel.Text = $"Active Time: {hours:D2}:{minutes:D2}:{secs:D2}";
-    }
-
-    /// <summary>
-    /// Sets the input count label text.
-    /// </summary>
-    /// <param name="count">The key press count.</param>
-    private void SetInputCountLabel(int count)
-    {
-        inputCountLabel.Text = $"Input Count: {count}";
+        inputCountLabel.Text = LabelUtils.SetInputCountLabel(inputCount);
     }
 
     /// <summary>
@@ -104,8 +83,8 @@ public partial class MainForm : Form
         activeTimerSeconds = 0;
         inputCount = 0;
 
-        SetTimeLabel(activeTimerSeconds);
-        SetInputCountLabel(inputCount);
+        timerLabel.Text = LabelUtils.SetTimeLabel(activeTimerSeconds);
+        inputCountLabel.Text = LabelUtils.SetInputCountLabel(inputCount);
 
         intervalInput.Value = defaultInterval;
     }
