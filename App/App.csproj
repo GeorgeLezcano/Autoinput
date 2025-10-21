@@ -7,6 +7,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>App</RootNamespace>
     <AssemblyName>Autoinput</AssemblyName>
+    <ApplicationIcon>Resources/app_default.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>

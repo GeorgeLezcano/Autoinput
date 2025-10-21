@@ -28,6 +28,7 @@ partial class MainForm
     /// </summary>
     private void InitializeComponent()
     {
+        System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
         startButton = new Button();
         stopButton = new Button();
         SuspendLayout();
@@ -59,6 +60,9 @@ partial class MainForm
         ClientSize = new Size(961, 547);
         Controls.Add(stopButton);
         Controls.Add(startButton);
+        FormBorderStyle = FormBorderStyle.FixedDialog;
+        Icon = (Icon)resources.GetObject("$this.Icon");
+        MaximizeBox = false;
         Name = "MainForm";
         Text = "AutoInput";
         ResumeLayout(false);
