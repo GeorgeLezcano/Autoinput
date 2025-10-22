@@ -53,14 +53,23 @@ partial class MainForm
         mainTabs = new TabControl();
         tabGeneral = new TabPage();
         tabSchedule = new TabPage();
-        tabRunMode = new TabPage();
         tabSequence = new TabPage();
-        tabKeys = new TabPage();
         tabConfig = new TabPage();
 
         // General tab contents
         groupRun = new GroupBox();
         labelIntervalHint = new Label();
+
+        // Run Mode controls
+        runUntilStoppedRadio = new RadioButton();
+        runForCountRadio = new RadioButton();
+        runCountInput = new NumericUpDown();
+        runCountLabel = new Label();
+
+        // Keys controls
+        groupKeys = new GroupBox();
+        targetTypeLabel = new Label();
+        targetTypeCombo = new ComboBox();
 
         // Schedule tab contents
         groupSchedule = new GroupBox();
@@ -69,13 +78,6 @@ partial class MainForm
         scheduleStartLabel = new Label();
         scheduleStopLabel = new Label();
         scheduleEnableStopCheck = new CheckBox();
-
-        // RunMode tab contents
-        groupRunMode = new GroupBox();
-        runUntilStoppedRadio = new RadioButton();
-        runForCountRadio = new RadioButton();
-        runCountInput = new NumericUpDown();
-        runCountLabel = new Label();
 
         // Sequence tab contents
         groupSequence = new GroupBox();
@@ -91,11 +93,6 @@ partial class MainForm
         sequenceMoveDownButton = new Button();
         sequenceIntervalLabel = new Label();
         sequenceIntervalInput = new NumericUpDown();
-
-        // Keys tab contents
-        groupKeys = new GroupBox();
-        targetTypeLabel = new Label();
-        targetTypeCombo = new ComboBox();
 
         // Config tab contents
         groupConfig = new GroupBox();
@@ -174,10 +171,10 @@ partial class MainForm
         inputCountLabel.Text = "Input Count: 0";
 
         // Timers
-        runTimer.Interval = 1000;
+        runTimer.Interval = intervalDefault;
         runTimer.Tick += RunTimer_Tick;
 
-        inputCountTimer.Interval = 1000;
+        inputCountTimer.Interval = intervalDefault;
         inputCountTimer.Tick += InputCount_Tick;
 
         #endregion
@@ -189,12 +186,11 @@ partial class MainForm
         mainTabs.Name = "mainTabs";
         mainTabs.Size = new System.Drawing.Size(840, 510);
         mainTabs.TabIndex = 10;
+        mainTabs.Padding = new Point(15, 5);
 
         mainTabs.Controls.Add(tabGeneral);
         mainTabs.Controls.Add(tabSchedule);
-        mainTabs.Controls.Add(tabRunMode);
         mainTabs.Controls.Add(tabSequence);
-        mainTabs.Controls.Add(tabKeys);
         mainTabs.Controls.Add(tabConfig);
 
         #endregion
@@ -204,12 +200,14 @@ partial class MainForm
         tabGeneral.Text = "General";
         tabGeneral.BackColor = panelBg;
 
+        // ----- Group: Run Controls -----
         groupRun.Text = "Run Controls";
         groupRun.ForeColor = ForeColor;
         groupRun.BackColor = panelBg;
         groupRun.Location = new System.Drawing.Point(16, 16);
-        groupRun.Size = new System.Drawing.Size(790, 130);
+        groupRun.Size = new System.Drawing.Size(790, 200);
 
+        // Interval controls
         intervalLabel.AutoSize = true;
         intervalLabel.ForeColor = textSecondary;
         intervalLabel.Location = new System.Drawing.Point(20, 35);
@@ -217,10 +215,10 @@ partial class MainForm
         intervalLabel.Size = new System.Drawing.Size(148, 20);
         intervalLabel.Text = "Interval (milliseconds)";
 
-        intervalInput.Increment = new decimal(new int[] { 100, 0, 0, 0 });
-        intervalInput.Maximum = new decimal(new int[] { 10000, 0, 0, 0 });
-        intervalInput.Minimum = new decimal(new int[] { 100, 0, 0, 0 });
-        intervalInput.Value = new decimal(new int[] { 1000, 0, 0, 0 });
+        intervalInput.Increment = new decimal(new int[] { intervalInputIncrement, 0, 0, 0 });
+        intervalInput.Maximum = new decimal(new int[] { intervalMaximum, 0, 0, 0 });
+        intervalInput.Minimum = new decimal(new int[] { intervalMinimum, 0, 0, 0 });
+        intervalInput.Value = new decimal(new int[] { intervalDefault, 0, 0, 0 });
         intervalInput.BorderStyle = BorderStyle.FixedSingle;
         intervalInput.BackColor = System.Drawing.Color.FromArgb(52, 56, 72);
         intervalInput.ForeColor = ForeColor;
@@ -233,13 +231,117 @@ partial class MainForm
         labelIntervalHint.AutoSize = true;
         labelIntervalHint.ForeColor = textSecondary;
         labelIntervalHint.Location = new System.Drawing.Point(200, 61);
-        labelIntervalHint.Text = "100 – 10,000 ms";
+        labelIntervalHint.Text = $"{intervalMinimum} – {intervalMaximum} ms";
+
+        // Run Mode controls
+        runUntilStoppedRadio.AutoSize = true;
+        runUntilStoppedRadio.ForeColor = ForeColor;
+        runUntilStoppedRadio.Location = new System.Drawing.Point(24, 100);
+        runUntilStoppedRadio.Text = "Run until stopped";
+        runUntilStoppedRadio.Checked = true;
+
+        runForCountRadio.AutoSize = true;
+        runForCountRadio.ForeColor = ForeColor;
+        runForCountRadio.Location = new System.Drawing.Point(24, 132);
+        runForCountRadio.Text = "Run for a number of inputs:";
+
+        runCountInput.BorderStyle = BorderStyle.FixedSingle;
+        runCountInput.BackColor = System.Drawing.Color.FromArgb(52, 56, 72);
+        runCountInput.ForeColor = ForeColor;
+        runCountInput.Minimum = new decimal(new int[] { runCountInputMinimum, 0, 0, 0 });
+        runCountInput.Maximum = new decimal(new int[] { runCountInputMaximum, 0, 0, 0 });
+        runCountInput.Value = new decimal(new int[] { runCountInputDefault, 0, 0, 0 });
+        runCountInput.Location = new System.Drawing.Point(264, 130);
+        runCountInput.Size = new System.Drawing.Size(120, 27);
+        runCountInput.TabIndex = 40;
+
+        runCountLabel.AutoSize = true;
+        runCountLabel.ForeColor = textSecondary;
+        runCountLabel.Location = new System.Drawing.Point(24, 168);
+        runCountLabel.Text = "When count is reached, stop automatically.";
 
         groupRun.Controls.Add(intervalLabel);
         groupRun.Controls.Add(intervalInput);
         groupRun.Controls.Add(labelIntervalHint);
+        groupRun.Controls.Add(runUntilStoppedRadio);
+        groupRun.Controls.Add(runForCountRadio);
+        groupRun.Controls.Add(runCountInput);
+        groupRun.Controls.Add(runCountLabel);
 
         tabGeneral.Controls.Add(groupRun);
+
+        // Group: Key Settings
+        groupKeys.Text = "Key Settings";
+        groupKeys.ForeColor = ForeColor;
+        groupKeys.BackColor = panelBg;
+        groupKeys.Location = new System.Drawing.Point(16, 230);
+        groupKeys.Size = new System.Drawing.Size(790, 200);
+
+        keybindLabel.AutoSize = true;
+        keybindLabel.ForeColor = textSecondary;
+        keybindLabel.Location = new System.Drawing.Point(20, 40);
+        keybindLabel.Name = "keybindLabel";
+        keybindLabel.Size = new System.Drawing.Size(135, 20);
+        keybindLabel.TabIndex = 12;
+        keybindLabel.Text = "Start/Stop Keybind";
+
+        keybindButton.Location = new System.Drawing.Point(24, 63);
+        keybindButton.Name = "keybindButton";
+        keybindButton.Size = new System.Drawing.Size(160, 32);
+        keybindButton.TabIndex = 11;
+        keybindButton.Text = "F8";
+        keybindButton.FlatStyle = FlatStyle.Flat;
+        keybindButton.FlatAppearance.BorderColor = border;
+        keybindButton.FlatAppearance.BorderSize = 1;
+        keybindButton.BackColor = System.Drawing.Color.FromArgb(60, 64, 82);
+        keybindButton.ForeColor = ForeColor;
+        keybindButton.UseVisualStyleBackColor = false;
+        keybindButton.Click += KeybindButton_Click;
+
+        targetKeyLabel.AutoSize = true;
+        targetKeyLabel.ForeColor = textSecondary;
+        targetKeyLabel.Location = new System.Drawing.Point(220, 40);
+        targetKeyLabel.Name = "targetKeyLabel";
+        targetKeyLabel.Size = new System.Drawing.Size(116, 20);
+        targetKeyLabel.TabIndex = 14;
+        targetKeyLabel.Text = "Target Input Key";
+
+        targetKeyButton.Location = new System.Drawing.Point(224, 63);
+        targetKeyButton.Name = "targetKeyButton";
+        targetKeyButton.Size = new System.Drawing.Size(160, 32);
+        targetKeyButton.TabIndex = 13;
+        targetKeyButton.Text = "LMB";
+        targetKeyButton.FlatStyle = FlatStyle.Flat;
+        targetKeyButton.FlatAppearance.BorderColor = border;
+        targetKeyButton.FlatAppearance.BorderSize = 1;
+        targetKeyButton.BackColor = System.Drawing.Color.FromArgb(60, 64, 82);
+        targetKeyButton.ForeColor = ForeColor;
+        targetKeyButton.UseVisualStyleBackColor = false;
+        targetKeyButton.Click += TargetInputKeyButton_Click;
+
+        targetTypeLabel.AutoSize = true;
+        targetTypeLabel.ForeColor = textSecondary;
+        targetTypeLabel.Location = new System.Drawing.Point(420, 40);
+        targetTypeLabel.Text = "Target Type";
+
+        targetTypeCombo.DropDownStyle = ComboBoxStyle.DropDownList;
+        targetTypeCombo.BackColor = System.Drawing.Color.FromArgb(52, 56, 72);
+        targetTypeCombo.ForeColor = ForeColor;
+        targetTypeCombo.Items.AddRange(new object[] { "Mouse Left", "Mouse Right", "Key" });
+        targetTypeCombo.Location = new System.Drawing.Point(424, 63);
+        targetTypeCombo.Size = new System.Drawing.Size(160, 28);
+        targetTypeCombo.SelectedIndex = 0;
+        targetTypeCombo.Name = "targetTypeCombo";
+        targetTypeCombo.SelectedIndexChanged += TargetTypeCombo_SelectedIndexChanged;
+
+        groupKeys.Controls.Add(keybindLabel);
+        groupKeys.Controls.Add(keybindButton);
+        groupKeys.Controls.Add(targetKeyLabel);
+        groupKeys.Controls.Add(targetKeyButton);
+        groupKeys.Controls.Add(targetTypeLabel);
+        groupKeys.Controls.Add(targetTypeCombo);
+
+        tabGeneral.Controls.Add(groupKeys);
 
         #endregion
 
@@ -293,52 +395,6 @@ partial class MainForm
         groupSchedule.Controls.Add(scheduleStopPicker);
 
         tabSchedule.Controls.Add(groupSchedule);
-
-        #endregion
-
-        #region Tab: Run Mode
-
-        tabRunMode.Text = "Run Mode";
-        tabRunMode.BackColor = panelBg;
-
-        groupRunMode.Text = "Mode";
-        groupRunMode.ForeColor = ForeColor;
-        groupRunMode.BackColor = panelBg;
-        groupRunMode.Location = new System.Drawing.Point(16, 16);
-        groupRunMode.Size = new System.Drawing.Size(790, 160);
-
-        runUntilStoppedRadio.AutoSize = true;
-        runUntilStoppedRadio.ForeColor = ForeColor;
-        runUntilStoppedRadio.Location = new System.Drawing.Point(20, 38);
-        runUntilStoppedRadio.Text = "Run until stopped";
-        runUntilStoppedRadio.Checked = true;
-
-        runForCountRadio.AutoSize = true;
-        runForCountRadio.ForeColor = ForeColor;
-        runForCountRadio.Location = new System.Drawing.Point(20, 70);
-        runForCountRadio.Text = "Run for a number of inputs:";
-
-        runCountInput.BorderStyle = BorderStyle.FixedSingle;
-        runCountInput.BackColor = System.Drawing.Color.FromArgb(52, 56, 72);
-        runCountInput.ForeColor = ForeColor;
-        runCountInput.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
-        runCountInput.Maximum = new decimal(new int[] { 1000000, 0, 0, 0 });
-        runCountInput.Value = new decimal(new int[] { 100, 0, 0, 0 });
-        runCountInput.Location = new System.Drawing.Point(260, 68);
-        runCountInput.Size = new System.Drawing.Size(120, 27);
-        runCountInput.TabIndex = 40;
-
-        runCountLabel.AutoSize = true;
-        runCountLabel.ForeColor = textSecondary;
-        runCountLabel.Location = new System.Drawing.Point(20, 110);
-        runCountLabel.Text = "When count is reached, stop automatically.";
-
-        groupRunMode.Controls.Add(runUntilStoppedRadio);
-        groupRunMode.Controls.Add(runForCountRadio);
-        groupRunMode.Controls.Add(runCountInput);
-        groupRunMode.Controls.Add(runCountLabel);
-
-        tabRunMode.Controls.Add(groupRunMode);
 
         #endregion
 
@@ -454,11 +510,12 @@ partial class MainForm
         sequenceIntervalInput.BorderStyle = BorderStyle.FixedSingle;
         sequenceIntervalInput.BackColor = System.Drawing.Color.FromArgb(52, 56, 72);
         sequenceIntervalInput.ForeColor = ForeColor;
-        sequenceIntervalInput.Minimum = new decimal(new int[] { 100, 0, 0, 0 });
-        sequenceIntervalInput.Maximum = new decimal(new int[] { 600000, 0, 0, 0 });
-        sequenceIntervalInput.Value = new decimal(new int[] { 1000, 0, 0, 0 });
+        sequenceIntervalInput.Minimum = new decimal(new int[] { intervalMinimum, 0, 0, 0 });
+        sequenceIntervalInput.Maximum = new decimal(new int[] { sequenceIntervalInputMaximum, 0, 0, 0 });
+        sequenceIntervalInput.Value = new decimal(new int[] { intervalDefault, 0, 0, 0 });
         sequenceIntervalInput.Location = new System.Drawing.Point(190, 346);
         sequenceIntervalInput.Size = new System.Drawing.Size(120, 27);
+        sequenceIntervalInput.Increment = intervalInputIncrement;
 
         groupSequence.Controls.Add(sequenceGrid);
         groupSequence.Controls.Add(sequenceButtonsPanel);
@@ -466,85 +523,6 @@ partial class MainForm
         groupSequence.Controls.Add(sequenceIntervalInput);
 
         tabSequence.Controls.Add(groupSequence);
-
-        #endregion
-
-        #region Tab: Keys
-
-        tabKeys.Text = "Keys";
-        tabKeys.BackColor = panelBg;
-
-        groupKeys.Text = "Key Settings";
-        groupKeys.ForeColor = ForeColor;
-        groupKeys.BackColor = panelBg;
-        groupKeys.Location = new System.Drawing.Point(16, 16);
-        groupKeys.Size = new System.Drawing.Size(790, 200);
-
-        keybindLabel.AutoSize = true;
-        keybindLabel.ForeColor = textSecondary;
-        keybindLabel.Location = new System.Drawing.Point(20, 40);
-        keybindLabel.Name = "keybindLabel";
-        keybindLabel.Size = new System.Drawing.Size(135, 20);
-        keybindLabel.TabIndex = 12;
-        keybindLabel.Text = "Start/Stop Keybind";
-
-        keybindButton.Location = new System.Drawing.Point(24, 63);
-        keybindButton.Name = "keybindButton";
-        keybindButton.Size = new System.Drawing.Size(160, 32);
-        keybindButton.TabIndex = 11;
-        keybindButton.Text = "F8";
-        keybindButton.FlatStyle = FlatStyle.Flat;
-        keybindButton.FlatAppearance.BorderColor = border;
-        keybindButton.FlatAppearance.BorderSize = 1;
-        keybindButton.BackColor = System.Drawing.Color.FromArgb(60, 64, 82);
-        keybindButton.ForeColor = ForeColor;
-        keybindButton.UseVisualStyleBackColor = false;
-        keybindButton.Click += KeybindButton_Click;
-
-        targetKeyLabel.AutoSize = true;
-        targetKeyLabel.ForeColor = textSecondary;
-        targetKeyLabel.Location = new System.Drawing.Point(220, 40);
-        targetKeyLabel.Name = "targetKeyLabel";
-        targetKeyLabel.Size = new System.Drawing.Size(116, 20);
-        targetKeyLabel.TabIndex = 14;
-        targetKeyLabel.Text = "Target Input Key";
-
-        targetKeyButton.Location = new System.Drawing.Point(224, 63);
-        targetKeyButton.Name = "targetKeyButton";
-        targetKeyButton.Size = new System.Drawing.Size(160, 32);
-        targetKeyButton.TabIndex = 13;
-        targetKeyButton.Text = "LMB";
-        targetKeyButton.FlatStyle = FlatStyle.Flat;
-        targetKeyButton.FlatAppearance.BorderColor = border;
-        targetKeyButton.FlatAppearance.BorderSize = 1;
-        targetKeyButton.BackColor = System.Drawing.Color.FromArgb(60, 64, 82);
-        targetKeyButton.ForeColor = ForeColor;
-        targetKeyButton.UseVisualStyleBackColor = false;
-        targetKeyButton.Click += TargetInputKeyButton_Click;
-
-        targetTypeLabel.AutoSize = true;
-        targetTypeLabel.ForeColor = textSecondary;
-        targetTypeLabel.Location = new System.Drawing.Point(420, 40);
-        targetTypeLabel.Text = "Target Type";
-
-        targetTypeCombo.DropDownStyle = ComboBoxStyle.DropDownList;
-        targetTypeCombo.BackColor = System.Drawing.Color.FromArgb(52, 56, 72);
-        targetTypeCombo.ForeColor = ForeColor;
-        targetTypeCombo.Items.AddRange(new object[] { "Mouse Left", "Mouse Right", "Key" });
-        targetTypeCombo.Location = new System.Drawing.Point(424, 63);
-        targetTypeCombo.Size = new System.Drawing.Size(160, 28);
-        targetTypeCombo.SelectedIndex = 0;
-        targetTypeCombo.Name = "targetTypeCombo";
-        targetTypeCombo.SelectedIndexChanged += TargetTypeCombo_SelectedIndexChanged;
-
-        groupKeys.Controls.Add(keybindLabel);
-        groupKeys.Controls.Add(keybindButton);
-        groupKeys.Controls.Add(targetKeyLabel);
-        groupKeys.Controls.Add(targetKeyButton);
-        groupKeys.Controls.Add(targetTypeLabel);
-        groupKeys.Controls.Add(targetTypeCombo);
-
-        tabKeys.Controls.Add(groupKeys);
 
         #endregion
 
@@ -666,18 +644,27 @@ partial class MainForm
     private Button targetKeyButton;
     private Label targetKeyLabel;
 
-    // New containers/tabs
+    // Containers/tabs
     private TabControl mainTabs;
     private TabPage tabGeneral;
     private TabPage tabSchedule;
-    private TabPage tabRunMode;
     private TabPage tabSequence;
-    private TabPage tabKeys;
     private TabPage tabConfig;
 
     // General
     private GroupBox groupRun;
     private Label labelIntervalHint;
+
+    // Run Mode
+    private RadioButton runUntilStoppedRadio;
+    private RadioButton runForCountRadio;
+    private NumericUpDown runCountInput;
+    private Label runCountLabel;
+
+    // Keys 
+    private GroupBox groupKeys;
+    private Label targetTypeLabel;
+    private ComboBox targetTypeCombo;
 
     // Schedule
     private GroupBox groupSchedule;
@@ -686,13 +673,6 @@ partial class MainForm
     private Label scheduleStartLabel;
     private Label scheduleStopLabel;
     private CheckBox scheduleEnableStopCheck;
-
-    // Run Mode
-    private GroupBox groupRunMode;
-    private RadioButton runUntilStoppedRadio;
-    private RadioButton runForCountRadio;
-    private NumericUpDown runCountInput;
-    private Label runCountLabel;
 
     // Sequence
     private GroupBox groupSequence;
@@ -708,11 +688,6 @@ partial class MainForm
     private Button sequenceMoveDownButton;
     private Label sequenceIntervalLabel;
     private NumericUpDown sequenceIntervalInput;
-
-    // Keys
-    private GroupBox groupKeys;
-    private Label targetTypeLabel;
-    private ComboBox targetTypeCombo;
 
     // Config
     private GroupBox groupConfig;

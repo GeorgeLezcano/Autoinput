@@ -1,6 +1,3 @@
-using System;
-using System.Drawing;
-using System.Windows.Forms;
 using App.Utils;
 
 namespace App;
@@ -10,15 +7,11 @@ namespace App;
 /// </summary>
 public partial class MainForm : Form
 {
-    /// <summary>
-    /// Default interval used to reset the interval input (milliseconds).
-    /// </summary>
-    private const int defaultInterval = 1000;
-
-    // ---- Runtime state (no layout/creation here) ----
-    private bool isRunning = false;
-    private int activeTimerSeconds = 0;
-    private int inputCount = 0;
+    // ---- Runtime state ----
+    private bool isRunning = isRunningDefault;
+    private int activeTimerSeconds = activeTimerSecondsDefault;
+    private int inputCount = inputCountDefault;
+    private int forcedInputCount = forcedInputCountDefault;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="MainForm"/> class.
@@ -79,11 +72,44 @@ public partial class MainForm : Form
         (isRunning ? (Action)runTimer.Start : runTimer.Stop)();
         (isRunning ? (Action)inputCountTimer.Start : inputCountTimer.Stop)();
 
-        // UI changes based on state
+        // Top Bar Items
         startStopButton.Text = isRunning ? "Stop" : "Start";
-        resetButton.Enabled = !isRunning;
-        intervalInput.Enabled = !isRunning;
         startStopButton.BackColor = isRunning ? Color.Red : Color.Green;
+        resetButton.Enabled = !isRunning;
+
+        // General Tab
+        intervalInput.Enabled = !isRunning;
+
+        // Schedule Tab
+        scheduleStartPicker.Enabled = !isRunning;
+        scheduleEnableStopCheck.Enabled = !isRunning;
+        scheduleStopPicker.Enabled = !isRunning;
+
+        // Run Mode Tab
+        runUntilStoppedRadio.Enabled = !isRunning;
+        runForCountRadio.Enabled = !isRunning;
+        runCountInput.Enabled = !isRunning;
+
+        // Sequence Tab
+        sequenceIntervalInput.Enabled = !isRunning;
+        sequenceAddButton.Enabled = !isRunning;
+        sequenceEditButton.Enabled = !isRunning;
+        sequenceRemoveButton.Enabled = !isRunning;
+        sequenceMoveUpButton.Enabled = !isRunning;
+        sequenceMoveDownButton.Enabled = !isRunning;
+
+        // Keys Tab
+        keybindButton.Enabled = !isRunning;
+        targetKeyButton.Enabled = !isRunning;
+        targetTypeCombo.Enabled = !isRunning;
+
+        // Config Tab
+        saveConfigButton.Enabled = !isRunning;
+        loadConfigButton.Enabled = !isRunning;
+        loadOnStartupCheck.Enabled = !isRunning;
+        configPathText.Enabled = !isRunning;
+        openConfigFolderButton.Enabled = !isRunning;
+
     }
 
     /// <summary>
@@ -106,6 +132,16 @@ public partial class MainForm : Form
     {
         inputCount++;
         inputCountLabel.Text = Formatter.SetInputCountLabel(inputCount);
+        if (runForCountRadio.Checked)
+        {
+            forcedInputCount++;
+            if (forcedInputCount >= runCountInput.Value)
+            {
+                StartStopButton_Click(sender, e);
+                forcedInputCount = forcedInputCountDefault;
+                return;
+            }
+        }
     }
 
     /// <summary>
@@ -115,13 +151,15 @@ public partial class MainForm : Form
     /// <param name="e">Event arguments.</param>
     private void ResetButton_Click(object sender, EventArgs e)
     {
-        activeTimerSeconds = 0;
-        inputCount = 0;
-
+        // General tab
+        activeTimerSeconds = activeTimerSecondsDefault;
+        inputCount = inputCountDefault;
+        forcedInputCount = forcedInputCountDefault;
         timerLabel.Text = Formatter.SetTimeLabel(activeTimerSeconds);
         inputCountLabel.Text = Formatter.SetInputCountLabel(inputCount);
-
-        intervalInput.Value = defaultInterval;
+        intervalInput.Value = intervalDefault;
+        runCountInput.Value = runCountInputDefault;
+        runUntilStoppedRadio.Checked = true;
     }
 
     /// <summary>
