@@ -1,4 +1,5 @@
-﻿using App.Utils;
+﻿using App.Constants;
+using App.Utils;
 
 namespace App;
 
@@ -7,17 +8,10 @@ namespace App;
 /// </summary>
 partial class MainForm
 {
-    /// <summary>
-    /// Required designer variable for container-managed components.
-    /// </summary>
+    /// <summary>Required designer variable.</summary>
     private System.ComponentModel.IContainer components = null;
 
-    /// <summary>
-    /// Dispose managed/unmanaged resources.
-    /// </summary>
-    /// <param name="disposing">
-    /// True to dispose managed resources; otherwise false.
-    /// </param>
+    /// <summary>Dispose managed/unmanaged resources.</summary>
     protected override void Dispose(bool disposing)
     {
         if (disposing && (components is not null))
@@ -38,7 +32,9 @@ partial class MainForm
         System.ComponentModel.ComponentResourceManager resources =
             new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
 
-        // ---- Controls (fields are declared at the bottom) ----
+        #region Control Declarations
+
+        // ---- Top controls / timers ----
         startStopButton = new Button();
         timerLabel = new Label();
         runTimer = new System.Windows.Forms.Timer(components);
@@ -52,13 +48,14 @@ partial class MainForm
         targetKeyButton = new Button();
         targetKeyLabel = new Label();
 
+        // ---- Tabs ----
         mainTabs = new TabControl();
         tabGeneral = new TabPage();
         tabSchedule = new TabPage();
         tabSequence = new TabPage();
         tabConfig = new TabPage();
 
-        // General tab contents
+        // ---- General tab ----
         groupRun = new GroupBox();
         labelIntervalHint = new Label();
 
@@ -71,7 +68,7 @@ partial class MainForm
         // Keys controls
         groupKeys = new GroupBox();
 
-        // Schedule tab contents
+        // ---- Schedule tab ----
         groupSchedule = new GroupBox();
         scheduleStartPicker = new DateTimePicker();
         scheduleStopPicker = new DateTimePicker();
@@ -80,7 +77,7 @@ partial class MainForm
         scheduleEnableStopCheck = new CheckBox();
         scheduleEnableStartCheck = new CheckBox();
 
-        // Sequence tab contents
+        // ---- Sequence tab ----
         groupSequence = new GroupBox();
         sequenceGrid = new DataGridView();
         colStep = new DataGridViewTextBoxColumn();
@@ -95,7 +92,7 @@ partial class MainForm
         sequenceIntervalLabel = new Label();
         sequenceIntervalInput = new NumericUpDown();
 
-        // Config tab contents
+        // ---- Config tab ----
         groupConfig = new GroupBox();
         saveConfigButton = new Button();
         loadConfigButton = new Button();
@@ -103,6 +100,8 @@ partial class MainForm
         configPathLabel = new Label();
         configPathText = new TextBox();
         openConfigFolderButton = new Button();
+
+        #endregion
 
         ((System.ComponentModel.ISupportInitialize)intervalInput).BeginInit();
         ((System.ComponentModel.ISupportInitialize)runCountInput).BeginInit();
@@ -112,13 +111,8 @@ partial class MainForm
 
         #region Theme & Form Chrome
 
-        BackColor = System.Drawing.Color.FromArgb(30, 32, 46);
-        ForeColor = System.Drawing.Color.FromArgb(235, 238, 245);
-
-        // Common colors kept as locals for readability
-        var panelBg = System.Drawing.Color.FromArgb(40, 44, 60);
-        var textSecondary = System.Drawing.Color.FromArgb(200, 204, 214);
-        var border = System.Drawing.Color.FromArgb(70, 75, 95);
+        BackColor = UiColors.FormBack;
+        ForeColor = UiColors.FormFore;
 
         #endregion
 
@@ -127,9 +121,9 @@ partial class MainForm
         // Start/Stop
         startStopButton.Font = new System.Drawing.Font("Segoe UI", 14F);
         startStopButton.ForeColor = System.Drawing.Color.White;
-        startStopButton.BackColor = System.Drawing.Color.Green;
+        startStopButton.BackColor = UiColors.StartGreen;
         startStopButton.FlatStyle = FlatStyle.Flat;
-        startStopButton.FlatAppearance.BorderColor = border;
+        startStopButton.FlatAppearance.BorderColor = UiColors.Border;
         startStopButton.FlatAppearance.BorderSize = 1;
         startStopButton.Location = new System.Drawing.Point(20, 18);
         startStopButton.Name = "startStopButton";
@@ -146,16 +140,16 @@ partial class MainForm
         resetButton.TabIndex = 1;
         resetButton.Text = "Reset";
         resetButton.FlatStyle = FlatStyle.Flat;
-        resetButton.FlatAppearance.BorderColor = border;
+        resetButton.FlatAppearance.BorderColor = UiColors.Border;
         resetButton.FlatAppearance.BorderSize = 1;
-        resetButton.BackColor = System.Drawing.Color.FromArgb(60, 64, 82);
-        resetButton.ForeColor = System.Drawing.Color.FromArgb(235, 238, 245);
+        resetButton.BackColor = UiColors.ButtonBackDefault;
+        resetButton.ForeColor = UiColors.FormFore;
         resetButton.UseVisualStyleBackColor = false;
         resetButton.Click += ResetButton_Click;
 
         // Timer label
         timerLabel.AutoSize = true;
-        timerLabel.ForeColor = textSecondary;
+        timerLabel.ForeColor = UiColors.TextSecondary;
         timerLabel.Location = new System.Drawing.Point(350, 24);
         timerLabel.Name = "timerLabel";
         timerLabel.Size = new System.Drawing.Size(145, 20);
@@ -164,7 +158,7 @@ partial class MainForm
 
         // Input count
         inputCountLabel.AutoSize = true;
-        inputCountLabel.ForeColor = textSecondary;
+        inputCountLabel.ForeColor = UiColors.TextSecondary;
         inputCountLabel.Location = new System.Drawing.Point(350, 50);
         inputCountLabel.Name = "inputCountLabel";
         inputCountLabel.Size = new System.Drawing.Size(116, 20);
@@ -199,18 +193,18 @@ partial class MainForm
         #region Tab: General
 
         tabGeneral.Text = "General";
-        tabGeneral.BackColor = panelBg;
+        tabGeneral.BackColor = UiColors.PanelBack;
 
         // ----- Group: Run Controls -----
         groupRun.Text = "Run Controls";
         groupRun.ForeColor = ForeColor;
-        groupRun.BackColor = panelBg;
+        groupRun.BackColor = UiColors.PanelBack;
         groupRun.Location = new System.Drawing.Point(16, 16);
         groupRun.Size = new System.Drawing.Size(790, 200);
 
         // Interval controls
         intervalLabel.AutoSize = true;
-        intervalLabel.ForeColor = textSecondary;
+        intervalLabel.ForeColor = UiColors.TextSecondary;
         intervalLabel.Location = new System.Drawing.Point(20, 35);
         intervalLabel.Name = "intervalLabel";
         intervalLabel.Size = new System.Drawing.Size(148, 20);
@@ -230,7 +224,7 @@ partial class MainForm
         intervalInput.Enabled = true;
 
         labelIntervalHint.AutoSize = true;
-        labelIntervalHint.ForeColor = textSecondary;
+        labelIntervalHint.ForeColor = UiColors.TextSecondary;
         labelIntervalHint.Location = new System.Drawing.Point(200, 61);
         labelIntervalHint.Text = $"{intervalMinimum} – {intervalMaximum} ms";
 
@@ -259,7 +253,7 @@ partial class MainForm
         runCountInput.Enabled = false;
 
         runCountLabel.AutoSize = true;
-        runCountLabel.ForeColor = textSecondary;
+        runCountLabel.ForeColor = UiColors.TextSecondary;
         runCountLabel.Location = new System.Drawing.Point(24, 168);
         runCountLabel.Text = "When count is reached, stop automatically.";
 
@@ -273,15 +267,15 @@ partial class MainForm
 
         tabGeneral.Controls.Add(groupRun);
 
-        // Group: Key Settings
+        // ----- Group: Key Settings -----
         groupKeys.Text = "Key Settings";
         groupKeys.ForeColor = ForeColor;
-        groupKeys.BackColor = panelBg;
+        groupKeys.BackColor = UiColors.PanelBack;
         groupKeys.Location = new System.Drawing.Point(16, 230);
         groupKeys.Size = new System.Drawing.Size(790, 200);
 
         keybindLabel.AutoSize = true;
-        keybindLabel.ForeColor = textSecondary;
+        keybindLabel.ForeColor = UiColors.TextSecondary;
         keybindLabel.Location = new System.Drawing.Point(20, 40);
         keybindLabel.Name = "keybindLabel";
         keybindLabel.Size = new System.Drawing.Size(135, 20);
@@ -294,15 +288,15 @@ partial class MainForm
         keybindButton.TabIndex = 11;
         keybindButton.Text = hotKeyDefault.ToString();
         keybindButton.FlatStyle = FlatStyle.Flat;
-        keybindButton.FlatAppearance.BorderColor = border;
+        keybindButton.FlatAppearance.BorderColor = UiColors.Border;
         keybindButton.FlatAppearance.BorderSize = 1;
-        keybindButton.BackColor = System.Drawing.Color.FromArgb(60, 64, 82);
+        keybindButton.BackColor = UiColors.ButtonBackDefault;
         keybindButton.ForeColor = ForeColor;
         keybindButton.UseVisualStyleBackColor = false;
         keybindButton.Click += KeybindButton_Click;
 
         targetKeyLabel.AutoSize = true;
-        targetKeyLabel.ForeColor = textSecondary;
+        targetKeyLabel.ForeColor = UiColors.TextSecondary;
         targetKeyLabel.Location = new System.Drawing.Point(220, 40);
         targetKeyLabel.Name = "targetKeyLabel";
         targetKeyLabel.Size = new System.Drawing.Size(116, 20);
@@ -315,9 +309,9 @@ partial class MainForm
         targetKeyButton.TabIndex = 13;
         targetKeyButton.Text = targetKeyDefault.ToString();
         targetKeyButton.FlatStyle = FlatStyle.Flat;
-        targetKeyButton.FlatAppearance.BorderColor = border;
+        targetKeyButton.FlatAppearance.BorderColor = UiColors.Border;
         targetKeyButton.FlatAppearance.BorderSize = 1;
-        targetKeyButton.BackColor = System.Drawing.Color.FromArgb(60, 64, 82);
+        targetKeyButton.BackColor = UiColors.ButtonBackDefault;
         targetKeyButton.ForeColor = ForeColor;
         targetKeyButton.UseVisualStyleBackColor = false;
         targetKeyButton.Click += TargetInputKeyButton_Click;
@@ -334,17 +328,17 @@ partial class MainForm
         #region Tab: Schedule
 
         tabSchedule.Text = "Schedule";
-        tabSchedule.BackColor = panelBg;
+        tabSchedule.BackColor = UiColors.PanelBack;
 
         groupSchedule.Text = "Start/Stop Schedule (Not Implemented Yet)";
         groupSchedule.ForeColor = ForeColor;
-        groupSchedule.BackColor = panelBg;
+        groupSchedule.BackColor = UiColors.PanelBack;
         groupSchedule.Location = new System.Drawing.Point(16, 16);
         groupSchedule.Size = new System.Drawing.Size(790, 180);
 
         // Enable Start
         scheduleEnableStartCheck.AutoSize = true;
-        scheduleEnableStartCheck.ForeColor = textSecondary;
+        scheduleEnableStartCheck.ForeColor = UiColors.TextSecondary;
         scheduleEnableStartCheck.Location = new System.Drawing.Point(20, 34);
         scheduleEnableStartCheck.Size = new System.Drawing.Size(158, 24);
         scheduleEnableStartCheck.Text = "Enable start time";
@@ -352,7 +346,7 @@ partial class MainForm
 
         // Start
         scheduleStartLabel.AutoSize = true;
-        scheduleStartLabel.ForeColor = textSecondary;
+        scheduleStartLabel.ForeColor = UiColors.TextSecondary;
         scheduleStartLabel.Location = new System.Drawing.Point(40, 66);
         scheduleStartLabel.Text = "Start at:";
 
@@ -366,7 +360,7 @@ partial class MainForm
 
         // Enable Stop
         scheduleEnableStopCheck.AutoSize = true;
-        scheduleEnableStopCheck.ForeColor = textSecondary;
+        scheduleEnableStopCheck.ForeColor = UiColors.TextSecondary;
         scheduleEnableStopCheck.Location = new System.Drawing.Point(20, 106);
         scheduleEnableStopCheck.Size = new System.Drawing.Size(158, 24);
         scheduleEnableStopCheck.Text = "Enable stop time";
@@ -374,7 +368,7 @@ partial class MainForm
 
         // Stop
         scheduleStopLabel.AutoSize = true;
-        scheduleStopLabel.ForeColor = textSecondary;
+        scheduleStopLabel.ForeColor = UiColors.TextSecondary;
         scheduleStopLabel.Location = new System.Drawing.Point(40, 138);
         scheduleStopLabel.Text = "Stop at:";
 
@@ -401,11 +395,11 @@ partial class MainForm
         #region Tab: Sequence
 
         tabSequence.Text = "Sequence";
-        tabSequence.BackColor = panelBg;
+        tabSequence.BackColor = UiColors.PanelBack;
 
         groupSequence.Text = "Key Sequence (Not Implemented Yet)";
         groupSequence.ForeColor = ForeColor;
-        groupSequence.BackColor = panelBg;
+        groupSequence.BackColor = UiColors.PanelBack;
         groupSequence.Location = new System.Drawing.Point(16, 16);
         groupSequence.Size = new System.Drawing.Size(790, 420);
 
@@ -416,7 +410,7 @@ partial class MainForm
         sequenceGrid.BorderStyle = System.Windows.Forms.BorderStyle.None;
         sequenceGrid.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
         sequenceGrid.EnableHeadersVisualStyles = false;
-        sequenceGrid.GridColor = border;
+        sequenceGrid.GridColor = UiColors.Border;
         sequenceGrid.Location = new System.Drawing.Point(20, 34);
         sequenceGrid.MultiSelect = false;
         sequenceGrid.Name = "sequenceGrid";
@@ -448,9 +442,9 @@ partial class MainForm
 
         sequenceAddButton.Text = "Add";
         sequenceAddButton.FlatStyle = FlatStyle.Flat;
-        sequenceAddButton.FlatAppearance.BorderColor = border;
+        sequenceAddButton.FlatAppearance.BorderColor = UiColors.Border;
         sequenceAddButton.FlatAppearance.BorderSize = 1;
-        sequenceAddButton.BackColor = System.Drawing.Color.FromArgb(60, 64, 82);
+        sequenceAddButton.BackColor = UiColors.ButtonBackDefault;
         sequenceAddButton.ForeColor = ForeColor;
         sequenceAddButton.Size = new System.Drawing.Size(120, 30);
         sequenceAddButton.Location = new System.Drawing.Point(10, 10);
@@ -458,9 +452,9 @@ partial class MainForm
 
         sequenceEditButton.Text = "Edit";
         sequenceEditButton.FlatStyle = FlatStyle.Flat;
-        sequenceEditButton.FlatAppearance.BorderColor = border;
+        sequenceEditButton.FlatAppearance.BorderColor = UiColors.Border;
         sequenceEditButton.FlatAppearance.BorderSize = 1;
-        sequenceEditButton.BackColor = System.Drawing.Color.FromArgb(60, 64, 82);
+        sequenceEditButton.BackColor = UiColors.ButtonBackDefault;
         sequenceEditButton.ForeColor = ForeColor;
         sequenceEditButton.Size = new System.Drawing.Size(120, 30);
         sequenceEditButton.Location = new System.Drawing.Point(10, 50);
@@ -468,9 +462,9 @@ partial class MainForm
 
         sequenceRemoveButton.Text = "Remove";
         sequenceRemoveButton.FlatStyle = FlatStyle.Flat;
-        sequenceRemoveButton.FlatAppearance.BorderColor = border;
+        sequenceRemoveButton.FlatAppearance.BorderColor = UiColors.Border;
         sequenceRemoveButton.FlatAppearance.BorderSize = 1;
-        sequenceRemoveButton.BackColor = System.Drawing.Color.FromArgb(60, 64, 82);
+        sequenceRemoveButton.BackColor = UiColors.ButtonBackDefault;
         sequenceRemoveButton.ForeColor = ForeColor;
         sequenceRemoveButton.Size = new System.Drawing.Size(120, 30);
         sequenceRemoveButton.Location = new System.Drawing.Point(10, 90);
@@ -478,9 +472,9 @@ partial class MainForm
 
         sequenceMoveUpButton.Text = "Move Up";
         sequenceMoveUpButton.FlatStyle = FlatStyle.Flat;
-        sequenceMoveUpButton.FlatAppearance.BorderColor = border;
+        sequenceMoveUpButton.FlatAppearance.BorderColor = UiColors.Border;
         sequenceMoveUpButton.FlatAppearance.BorderSize = 1;
-        sequenceMoveUpButton.BackColor = System.Drawing.Color.FromArgb(60, 64, 82);
+        sequenceMoveUpButton.BackColor = UiColors.ButtonBackDefault;
         sequenceMoveUpButton.ForeColor = ForeColor;
         sequenceMoveUpButton.Size = new System.Drawing.Size(120, 30);
         sequenceMoveUpButton.Location = new System.Drawing.Point(10, 130);
@@ -488,9 +482,9 @@ partial class MainForm
 
         sequenceMoveDownButton.Text = "Move Down";
         sequenceMoveDownButton.FlatStyle = FlatStyle.Flat;
-        sequenceMoveDownButton.FlatAppearance.BorderColor = border;
+        sequenceMoveDownButton.FlatAppearance.BorderColor = UiColors.Border;
         sequenceMoveDownButton.FlatAppearance.BorderSize = 1;
-        sequenceMoveDownButton.BackColor = System.Drawing.Color.FromArgb(60, 64, 82);
+        sequenceMoveDownButton.BackColor = UiColors.ButtonBackDefault;
         sequenceMoveDownButton.ForeColor = ForeColor;
         sequenceMoveDownButton.Size = new System.Drawing.Size(120, 30);
         sequenceMoveDownButton.Location = new System.Drawing.Point(10, 170);
@@ -503,7 +497,7 @@ partial class MainForm
         sequenceButtonsPanel.Controls.Add(sequenceMoveDownButton);
 
         sequenceIntervalLabel.AutoSize = true;
-        sequenceIntervalLabel.ForeColor = textSecondary;
+        sequenceIntervalLabel.ForeColor = UiColors.TextSecondary;
         sequenceIntervalLabel.Location = new System.Drawing.Point(20, 350);
         sequenceIntervalLabel.Text = "Sequence interval (ms):";
 
@@ -529,19 +523,19 @@ partial class MainForm
         #region Tab: Config
 
         tabConfig.Text = "Config";
-        tabConfig.BackColor = panelBg;
+        tabConfig.BackColor = UiColors.PanelBack;
 
         groupConfig.Text = "Configuration (Not Implemented Yet)";
         groupConfig.ForeColor = ForeColor;
-        groupConfig.BackColor = panelBg;
+        groupConfig.BackColor = UiColors.PanelBack;
         groupConfig.Location = new System.Drawing.Point(16, 16);
         groupConfig.Size = new System.Drawing.Size(790, 200);
 
         saveConfigButton.Text = "Save Config";
         saveConfigButton.FlatStyle = FlatStyle.Flat;
-        saveConfigButton.FlatAppearance.BorderColor = border;
+        saveConfigButton.FlatAppearance.BorderColor = UiColors.Border;
         saveConfigButton.FlatAppearance.BorderSize = 1;
-        saveConfigButton.BackColor = System.Drawing.Color.FromArgb(60, 64, 82);
+        saveConfigButton.BackColor = UiColors.ButtonBackDefault;
         saveConfigButton.ForeColor = ForeColor;
         saveConfigButton.Location = new System.Drawing.Point(24, 40);
         saveConfigButton.Size = new System.Drawing.Size(140, 32);
@@ -549,22 +543,22 @@ partial class MainForm
 
         loadConfigButton.Text = "Load Config";
         loadConfigButton.FlatStyle = FlatStyle.Flat;
-        loadConfigButton.FlatAppearance.BorderColor = border;
+        loadConfigButton.FlatAppearance.BorderColor = UiColors.Border;
         loadConfigButton.FlatAppearance.BorderSize = 1;
-        loadConfigButton.BackColor = System.Drawing.Color.FromArgb(60, 64, 82);
+        loadConfigButton.BackColor = UiColors.ButtonBackDefault;
         loadConfigButton.ForeColor = ForeColor;
         loadConfigButton.Location = new System.Drawing.Point(174, 40);
         loadConfigButton.Size = new System.Drawing.Size(140, 32);
         loadConfigButton.Click += LoadConfigButton_Click;
 
         loadOnStartupCheck.AutoSize = true;
-        loadOnStartupCheck.ForeColor = textSecondary;
+        loadOnStartupCheck.ForeColor = UiColors.TextSecondary;
         loadOnStartupCheck.Location = new System.Drawing.Point(24, 86);
         loadOnStartupCheck.Text = "Load saved configuration on startup";
         loadOnStartupCheck.CheckedChanged += LoadOnStartupCheck_CheckedChanged;
 
         configPathLabel.AutoSize = true;
-        configPathLabel.ForeColor = textSecondary;
+        configPathLabel.ForeColor = UiColors.TextSecondary;
         configPathLabel.Location = new System.Drawing.Point(24, 120);
         configPathLabel.Text = "Config path:";
 
@@ -578,9 +572,9 @@ partial class MainForm
 
         openConfigFolderButton.Text = "Open Folder";
         openConfigFolderButton.FlatStyle = FlatStyle.Flat;
-        openConfigFolderButton.FlatAppearance.BorderColor = border;
+        openConfigFolderButton.FlatAppearance.BorderColor = UiColors.Border;
         openConfigFolderButton.FlatAppearance.BorderSize = 1;
-        openConfigFolderButton.BackColor = System.Drawing.Color.FromArgb(60, 64, 82);
+        openConfigFolderButton.BackColor = UiColors.ButtonBackDefault;
         openConfigFolderButton.ForeColor = ForeColor;
         openConfigFolderButton.Location = new System.Drawing.Point(554, 143);
         openConfigFolderButton.Size = new System.Drawing.Size(120, 29);
@@ -597,7 +591,7 @@ partial class MainForm
 
         #endregion
 
-        #region Form Setup
+        #region Form Setup (Shell)
 
         AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
         AutoScaleMode = AutoScaleMode.Font;
@@ -613,9 +607,11 @@ partial class MainForm
         Name = "MainForm";
         StartPosition = FormStartPosition.CenterScreen;
         Text = "AutoInput";
+
+        // Input routing
         KeyPreview = true;
         Load += MainForm_Load;
-        KeyDown += MainForm_KeyDown;     
+        KeyDown += MainForm_KeyDown;
         MouseDown += MainForm_MouseDown;
 
         #endregion

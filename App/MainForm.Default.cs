@@ -3,7 +3,7 @@ namespace App;
 /// <summary>
 /// Default values and states for the application.
 /// </summary>
-public partial class MainForm
+partial class MainForm
 {
     /// <summary>
     /// Default interval used to reset the interval input (milliseconds).
@@ -11,78 +11,66 @@ public partial class MainForm
     private const int inputIntervalDefault = 250;
 
     /// <summary>
-    /// Default interval for run timer.
-    /// 1000 milliseconds = 1 second
+    /// Default interval for run timer, in milliseconds (1000 ms = 1s).
     /// </summary>
     private const int activeTimerIntervalDefault = 1000;
 
     /// <summary>
-    /// Default value for the run until count field.
+    /// Default value for the run-until-count field.
     /// </summary>
     private const int runCountInputDefault = 100;
 
     /// <summary>
-    /// Minimum Time Interval (milliseconds).
+    /// Minimum time interval bounds (milliseconds).
     /// </summary>
     private const int intervalMinimum = 100;
 
     /// <summary>
-    /// Maximum Time Interval (milliseconds).
+    /// Maximum time interval bounds (milliseconds).
     /// </summary>
     private const int intervalMaximum = 10000;
 
     /// <summary>
-    /// Increment between time intervals for input fields (milliseconds).
+    /// Increment between time-interval steps for input fields (milliseconds).
     /// </summary>
     private const int intervalInputIncrement = 1;
 
     /// <summary>
-    /// Minimum count allowed when run until count field is set.
+    /// Minimum bounds for "run for count".
     /// </summary>
     private const int runCountInputMinimum = 1;
 
     /// <summary>
-    /// Maximum count allowed when run until count field is set.
+    /// Maximum bounds for "run for count".
     /// </summary>
     private const int runCountInputMaximum = 1000000;
 
     /// <summary>
-    /// Maximum value for the sequence input field.
+    /// Maximum value for the sequence interval input (milliseconds).
     /// </summary>
     private const int sequenceIntervalInputMaximum = 600000;
 
     /// <summary>
-    /// Default value for input count initialization and reset.
+    /// Initial counters and state.
     /// </summary>
     private const int inputCountDefault = 0;
-
-    /// <summary>
-    /// Default value for active time initialization and reset.
-    /// </summary>
     private const int activeTimerSecondsDefault = 0;
-
-    /// <summary>
-    /// Default value for application running state.
-    /// </summary>
     private const bool isRunningDefault = false;
-
-    /// <summary>
-    /// Default value for force input count initialization and reset.
-    /// </summary>
     private const int forcedInputCountDefault = 0;
 
     /// <summary>
-    /// Default string for unset configuration path.
+    /// Config placeholder defaults.
     /// </summary>
     private const string configPathTextDefault = "<not set>";
 
     /// <summary>
-    /// Default keybind to start/stop.
+    /// Default hotkey (Start/Stop).
     /// </summary>
     private const Keys hotKeyDefault = Keys.F8;
 
     /// <summary>
-    /// Default target Key to be pressed.
+    /// Default target key to be pressed (Left Mouse Button).
     /// </summary>
     private const Keys targetKeyDefault = Keys.LButton;
+
 }

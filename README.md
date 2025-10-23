@@ -59,30 +59,6 @@ Stop with the same button or the hotkey.
 
 ---
 
-## UI map
-
-**Top bar**  
-Start/Stop · Reset · Elapsed time · Input count
-
-**General**  
-Interval (ms) · Run until stopped · Run for N inputs
-
-**Key Settings**  
-Start/Stop keybind (default F8) · Target input key · Target type (Mouse Left, Mouse Right, Key)
-
-**Schedule**  
-Start at (yyyy-MM-dd HH:mm:ss) · Enable stop time · Stop at
-
-**Sequence**  
-Grid: `#` · `Key/Click` · `Delay (ms)`  
-Buttons: Add · Edit · Remove · Move Up · Move Down  
-Sequence interval (ms)
-
-**Config**  
-Save/Load config · Load on startup · Config path · Open folder
-
----
-
 ## Hotkeys
 
 - Global **Start/Stop**: default **F8** (configurable in **Key Settings**)
