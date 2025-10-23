@@ -1,4 +1,6 @@
-﻿namespace App;
+﻿using App.Utils;
+
+namespace App;
 
 /// <summary>
 /// Main application form containing UI layout.
@@ -68,8 +70,6 @@ partial class MainForm
 
         // Keys controls
         groupKeys = new GroupBox();
-        targetTypeLabel = new Label();
-        targetTypeCombo = new ComboBox();
 
         // Schedule tab contents
         groupSchedule = new GroupBox();
@@ -159,7 +159,7 @@ partial class MainForm
         timerLabel.Name = "timerLabel";
         timerLabel.Size = new System.Drawing.Size(145, 20);
         timerLabel.TabIndex = 2;
-        timerLabel.Text = "Active Time: 00:00:00";
+        timerLabel.Text = Formatter.SetTimeLabel(activeTimerSecondsDefault);
 
         // Input count
         inputCountLabel.AutoSize = true;
@@ -168,7 +168,7 @@ partial class MainForm
         inputCountLabel.Name = "inputCountLabel";
         inputCountLabel.Size = new System.Drawing.Size(116, 20);
         inputCountLabel.TabIndex = 3;
-        inputCountLabel.Text = "Input Count: 0";
+        inputCountLabel.Text = Formatter.SetInputCountLabel(inputCountDefault);
 
         // Timers
         runTimer.Interval = intervalDefault;
@@ -289,7 +289,7 @@ partial class MainForm
         keybindButton.Name = "keybindButton";
         keybindButton.Size = new System.Drawing.Size(160, 32);
         keybindButton.TabIndex = 11;
-        keybindButton.Text = "F8";
+        keybindButton.Text = hotKeyDefault.ToString();
         keybindButton.FlatStyle = FlatStyle.Flat;
         keybindButton.FlatAppearance.BorderColor = border;
         keybindButton.FlatAppearance.BorderSize = 1;
@@ -310,7 +310,7 @@ partial class MainForm
         targetKeyButton.Name = "targetKeyButton";
         targetKeyButton.Size = new System.Drawing.Size(160, 32);
         targetKeyButton.TabIndex = 13;
-        targetKeyButton.Text = "LMB";
+        targetKeyButton.Text = targetKeyDefault.ToString();
         targetKeyButton.FlatStyle = FlatStyle.Flat;
         targetKeyButton.FlatAppearance.BorderColor = border;
         targetKeyButton.FlatAppearance.BorderSize = 1;
@@ -319,27 +319,10 @@ partial class MainForm
         targetKeyButton.UseVisualStyleBackColor = false;
         targetKeyButton.Click += TargetInputKeyButton_Click;
 
-        targetTypeLabel.AutoSize = true;
-        targetTypeLabel.ForeColor = textSecondary;
-        targetTypeLabel.Location = new System.Drawing.Point(420, 40);
-        targetTypeLabel.Text = "Target Type";
-
-        targetTypeCombo.DropDownStyle = ComboBoxStyle.DropDownList;
-        targetTypeCombo.BackColor = System.Drawing.Color.FromArgb(52, 56, 72);
-        targetTypeCombo.ForeColor = ForeColor;
-        targetTypeCombo.Items.AddRange(new object[] { "Mouse Left", "Mouse Right", "Key" });
-        targetTypeCombo.Location = new System.Drawing.Point(424, 63);
-        targetTypeCombo.Size = new System.Drawing.Size(160, 28);
-        targetTypeCombo.SelectedIndex = 0;
-        targetTypeCombo.Name = "targetTypeCombo";
-        targetTypeCombo.SelectedIndexChanged += TargetTypeCombo_SelectedIndexChanged;
-
         groupKeys.Controls.Add(keybindLabel);
         groupKeys.Controls.Add(keybindButton);
         groupKeys.Controls.Add(targetKeyLabel);
         groupKeys.Controls.Add(targetKeyButton);
-        groupKeys.Controls.Add(targetTypeLabel);
-        groupKeys.Controls.Add(targetTypeCombo);
 
         tabGeneral.Controls.Add(groupKeys);
 
@@ -574,7 +557,7 @@ partial class MainForm
         configPathText.ForeColor = ForeColor;
         configPathText.Location = new System.Drawing.Point(24, 144);
         configPathText.Size = new System.Drawing.Size(520, 27);
-        configPathText.Text = "<not set>";
+        configPathText.Text = configPathTextDefault;
 
         openConfigFolderButton.Text = "Open Folder";
         openConfigFolderButton.FlatStyle = FlatStyle.Flat;
@@ -663,8 +646,6 @@ partial class MainForm
 
     // Keys 
     private GroupBox groupKeys;
-    private Label targetTypeLabel;
-    private ComboBox targetTypeCombo;
 
     // Schedule
     private GroupBox groupSchedule;

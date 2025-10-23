@@ -65,4 +65,18 @@ public partial class MainForm
     /// </summary>
     private const int forcedInputCountDefault = 0;
 
+    /// <summary>
+    /// Default string for unset configuration path.
+    /// </summary>
+    private const string configPathTextDefault = "<not set>";
+
+    /// <summary>
+    /// Default keybind to start/stop.
+    /// </summary>
+    private const Keys hotKeyDefault = Keys.F8;
+
+    /// <summary>
+    /// Default target Key to be pressed.
+    /// </summary>
+    private const Keys targetKeyDefault = Keys.LButton;
 }

@@ -44,9 +44,6 @@ public partial class MainForm : Form
         runUntilStoppedRadio.Checked = true;
         runForCountRadio.Checked = false;
 
-        // Keys
-        targetTypeCombo.SelectedIndex = 0; // Mouse Left
-
         // Config
         configPathText.Text = "<not set>";
         loadOnStartupCheck.Checked = false;
@@ -101,7 +98,6 @@ public partial class MainForm : Form
         // Keys Tab
         keybindButton.Enabled = !isRunning;
         targetKeyButton.Enabled = !isRunning;
-        targetTypeCombo.Enabled = !isRunning;
 
         // Config Tab
         saveConfigButton.Enabled = !isRunning;

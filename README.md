@@ -1,51 +1,110 @@
 # AutoInput
 
-AutoInput is a lightweight Windows Forms application designed to automate and track simple timed inputs.  
-It provides an interface to start and stop input intervals, monitor elapsed time, and count the number of automated inputs.
+AutoInput is a small Windows app that runs simple, timed input for you. Set an interval, choose a target (mouse click or key), and press **Start**. It keeps count and time so you don’t have to. 
+Built to save a little time on repetitive tasks.
 
 ---
 
-## Overview
+## What it does
 
-**AutoInput** allows users to:
+- Timed automation (100–10,000 ms interval)
+- Run modes: **until stopped** or **for N inputs**
+- Global Start/Stop hotkey (default **F8**, configurable)
+- Target options: **Mouse Left**, **Mouse Right**, or a specific **keyboard key**
+- Scheduling: start at an exact date/time, optional stop time
+- Sequences: define steps (key/click + delay) and repeat the sequence at your interval
+- Live status: elapsed time and input count
+- Works minimized
+- Save/Load configuration and optional auto-load on startup
+- Export session activity to CSV
 
-- Start and stop automated actions at a configurable interval (in milliseconds).  
-- Track how long the automation has been active.  
-- Count how many times an automated input has been triggered.  
-- Assign custom hotkeys for starting/stopping and selecting a target input key.  
-
-This tool is intended for simple repetitive automation scenarios such as key presses or clicks.
-
----
-
-## Features (Current & Planned)
-
-### ✅ Current
-- Clean and simple WinForms UI
-- Start/Stop timer control
-- Adjustable interval input (100–10000 ms)
-- Real-time tracking of elapsed time
-- Input count tracking
-- Basic reset functionality
-
-### 🧭 Planned
-- Customizable start/stop hotkey (default: **F8**)
-- Customizable target input key (default: **Left Mouse Button**)
-- Persistent settings (save preferences between sessions)
-- Background/minimized operation
-- Logging or export of activity sessions
+> Use responsibly. Some applications and games block or forbid synthetic input.
 
 ---
 
+## Install
+
+**Requirements**
+- Windows 10/11
+- .NET 8 (Runtime or SDK)
+
+**Option A — Run a build**
+1. Download a build (e.g., from your Releases or your own publish output).
+2. Run `Autoinput.exe`.
+
+**Option B — Build it yourself**
+```bash
+# from the repo root
+dotnet build -c Release
+
+# or publish to a folder
+dotnet publish App/App.csproj -c Release -r win-x64 -o ./release
+# executable is in ./release
+```
+
+> Note: WinForms and “single-file with trimming” don’t play nicely together. A single-folder publish is the safer default.
+
 ---
 
-## Technical Details
+## Quick start
 
-| Aspect | Description |
-|--------|--------------|
-| **Framework** | .NET 8 (WinForms) |
-| **Language** | C# |
-| **UI Type** | Windows Forms |
-| **Default Interval** | 1000 ms |
+1. Open **General** → set **Interval (ms)**.
+2. Pick a **Run mode** (until stopped or for N inputs).
+3. Open **Key Settings** → choose the **Start/Stop Keybind** and the **Target**.
+4. Optional: set **Schedule** (start time and optional stop time).
+5. Optional: define a **Sequence** (rows of key/click + delay).  
+6. Click **Start** (or hit the hotkey). Watch **Active Time** and **Input Count**.
+
+Stop with the same button or the hotkey.
+
+---
+
+## UI map
+
+**Top bar**  
+Start/Stop · Reset · Elapsed time · Input count
+
+**General**  
+Interval (ms) · Run until stopped · Run for N inputs
+
+**Key Settings**  
+Start/Stop keybind (default F8) · Target input key · Target type (Mouse Left, Mouse Right, Key)
+
+**Schedule**  
+Start at (yyyy-MM-dd HH:mm:ss) · Enable stop time · Stop at
+
+**Sequence**  
+Grid: `#` · `Key/Click` · `Delay (ms)`  
+Buttons: Add · Edit · Remove · Move Up · Move Down  
+Sequence interval (ms)
+
+**Config**  
+Save/Load config · Load on startup · Config path · Open folder
+
+---
+
+## Hotkeys
+
+- Global **Start/Stop**: default **F8** (configurable in **Key Settings**)
+
+If another tool uses the same key, pick a different one.
+
+---
+
+## Notes
+
+- The interval is the outer loop; a sequence is the inner script that runs on each tick.
+- If an app ignores input, try running AutoInput **as Administrator**.
+- Randomization can be simulated by varying delays inside the Sequence.
+
+---
+
+## Development
+
+- C# / .NET 8, Windows Forms
+- Entry: `Program.cs` → `MainForm`
+- Utility: `App.Utils.Formatter`
+
+Build normally with `dotnet build` or publish with `dotnet publish` as shown above.
 
 ---
