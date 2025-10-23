@@ -78,6 +78,7 @@ partial class MainForm
         scheduleStartLabel = new Label();
         scheduleStopLabel = new Label();
         scheduleEnableStopCheck = new CheckBox();
+        scheduleEnableStartCheck = new CheckBox();
 
         // Sequence tab contents
         groupSequence = new GroupBox();
@@ -244,6 +245,7 @@ partial class MainForm
         runForCountRadio.ForeColor = ForeColor;
         runForCountRadio.Location = new System.Drawing.Point(24, 132);
         runForCountRadio.Text = "Run for a number of inputs:";
+        runForCountRadio.CheckedChanged += RunForInputsSelectedChanged;
 
         runCountInput.BorderStyle = BorderStyle.FixedSingle;
         runCountInput.BackColor = System.Drawing.Color.FromArgb(52, 56, 72);
@@ -254,6 +256,7 @@ partial class MainForm
         runCountInput.Location = new System.Drawing.Point(264, 130);
         runCountInput.Size = new System.Drawing.Size(120, 27);
         runCountInput.TabIndex = 40;
+        runCountInput.Enabled = false;
 
         runCountLabel.AutoSize = true;
         runCountLabel.ForeColor = textSecondary;
@@ -333,44 +336,58 @@ partial class MainForm
         tabSchedule.Text = "Schedule";
         tabSchedule.BackColor = panelBg;
 
-        groupSchedule.Text = "Start/Stop Schedule";
+        groupSchedule.Text = "Start/Stop Schedule (Not Implemented Yet)";
         groupSchedule.ForeColor = ForeColor;
         groupSchedule.BackColor = panelBg;
         groupSchedule.Location = new System.Drawing.Point(16, 16);
         groupSchedule.Size = new System.Drawing.Size(790, 180);
 
+        // Enable Start
+        scheduleEnableStartCheck.AutoSize = true;
+        scheduleEnableStartCheck.ForeColor = textSecondary;
+        scheduleEnableStartCheck.Location = new System.Drawing.Point(20, 34);
+        scheduleEnableStartCheck.Size = new System.Drawing.Size(158, 24);
+        scheduleEnableStartCheck.Text = "Enable start time";
+        scheduleEnableStartCheck.CheckedChanged += ScheduleEnableStartCheck_CheckedChanged;
+
+        // Start
         scheduleStartLabel.AutoSize = true;
         scheduleStartLabel.ForeColor = textSecondary;
-        scheduleStartLabel.Location = new System.Drawing.Point(20, 40);
+        scheduleStartLabel.Location = new System.Drawing.Point(40, 66);
         scheduleStartLabel.Text = "Start at:";
 
         scheduleStartPicker.CustomFormat = "yyyy-MM-dd HH:mm:ss";
         scheduleStartPicker.Format = DateTimePickerFormat.Custom;
-        scheduleStartPicker.Location = new System.Drawing.Point(100, 36);
+        scheduleStartPicker.Location = new System.Drawing.Point(100, 62);
         scheduleStartPicker.Name = "scheduleStartPicker";
         scheduleStartPicker.Size = new System.Drawing.Size(220, 27);
         scheduleStartPicker.TabIndex = 30;
+        scheduleStartPicker.Enabled = false;
 
+        // Enable Stop
         scheduleEnableStopCheck.AutoSize = true;
         scheduleEnableStopCheck.ForeColor = textSecondary;
-        scheduleEnableStopCheck.Location = new System.Drawing.Point(20, 86);
+        scheduleEnableStopCheck.Location = new System.Drawing.Point(20, 106);
         scheduleEnableStopCheck.Size = new System.Drawing.Size(158, 24);
         scheduleEnableStopCheck.Text = "Enable stop time";
         scheduleEnableStopCheck.CheckedChanged += ScheduleEnableStopCheck_CheckedChanged;
 
+        // Stop
         scheduleStopLabel.AutoSize = true;
         scheduleStopLabel.ForeColor = textSecondary;
-        scheduleStopLabel.Location = new System.Drawing.Point(40, 118);
+        scheduleStopLabel.Location = new System.Drawing.Point(40, 138);
         scheduleStopLabel.Text = "Stop at:";
 
         scheduleStopPicker.CustomFormat = "yyyy-MM-dd HH:mm:ss";
         scheduleStopPicker.Format = DateTimePickerFormat.Custom;
-        scheduleStopPicker.Location = new System.Drawing.Point(100, 114);
+        scheduleStopPicker.Location = new System.Drawing.Point(100, 134);
         scheduleStopPicker.Name = "scheduleStopPicker";
         scheduleStopPicker.Size = new System.Drawing.Size(220, 27);
         scheduleStopPicker.TabIndex = 31;
         scheduleStopPicker.Enabled = false;
 
+        // Add to group
+        groupSchedule.Controls.Add(scheduleEnableStartCheck);
         groupSchedule.Controls.Add(scheduleStartLabel);
         groupSchedule.Controls.Add(scheduleStartPicker);
         groupSchedule.Controls.Add(scheduleEnableStopCheck);
@@ -386,7 +403,7 @@ partial class MainForm
         tabSequence.Text = "Sequence";
         tabSequence.BackColor = panelBg;
 
-        groupSequence.Text = "Key Sequence (acts as a single step)";
+        groupSequence.Text = "Key Sequence (Not Implemented Yet)";
         groupSequence.ForeColor = ForeColor;
         groupSequence.BackColor = panelBg;
         groupSequence.Location = new System.Drawing.Point(16, 16);
@@ -514,7 +531,7 @@ partial class MainForm
         tabConfig.Text = "Config";
         tabConfig.BackColor = panelBg;
 
-        groupConfig.Text = "Configuration";
+        groupConfig.Text = "Configuration (Not Implemented Yet)";
         groupConfig.ForeColor = ForeColor;
         groupConfig.BackColor = panelBg;
         groupConfig.Location = new System.Drawing.Point(16, 16);
@@ -654,6 +671,7 @@ partial class MainForm
     private Label scheduleStartLabel;
     private Label scheduleStopLabel;
     private CheckBox scheduleEnableStopCheck;
+    private CheckBox scheduleEnableStartCheck;
 
     // Sequence
     private GroupBox groupSequence;

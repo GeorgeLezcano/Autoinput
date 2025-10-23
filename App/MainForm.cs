@@ -1,3 +1,4 @@
+using System.Windows.Forms;
 using App.Utils;
 
 namespace App;
@@ -12,6 +13,13 @@ public partial class MainForm : Form
     private int activeTimerSeconds = activeTimerSecondsDefault;
     private int inputCount = inputCountDefault;
     private int forcedInputCount = forcedInputCountDefault;
+    private bool isHotKeyBinding = false;
+    private bool isTargetKeyBinging = false;
+    private Keys hotKey = hotKeyDefault;
+    private Keys targetKey = targetKeyDefault;
+
+    private DateTime? startDate = null; // Not used yet
+    private DateTime? stopTime = null; // Not used yet
 
     /// <summary>
     /// Initializes a new instance of the <see cref="MainForm"/> class.
@@ -78,14 +86,15 @@ public partial class MainForm : Form
         intervalInput.Enabled = !isRunning;
 
         // Schedule Tab
-        scheduleStartPicker.Enabled = !isRunning;
+        scheduleStartPicker.Enabled = !isRunning && scheduleEnableStartCheck.Checked;
+        scheduleEnableStartCheck.Enabled = !isRunning;
+        scheduleStopPicker.Enabled = !isRunning && scheduleEnableStopCheck.Checked;
         scheduleEnableStopCheck.Enabled = !isRunning;
-        scheduleStopPicker.Enabled = !isRunning;
 
         // Run Mode Tab
         runUntilStoppedRadio.Enabled = !isRunning;
         runForCountRadio.Enabled = !isRunning;
-        runCountInput.Enabled = !isRunning;
+        runCountInput.Enabled = !isRunning && runForCountRadio.Checked;
 
         // Sequence Tab
         sequenceIntervalInput.Enabled = !isRunning;
@@ -141,6 +150,17 @@ public partial class MainForm : Form
     }
 
     /// <summary>
+    /// On changed method for run mode radio button.
+    /// Disables if radio button is uncheckd.
+    /// </summary>
+    /// <param name="sender">Input count timer.</param>
+    /// <param name="e">Event arguments.</param>
+    private void RunForInputsSelectedChanged(object sender, EventArgs e)
+    {
+        runCountInput.Enabled = runForCountRadio.Checked;
+    }
+
+    /// <summary>
     /// Resets time, count, and interval values to defaults.
     /// </summary>
     /// <param name="sender">Reset button.</param>
@@ -156,6 +176,16 @@ public partial class MainForm : Form
         intervalInput.Value = intervalDefault;
         runCountInput.Value = runCountInputDefault;
         runUntilStoppedRadio.Checked = true;
+        isHotKeyBinding = false;
+        isTargetKeyBinging = false;
+        hotKey = hotKeyDefault;
+        keybindButton.Text = hotKey.ToString();
+        targetKey = targetKeyDefault;
+        targetKeyButton.Text = targetKey.ToString();
+
+        // Schedule tab
+        scheduleEnableStartCheck.Checked = false;
+        scheduleEnableStopCheck.Checked = false;
     }
 
     /// <summary>
@@ -165,11 +195,17 @@ public partial class MainForm : Form
     /// <param name="e">Event arguments.</param>
     private void KeybindButton_Click(object sender, EventArgs e)
     {
-        MessageBox.Show(
-            "TODO: Implement keybind capture.",
-            "Not implemented",
-            MessageBoxButtons.OK,
-            MessageBoxIcon.Information);
+        isHotKeyBinding = !isHotKeyBinding;
+
+        if (isHotKeyBinding)
+        {  
+            keybindButton.Text = "Press Any Key...";
+        }
+        else
+        {
+            keybindButton.Text = hotKey.ToString();
+        }
+        
     }
 
     /// <summary>
@@ -179,11 +215,17 @@ public partial class MainForm : Form
     /// <param name="e">Event arguments.</param>
     private void TargetInputKeyButton_Click(object sender, EventArgs e)
     {
-        MessageBox.Show(
-            "TODO: Implement target key/click selection.",
-            "Not implemented",
-            MessageBoxButtons.OK,
-            MessageBoxIcon.Information);
+         isTargetKeyBinging = !isTargetKeyBinging;
+
+        if (isTargetKeyBinging)
+        {  
+            targetKeyButton.Text = "Press Any Key...";
+        }
+        else
+        {
+            targetKeyButton.Text = targetKey.ToString();
+        }
+        
     }
 
     /// <summary>
@@ -194,6 +236,16 @@ public partial class MainForm : Form
     private void ScheduleEnableStopCheck_CheckedChanged(object? sender, EventArgs e)
     {
         scheduleStopPicker.Enabled = scheduleEnableStopCheck.Checked;
+    }
+
+    /// <summary>
+    /// Enables or disables the start time picker based on the checkbox state.
+    /// </summary>
+    /// <param name="sender">Enable-stop checkbox.</param>
+    /// <param name="e">Event arguments.</param>
+    private void ScheduleEnableStartCheck_CheckedChanged(object? sender, EventArgs e)
+    {
+        scheduleStartPicker.Enabled = scheduleEnableStartCheck.Checked;
     }
 
     /// <summary>
