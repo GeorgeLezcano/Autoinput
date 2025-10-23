@@ -172,10 +172,10 @@ partial class MainForm
         inputCountLabel.Text = Formatter.SetInputCountLabel(inputCountDefault);
 
         // Timers
-        runTimer.Interval = intervalDefault;
+        runTimer.Interval = activeTimerIntervalDefault;
         runTimer.Tick += RunTimer_Tick;
 
-        inputCountTimer.Interval = intervalDefault;
+        inputCountTimer.Interval = inputIntervalDefault;
         inputCountTimer.Tick += InputCount_Tick;
 
         #endregion
@@ -219,7 +219,7 @@ partial class MainForm
         intervalInput.Increment = new decimal(new int[] { intervalInputIncrement, 0, 0, 0 });
         intervalInput.Maximum = new decimal(new int[] { intervalMaximum, 0, 0, 0 });
         intervalInput.Minimum = new decimal(new int[] { intervalMinimum, 0, 0, 0 });
-        intervalInput.Value = new decimal(new int[] { intervalDefault, 0, 0, 0 });
+        intervalInput.Value = new decimal(new int[] { inputIntervalDefault, 0, 0, 0 });
         intervalInput.BorderStyle = BorderStyle.FixedSingle;
         intervalInput.BackColor = System.Drawing.Color.FromArgb(52, 56, 72);
         intervalInput.ForeColor = ForeColor;
@@ -512,7 +512,7 @@ partial class MainForm
         sequenceIntervalInput.ForeColor = ForeColor;
         sequenceIntervalInput.Minimum = new decimal(new int[] { intervalMinimum, 0, 0, 0 });
         sequenceIntervalInput.Maximum = new decimal(new int[] { sequenceIntervalInputMaximum, 0, 0, 0 });
-        sequenceIntervalInput.Value = new decimal(new int[] { intervalDefault, 0, 0, 0 });
+        sequenceIntervalInput.Value = new decimal(new int[] { inputIntervalDefault, 0, 0, 0 });
         sequenceIntervalInput.Location = new System.Drawing.Point(190, 346);
         sequenceIntervalInput.Size = new System.Drawing.Size(120, 27);
         sequenceIntervalInput.Increment = intervalInputIncrement;
@@ -613,7 +613,10 @@ partial class MainForm
         Name = "MainForm";
         StartPosition = FormStartPosition.CenterScreen;
         Text = "AutoInput";
+        KeyPreview = true;
         Load += MainForm_Load;
+        KeyDown += MainForm_KeyDown;     
+        MouseDown += MainForm_MouseDown;
 
         #endregion
 

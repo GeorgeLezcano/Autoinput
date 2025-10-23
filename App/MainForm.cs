@@ -1,3 +1,6 @@
+using System;
+using System.Drawing;
+using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using App.Utils;
 
@@ -17,9 +20,35 @@ public partial class MainForm : Form
     private bool isTargetKeyBinging = false;
     private Keys hotKey = hotKeyDefault;
     private Keys targetKey = targetKeyDefault;
+    private MouseBindFilter? _mouseFilter;
 
     private DateTime? startDate = null; // Not used yet
     private DateTime? stopTime = null; // Not used yet
+
+    // ===== Global hotkey minimal shim =====
+    private const int WM_HOTKEY = 0x0312;
+    private const int HOTKEY_ID = 0xA11;
+    private const uint MOD_NONE = 0x0000;
+
+    [DllImport("user32.dll", SetLastError = true)]
+    private static extern bool RegisterHotKey(IntPtr hWnd, int id, uint fsModifiers, uint vk);
+
+    [DllImport("user32.dll", SetLastError = true)]
+    private static extern bool UnregisterHotKey(IntPtr hWnd, int id);
+
+    private void RegisterGlobalHotkey(Keys key)
+    {
+        try
+        {
+            if (IsHandleCreated)
+            {
+                // best-effort cleanup, ignore result
+                UnregisterHotKey(this.Handle, HOTKEY_ID);
+                _ = RegisterHotKey(this.Handle, HOTKEY_ID, MOD_NONE, (uint)key);
+            }
+        }
+        catch { /* ignore */ }
+    }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="MainForm"/> class.
@@ -55,6 +84,26 @@ public partial class MainForm : Form
         // Config
         configPathText.Text = "<not set>";
         loadOnStartupCheck.Checked = false;
+
+        // NEW: make the hotkey global from the start
+        RegisterGlobalHotkey(hotKey);
+    }
+
+    protected override void OnHandleDestroyed(EventArgs e)
+    {
+        try { UnregisterHotKey(this.Handle, HOTKEY_ID); } catch { }
+        base.OnHandleDestroyed(e);
+    }
+
+    protected override void WndProc(ref Message m)
+    {
+        if (m.Msg == WM_HOTKEY && m.WParam == (IntPtr)HOTKEY_ID)
+        {
+            // Toggle start/stop regardless of focus/minimized state
+            StartStopButton_Click(startStopButton, EventArgs.Empty);
+            return; // consume
+        }
+        base.WndProc(ref m);
     }
 
     /// <summary>
@@ -114,7 +163,6 @@ public partial class MainForm : Form
         loadOnStartupCheck.Enabled = !isRunning;
         configPathText.Enabled = !isRunning;
         openConfigFolderButton.Enabled = !isRunning;
-
     }
 
     /// <summary>
@@ -135,6 +183,8 @@ public partial class MainForm : Form
     /// <param name="e">Event arguments.</param>
     private void InputCount_Tick(object sender, EventArgs e)
     {
+        PerformTargetInput();
+
         inputCount++;
         inputCountLabel.Text = Formatter.SetInputCountLabel(inputCount);
         if (runForCountRadio.Checked)
@@ -173,7 +223,7 @@ public partial class MainForm : Form
         forcedInputCount = forcedInputCountDefault;
         timerLabel.Text = Formatter.SetTimeLabel(activeTimerSeconds);
         inputCountLabel.Text = Formatter.SetInputCountLabel(inputCount);
-        intervalInput.Value = intervalDefault;
+        intervalInput.Value = inputIntervalDefault;
         runCountInput.Value = runCountInputDefault;
         runUntilStoppedRadio.Checked = true;
         isHotKeyBinding = false;
@@ -186,53 +236,55 @@ public partial class MainForm : Form
         // Schedule tab
         scheduleEnableStartCheck.Checked = false;
         scheduleEnableStopCheck.Checked = false;
+
+        // Re-apply default global hotkey
+        RegisterGlobalHotkey(hotKey);
     }
 
     /// <summary>
-    /// Placeholder for keybind capture (not implemented).
+    /// Keybind button: enter/exit binding with visual indicator.
     /// </summary>
-    /// <param name="sender">Keybind button.</param>
-    /// <param name="e">Event arguments.</param>
     private void KeybindButton_Click(object sender, EventArgs e)
     {
         isHotKeyBinding = !isHotKeyBinding;
 
         if (isHotKeyBinding)
-        {  
-            keybindButton.Text = "Press Any Key...";
+        {
+            keybindButton.Text = "Press Any Key (Esc to cancel)...";
+            SetBindingStyle(keybindButton, true);
         }
         else
         {
             keybindButton.Text = hotKey.ToString();
+            SetBindingStyle(keybindButton, false);
+            RegisterGlobalHotkey(hotKey); // ensure global registration reflects current key
         }
-        
     }
 
     /// <summary>
-    /// Placeholder for target key/click selection (not implemented).
+    /// Target key button: enter/exit binding with visual indicator (keyboard or mouse).
     /// </summary>
-    /// <param name="sender">Target key button.</param>
-    /// <param name="e">Event arguments.</param>
     private void TargetInputKeyButton_Click(object sender, EventArgs e)
     {
-         isTargetKeyBinging = !isTargetKeyBinging;
+        isTargetKeyBinging = !isTargetKeyBinging;
 
         if (isTargetKeyBinging)
-        {  
-            targetKeyButton.Text = "Press Any Key...";
+        {
+            targetKeyButton.Text = "Press Any Key or Click (Esc to cancel)...";
+            SetBindingStyle(targetKeyButton, true);
+            EnableMouseBinding();
         }
         else
         {
             targetKeyButton.Text = targetKey.ToString();
+            SetBindingStyle(targetKeyButton, false);
+            DisableMouseBinding();
         }
-        
     }
 
     /// <summary>
     /// Enables or disables the stop time picker based on the checkbox state.
     /// </summary>
-    /// <param name="sender">Enable-stop checkbox.</param>
-    /// <param name="e">Event arguments.</param>
     private void ScheduleEnableStopCheck_CheckedChanged(object? sender, EventArgs e)
     {
         scheduleStopPicker.Enabled = scheduleEnableStopCheck.Checked;
@@ -241,8 +293,6 @@ public partial class MainForm : Form
     /// <summary>
     /// Enables or disables the start time picker based on the checkbox state.
     /// </summary>
-    /// <param name="sender">Enable-stop checkbox.</param>
-    /// <param name="e">Event arguments.</param>
     private void ScheduleEnableStartCheck_CheckedChanged(object? sender, EventArgs e)
     {
         scheduleStartPicker.Enabled = scheduleEnableStartCheck.Checked;
@@ -289,7 +339,7 @@ public partial class MainForm : Form
     /// </summary>
     private void SequenceMoveDownButton_Click(object? sender, EventArgs e)
     {
-        MessageBox.Show("TODO: Move selected step down.", "Not implemented",
+        MessageBox.Show("TODO: Move selected sequence step.", "Not implemented",
             MessageBoxButtons.OK, MessageBoxIcon.Information);
     }
 
@@ -336,4 +386,158 @@ public partial class MainForm : Form
             MessageBoxButtons.OK, MessageBoxIcon.Information);
     }
 
+    /// <summary>
+    /// Sends the currently bound target input (mouse click or key press).
+    /// </summary>
+    private void PerformTargetInput()
+    {
+        if (NativeInput.IsMouseKey(targetKey))
+            NativeInput.ClickMouseButton(targetKey);
+        else
+            NativeInput.SendKeyPress(targetKey);
+    }
+
+    /// <summary>
+    /// Handles keyboard input for binding and hotkey toggle.
+    /// </summary>
+    private void MainForm_KeyDown(object? sender, KeyEventArgs e)
+    {
+        // Esc cancels binding modes
+        if (isHotKeyBinding && e.KeyCode == Keys.Escape) { CancelHotkeyBinding(); e.Handled = true; return; }
+        if (isTargetKeyBinging && e.KeyCode == Keys.Escape) { CancelTargetBinding(); e.Handled = true; return; }
+
+        if (isHotKeyBinding)
+        {
+            hotKey = e.KeyCode;
+            keybindButton.Text = hotKey.ToString();
+            isHotKeyBinding = false;
+            SetBindingStyle(keybindButton, false);   // restore visual state
+            RegisterGlobalHotkey(hotKey);            // NEW: update global registration
+            e.Handled = true;
+            return;
+        }
+
+        if (isTargetKeyBinging)
+        {
+            // Keyboard target
+            targetKey = e.KeyCode;
+            targetKeyButton.Text = targetKey.ToString();
+            isTargetKeyBinging = false;
+            DisableMouseBinding();
+            SetBindingStyle(targetKeyButton, false); // restore visual state
+            e.Handled = true;
+            return;
+        }
+
+        // Optional: focused-window hotkey toggle (still works when focused)
+        if (e.KeyCode == hotKey)
+        {
+            StartStopButton_Click(startStopButton, EventArgs.Empty);
+            e.Handled = true;
+        }
+    }
+
+    /// <summary>
+    /// Handles mouse input when binding a target (L/R/M).
+    /// </summary>
+    private void MainForm_MouseDown(object? sender, MouseEventArgs e)
+    {
+        if (!isTargetKeyBinging) return;
+
+        targetKey = e.Button switch
+        {
+            MouseButtons.Left => Keys.LButton,
+            MouseButtons.Right => Keys.RButton,
+            MouseButtons.Middle => Keys.MButton,
+            _ => targetKey
+        };
+
+        targetKeyButton.Text = targetKey.ToString();
+        isTargetKeyBinging = false;
+        DisableMouseBinding();
+        SetBindingStyle(targetKeyButton, false); // restore visual state
+    }
+
+    // ---- Mouse binding shim (captures clicks anywhere in app while binding) ----
+    private sealed class MouseBindFilter : IMessageFilter
+    {
+        private readonly Action<MouseButtons> _onClick;
+        public MouseBindFilter(Action<MouseButtons> onClick) => _onClick = onClick;
+
+        private const int WM_LBUTTONDOWN = 0x0201;
+        private const int WM_RBUTTONDOWN = 0x0204;
+        private const int WM_MBUTTONDOWN = 0x0207;
+
+        public bool PreFilterMessage(ref Message m)
+        {
+            switch (m.Msg)
+            {
+                case WM_LBUTTONDOWN: _onClick(MouseButtons.Left); return true;
+                case WM_RBUTTONDOWN: _onClick(MouseButtons.Right); return true;
+                case WM_MBUTTONDOWN: _onClick(MouseButtons.Middle); return true;
+                default: return false;
+            }
+        }
+    }
+
+    private void EnableMouseBinding()
+    {
+        if (_mouseFilter != null) return;
+        _mouseFilter = new MouseBindFilter(OnMouseBind);
+        Application.AddMessageFilter(_mouseFilter);
+    }
+
+    private void DisableMouseBinding()
+    {
+        if (_mouseFilter == null) return;
+        Application.RemoveMessageFilter(_mouseFilter);
+        _mouseFilter = null;
+    }
+
+    private void OnMouseBind(MouseButtons button)
+    {
+        targetKey = button switch
+        {
+            MouseButtons.Left => Keys.LButton,
+            MouseButtons.Right => Keys.RButton,
+            MouseButtons.Middle => Keys.MButton,
+            _ => targetKey
+        };
+        targetKeyButton.Text = targetKey.ToString();
+        isTargetKeyBinging = false;
+        DisableMouseBinding();
+        SetBindingStyle(targetKeyButton, false); // restore visual state
+    }
+
+    private void SetBindingStyle(Button btn, bool isBinding)
+    {
+        if (isBinding)
+        {
+            btn.Enabled = false;
+            btn.BackColor = Color.Goldenrod;
+            btn.ForeColor = Color.Black;
+        }
+        else
+        {
+            btn.Enabled = true;
+            btn.BackColor = Color.FromArgb(60, 64, 82);
+            btn.ForeColor = ForeColor;
+        }
+    }
+
+    // Cancel routines for Esc key
+    private void CancelHotkeyBinding()
+    {
+        isHotKeyBinding = false;
+        keybindButton.Text = hotKey.ToString();
+        SetBindingStyle(keybindButton, false);
+    }
+
+    private void CancelTargetBinding()
+    {
+        isTargetKeyBinging = false;
+        targetKeyButton.Text = targetKey.ToString();
+        SetBindingStyle(targetKeyButton, false);
+        DisableMouseBinding();
+    }
 }
