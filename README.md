@@ -7,7 +7,7 @@ Built to save a little time on repetitive tasks.
 
 ## What it does
 
-- Timed automation (100–10,000 ms interval)
+- Timed automation (0.1 second to 10 minutes).
 - Run modes: **until stopped** or **for N inputs**
 - Global Start/Stop hotkey (default **F8**, configurable)
 - Target options: **Mouse Left**, **Mouse Right**, or a specific **keyboard key**

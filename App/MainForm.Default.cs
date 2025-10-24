@@ -74,4 +74,11 @@ partial class MainForm
     /// </summary>
     private const Keys targetKeyDefault = Keys.LButton;
 
+    /// <summary>
+    /// Button Labels
+    /// </summary>
+    private const string startBtnLabel = "Start";
+    private const string stopBtnLabel = "Stop";
+    private const string scheduleBtnLabel = "Scheduled";
+
 }

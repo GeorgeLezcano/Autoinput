@@ -239,7 +239,7 @@ partial class MainForm
         runForCountRadio.ForeColor = ForeColor;
         runForCountRadio.Location = new System.Drawing.Point(24, 132);
         runForCountRadio.Text = "Run for a number of inputs:";
-        runForCountRadio.CheckedChanged += RunForInputsSelectedChanged;
+        runForCountRadio.CheckedChanged += RunForInputsSelected_Changed;
 
         runCountInput.BorderStyle = BorderStyle.FixedSingle;
         runCountInput.BackColor = System.Drawing.Color.FromArgb(52, 56, 72);
