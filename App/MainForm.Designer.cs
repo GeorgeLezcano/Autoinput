@@ -226,7 +226,7 @@ partial class MainForm
         labelIntervalHint.AutoSize = true;
         labelIntervalHint.ForeColor = UiColors.TextSecondary;
         labelIntervalHint.Location = new System.Drawing.Point(200, 61);
-        labelIntervalHint.Text = $"{intervalMinimum} – {intervalMaximum} ms";
+        labelIntervalHint.Text = $"Range: {intervalMinimum} – {intervalMaximum} ms \n1 second = 1000 milliseconds";
 
         // Run Mode controls
         runUntilStoppedRadio.AutoSize = true;

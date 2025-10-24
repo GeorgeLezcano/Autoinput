@@ -13,6 +13,7 @@ public partial class MainForm : Form
 
     // ---- Runtime state ----
     private bool isRunning = isRunningDefault;
+    private bool isScheduled = isScheduledDefault;
     private int activeTimerSeconds = activeTimerSecondsDefault;
     private int inputCount = inputCountDefault;
     private int forcedInputCount = forcedInputCountDefault;
@@ -24,9 +25,12 @@ public partial class MainForm : Form
     private Keys targetKey = targetKeyDefault;
     private MouseBindFilter? mouseFilter;
 
-    // Reserved (not used yet)
+    // Scheduling snapshot (nullable)
     private DateTime? startDate = null;
     private DateTime? stopTime = null;
+
+    // Internal scheduler poller for Start Time
+    private System.Windows.Forms.Timer? scheduleTimer;
 
     #endregion
 
@@ -95,10 +99,11 @@ public partial class MainForm : Form
     }
 
     /// <summary>
-    /// Ensures global hotkey is unregistered when handle is destroyed.
+    /// Ensures timers and global hotkey are unregistered when handle is destroyed.
     /// </summary>
     protected override void OnHandleDestroyed(EventArgs e)
     {
+        try { scheduleTimer?.Stop(); scheduleTimer = null; } catch { }
         try { UnregisterHotKey(Handle, Win32Hotkey.HOTKEY_ID); } catch { }
         base.OnHandleDestroyed(e);
     }
@@ -121,26 +126,151 @@ public partial class MainForm : Form
     #region General Tab: Run / Timers
 
     /// <summary>
-    /// Toggles the running state and starts/stops timers accordingly.
+    /// Applies or clears the "Scheduled" visual style on the Start/Stop button.
+    /// </summary>
+    private void SetStartButtonScheduledVisuals(bool scheduled)
+    {
+        if (scheduled)
+        {
+            startStopButton.Text = "Scheduled";
+            startStopButton.BackColor = UiColors.ScheduledOrange;
+            startStopButton.ForeColor = Color.White;
+            startStopButton.FlatAppearance.MouseOverBackColor = UiColors.ScheduledOrangeHover;
+            startStopButton.FlatAppearance.MouseDownBackColor = UiColors.ScheduledOrangeDown;
+        }
+        else
+        {
+            startStopButton.FlatAppearance.MouseOverBackColor = UiColors.ButtonBackDefault;
+            startStopButton.FlatAppearance.MouseDownBackColor = UiColors.ButtonBackDefault;
+        }
+    }
+
+    /// <summary>
+    /// Toggles the running/scheduled state and starts/stops timers accordingly.
     /// </summary>
     private void StartStopButton_Click(object sender, EventArgs e)
     {
-        // Apply field values before starting
-        if (!isRunning)
+        if (isScheduled)
         {
-            inputCountTimer.Interval = (int)intervalInput.Value;
+            isScheduled = false;
+            scheduleTimer?.Stop();
+            scheduleTimer = null;
+
+            isRunning = false;
+            runTimer.Stop();
+            inputCountTimer.Stop();
+
+            startDate = null;
+            stopTime = null;
+
+            // Restore UI to idle
+            startStopButton.Text = "Start";
+            startStopButton.BackColor = UiColors.StartGreen;
+            SetStartButtonScheduledVisuals(false);
+            resetButton.Enabled = true;
+
+            // Re-enable controls
+            intervalInput.Enabled = true;
+
+            scheduleStartPicker.Enabled = scheduleEnableStartCheck.Checked;
+            scheduleEnableStartCheck.Enabled = true;
+            scheduleStopPicker.Enabled = scheduleEnableStopCheck.Checked;
+            scheduleEnableStopCheck.Enabled = true;
+
+            runUntilStoppedRadio.Enabled = true;
+            runForCountRadio.Enabled = true;
+            runCountInput.Enabled = runForCountRadio.Checked;
+
+            sequenceIntervalInput.Enabled = true;
+            sequenceAddButton.Enabled = true;
+            sequenceEditButton.Enabled = true;
+            sequenceRemoveButton.Enabled = true;
+            sequenceMoveUpButton.Enabled = true;
+            sequenceMoveDownButton.Enabled = true;
+
+            keybindButton.Enabled = true;
+            targetKeyButton.Enabled = true;
+
+            saveConfigButton.Enabled = true;
+            loadConfigButton.Enabled = true;
+            loadOnStartupCheck.Enabled = true;
+            configPathText.Enabled = true;
+            openConfigFolderButton.Enabled = true;
+
+            return;
         }
 
-        // Toggle state
+        bool togglingOn = !isRunning;
+        if (togglingOn)
+        {
+            inputCountTimer.Interval = (int)intervalInput.Value;
+
+            startDate = scheduleEnableStartCheck.Checked ? scheduleStartPicker.Value : null;
+            stopTime = scheduleEnableStopCheck.Checked ? scheduleStopPicker.Value : null;
+
+            if (stopTime.HasValue && stopTime.Value <= DateTime.Now)
+            {
+                stopTime = null;
+                scheduleEnableStopCheck.Checked = false;
+            }
+
+            if (startDate.HasValue && startDate.Value > DateTime.Now)
+            {
+                isRunning = true;   
+                isScheduled = true;
+
+                runTimer.Start();
+                inputCountTimer.Stop();
+
+                SetStartButtonScheduledVisuals(true);
+                resetButton.Enabled = false;
+
+                intervalInput.Enabled = false;
+
+                scheduleStartPicker.Enabled = false;
+                scheduleEnableStartCheck.Enabled = false;
+                scheduleStopPicker.Enabled = scheduleEnableStopCheck.Checked;
+                scheduleEnableStopCheck.Enabled = false;
+
+                runUntilStoppedRadio.Enabled = false;
+                runForCountRadio.Enabled = false;
+                runCountInput.Enabled = false;
+
+                sequenceIntervalInput.Enabled = false;
+                sequenceAddButton.Enabled = false;
+                sequenceEditButton.Enabled = false;
+                sequenceRemoveButton.Enabled = false;
+                sequenceMoveUpButton.Enabled = false;
+                sequenceMoveDownButton.Enabled = false;
+
+                keybindButton.Enabled = false;
+                targetKeyButton.Enabled = false;
+
+                saveConfigButton.Enabled = false;
+                loadConfigButton.Enabled = false;
+                loadOnStartupCheck.Enabled = false;
+                configPathText.Enabled = false;
+                openConfigFolderButton.Enabled = false;
+
+                scheduleTimer ??= new System.Windows.Forms.Timer { Interval = 200 };
+                scheduleTimer.Tick -= ScheduleTimer_Tick;
+                scheduleTimer.Tick += ScheduleTimer_Tick;
+                scheduleTimer.Start();
+
+                return; // stay in scheduled mode; don't start inputs yet
+            }
+        }
+
+        // Normal toggle path (no scheduled start needed)
         isRunning = !isRunning;
 
-        // Start/stop timers
         (isRunning ? (Action)runTimer.Start : runTimer.Stop)();
         (isRunning ? (Action)inputCountTimer.Start : inputCountTimer.Stop)();
 
         // Top Bar Items
         startStopButton.Text = isRunning ? "Stop" : "Start";
         startStopButton.BackColor = isRunning ? UiColors.StopRed : UiColors.StartGreen;
+        SetStartButtonScheduledVisuals(false);
         resetButton.Enabled = !isRunning;
 
         // General Tab
@@ -178,10 +308,43 @@ public partial class MainForm : Form
     }
 
     /// <summary>
+    /// Promotes from "Scheduled" (armed) to active inputs when startDate is reached.
+    /// </summary>
+    private void ScheduleTimer_Tick(object? sender, EventArgs e)
+    {
+        if (!isScheduled || !startDate.HasValue) return;
+
+        if (DateTime.Now >= startDate.Value)
+        {
+            scheduleTimer!.Stop();
+            isScheduled = false;
+
+            // Start input cadence now
+            inputCountTimer.Interval = (int)intervalInput.Value;
+            inputCountTimer.Start();
+
+            // Update button/UI to normal "running" state
+            startStopButton.Text = "Stop";
+            startStopButton.BackColor = UiColors.StopRed;
+            SetStartButtonScheduledVisuals(false);
+            // controls already disabled like running; leave them that way
+        }
+    }
+
+    /// <summary>
     /// Increments the active timer and updates the timer label once per tick.
+    /// Also enforces scheduled stop.
     /// </summary>
     private void RunTimer_Tick(object sender, EventArgs e)
     {
+        // Auto-stop if scheduled stop reached
+        if (stopTime.HasValue && DateTime.Now >= stopTime.Value)
+        {
+            StartStopButton_Click(sender, EventArgs.Empty);
+            scheduleEnableStopCheck.Checked = false; // optional UI reset
+            return;
+        }
+
         activeTimerSeconds++;
         timerLabel.Text = Formatter.SetTimeLabel(activeTimerSeconds);
     }
@@ -191,6 +354,14 @@ public partial class MainForm : Form
     /// </summary>
     private void InputCount_Tick(object sender, EventArgs e)
     {
+        // Auto-stop regardless of mode
+        if (stopTime.HasValue && DateTime.Now >= stopTime.Value)
+        {
+            StartStopButton_Click(sender, EventArgs.Empty);
+            scheduleEnableStopCheck.Checked = false; // optional UI reset
+            return;
+        }
+
         PerformTargetInput();
 
         inputCount++;
@@ -239,9 +410,19 @@ public partial class MainForm : Form
         targetKey = targetKeyDefault;
         targetKeyButton.Text = targetKey.ToString();
 
-        // Schedule tab
+        // Schedule tab and fields
         scheduleEnableStartCheck.Checked = false;
         scheduleEnableStopCheck.Checked = false;
+        startDate = null;
+        stopTime = null;
+        isScheduled = false;
+        scheduleTimer?.Stop();
+        scheduleTimer = null;
+        SetStartButtonScheduledVisuals(false);
+
+        // Top-bar visuals (idle)
+        startStopButton.Text = "Start";
+        startStopButton.BackColor = UiColors.StartGreen;
 
         // Re-apply default global hotkey
         RegisterGlobalHotkey(hotKey);
@@ -262,6 +443,8 @@ public partial class MainForm : Form
         {
             keybindButton.Text = "Press Any Key (Esc to cancel)...";
             SetBindingStyle(keybindButton, true);
+            // Optional: temporarily unregister to avoid accidental toggles during capture
+            try { UnregisterHotKey(Handle, Win32Hotkey.HOTKEY_ID); } catch { }
         }
         else
         {

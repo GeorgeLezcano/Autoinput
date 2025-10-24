@@ -28,7 +28,7 @@ partial class MainForm
     /// <summary>
     /// Maximum time interval bounds (milliseconds).
     /// </summary>
-    private const int intervalMaximum = 10000;
+    private const int intervalMaximum = 600000;
 
     /// <summary>
     /// Increment between time-interval steps for input fields (milliseconds).
@@ -57,6 +57,7 @@ partial class MainForm
     private const int activeTimerSecondsDefault = 0;
     private const bool isRunningDefault = false;
     private const int forcedInputCountDefault = 0;
+    private const bool isScheduledDefault = false;
 
     /// <summary>
     /// Config placeholder defaults.

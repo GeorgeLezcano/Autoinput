@@ -54,4 +54,19 @@ internal static class UiColors
     /// Text color during binding mode.
     /// </summary>
     public static readonly Color BindingFore = Color.Black;
+
+    /// <summary>
+    /// Start/Stop button background while "Scheduled".
+    /// </summary>
+    public static readonly Color ScheduledOrange = Color.FromArgb(255, 159, 67);
+
+    /// <summary>
+    /// Hover color for "Scheduled".
+    /// </summary>
+    public static readonly Color ScheduledOrangeHover = Color.FromArgb(230, 144, 60);
+
+    /// <summary>
+    /// Mouse down color for "Scheduled".
+    /// </summary>
+    public static readonly Color ScheduledOrangeDown = Color.FromArgb(210, 132, 55);
 }
