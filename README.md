@@ -79,5 +79,5 @@ Use the helper script to publish and keep only the `.exe`:
 - Make sure the target window has focus when automation begins.
 - Some apps block simulated input; try running AutoInput as Administrator if needed.
 
-##  **⚠️ Use responsibly!**. Avoid sending automated input to systems that disallow it.
+##  **⚠️ Use responsibly!** Avoid sending automated input to systems that disallow it.
 
