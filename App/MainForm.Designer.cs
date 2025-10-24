@@ -54,6 +54,7 @@ partial class MainForm
         tabSchedule = new TabPage();
         tabSequence = new TabPage();
         tabConfig = new TabPage();
+        tabInfo = new TabPage();
 
         // ---- General tab ----
         groupRun = new GroupBox();
@@ -100,6 +101,10 @@ partial class MainForm
         configPathLabel = new Label();
         configPathText = new TextBox();
         openConfigFolderButton = new Button();
+
+        // ---- Info tab ----
+        groupInfo = new GroupBox();
+        versionLabel = new Label();
 
         #endregion
 
@@ -187,6 +192,7 @@ partial class MainForm
         mainTabs.Controls.Add(tabSchedule);
         mainTabs.Controls.Add(tabSequence);
         mainTabs.Controls.Add(tabConfig);
+        mainTabs.Controls.Add(tabInfo);
 
         #endregion
 
@@ -591,6 +597,28 @@ partial class MainForm
 
         #endregion
 
+        #region Tab: Info
+
+        tabInfo.Text = "Info";
+        tabInfo.BackColor = UiColors.PanelBack;
+
+        groupInfo.Text = "Information";
+        groupInfo.ForeColor = ForeColor;
+        groupInfo.BackColor = UiColors.PanelBack;
+        groupInfo.Location = new System.Drawing.Point(16, 16);
+        groupInfo.Size = new System.Drawing.Size(790, 100);
+
+        versionLabel.AutoSize = true;
+        versionLabel.ForeColor = UiColors.TextSecondary;
+        versionLabel.Location = new System.Drawing.Point(24, 34);
+        versionLabel.Text = LabelFormatter.SetVersionLabel();
+
+        groupInfo.Controls.Add(versionLabel);
+
+        tabInfo.Controls.Add(groupInfo);
+
+        #endregion
+
         #region Form Setup (Shell)
 
         AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
@@ -606,7 +634,7 @@ partial class MainForm
         MaximizeBox = false;
         Name = "MainForm";
         StartPosition = FormStartPosition.CenterScreen;
-        Text = "AutoInput";
+        Text = LabelFormatter.SetAppShellText();
 
         // Input routing
         KeyPreview = true;
@@ -649,6 +677,7 @@ partial class MainForm
     private TabPage tabSchedule;
     private TabPage tabSequence;
     private TabPage tabConfig;
+    private TabPage tabInfo;
 
     // General
     private GroupBox groupRun;
@@ -695,6 +724,11 @@ partial class MainForm
     private Label configPathLabel;
     private TextBox configPathText;
     private Button openConfigFolderButton;
+
+    // Info
+
+    private GroupBox groupInfo;
+    private Label versionLabel;
 
     #endregion
 }

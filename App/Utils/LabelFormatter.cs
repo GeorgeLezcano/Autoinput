@@ -12,7 +12,7 @@ internal static class LabelFormatter
         int minutes = seconds % 3600 / 60;
         int secs = seconds % 60;
 
-       return $"Active Time: {hours:D2}:{minutes:D2}:{secs:D2}";
+        return $"Active Time: {hours:D2}:{minutes:D2}:{secs:D2}";
     }
 
     /// <summary>
@@ -29,9 +29,25 @@ internal static class LabelFormatter
     /// </summary>
     /// <param name="min">Minimun interval value</param>
     /// <param name="max">Maximum interval value</param>
-    /// <returns></returns>
     public static string SetIntervalHint(int min, int max)
     {
-        return  $"Range: {min} – {max} ms \n1 second = 1000 milliseconds";
+        return $"Range: {min} – {max} ms \n1 second = 1000 milliseconds";
     }
+
+    /// <summary>
+    /// Sets the version label in the information tab.
+    /// </summary>
+    public static string SetVersionLabel()
+    {
+        return $"App Version: {XmlHelpers.GetAppVersion()}";
+    }
+
+    /// <summary>
+    /// Sets the shell label.
+    /// </summary>
+    public static string SetAppShellText()
+    {
+        return $"AutoInput_v{XmlHelpers.GetAppVersion()}";
+    }
+
 }

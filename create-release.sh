@@ -17,4 +17,4 @@ for f in release/*; do
   [[ "$f" == *.exe ]] || rm -f "$f"
 done
 
-echo "✅ Release created in ./release/"
+echo "✅ Executable created in ./release/"
