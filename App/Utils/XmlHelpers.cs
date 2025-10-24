@@ -11,7 +11,6 @@ public static class XmlHelpers
     private const string csprojFile = "App.csproj";
     public const string fallbackVersion = "0.0.0";
 
-
     /// <summary>
     /// Gets the app version from the project file.
     /// </summary>
