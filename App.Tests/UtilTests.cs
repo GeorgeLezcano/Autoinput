@@ -10,42 +10,21 @@ namespace App.Tests;
 public class UtilTests : IDisposable
 {
     private readonly string _baseDir = AppContext.BaseDirectory;
-    private readonly string _csprojPath;
+    private readonly string csprojPath;
 
+    /// <summary>
+    /// Primaty Constructor.
+    /// </summary>
     public UtilTests()
     {
-        _csprojPath = Path.Combine(_baseDir, "App.csproj");
+        csprojPath = Path.Combine(_baseDir, "App.csproj");
         CleanupProjectFile();
     }
 
+    /// <inheritdoc/>
     public void Dispose()
     {
         CleanupProjectFile();
-    }
-
-    private void CleanupProjectFile()
-    {
-        try
-        {
-            if (File.Exists(_csprojPath))
-                File.Delete(_csprojPath);
-        }
-        catch
-        {
-        }
-    }
-
-    private void WriteCsprojWithVersion(string version)
-    {
-        var xml = $$"""
-        <Project Sdk="Microsoft.NET.Sdk">
-          <PropertyGroup>
-            <TargetFramework>net8.0</TargetFramework>
-            <Version>{{version}}</Version>
-          </PropertyGroup>
-        </Project>
-        """;
-        File.WriteAllText(_csprojPath, xml);
     }
 
     [Fact]
@@ -132,5 +111,35 @@ public class UtilTests : IDisposable
         WriteCsprojWithVersion(raw);
         string actual = XmlHelpers.GetAppVersion();
         Assert.Equal(expected, actual);
+    }
+
+    /// <summary>
+    /// Deletes the created csproj file if exists.
+    /// </summary>
+    private void CleanupProjectFile()
+    {
+        try
+        {
+            if (File.Exists(csprojPath))
+                File.Delete(csprojPath);
+        }
+        catch { }
+    }
+
+    /// <summary>
+    /// Returns a csproj mock file with the specified version.
+    /// </summary>
+    /// <param name="version">The version to be tested.</param>
+    private void WriteCsprojWithVersion(string version)
+    {
+        var xml = $$"""
+        <Project Sdk="Microsoft.NET.Sdk">
+          <PropertyGroup>
+            <TargetFramework>net8.0</TargetFramework>
+            <Version>{{version}}</Version>
+          </PropertyGroup>
+        </Project>
+        """;
+        File.WriteAllText(csprojPath, xml);
     }
 }
