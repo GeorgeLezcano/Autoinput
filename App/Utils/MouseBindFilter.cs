@@ -10,6 +10,7 @@ public sealed class MouseBindFilter(Action<MouseButtons> onClick) : IMessageFilt
     private const int WM_RBUTTONDOWN = 0x0204;
     private const int WM_MBUTTONDOWN = 0x0207;
 
+    /// <inheritdoc/>
     public bool PreFilterMessage(ref Message m)
     {
         switch (m.Msg)

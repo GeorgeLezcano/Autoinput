@@ -76,8 +76,8 @@ public partial class MainForm : Form
     private void MainForm_Load(object sender, EventArgs e)
     {
         // Status labels
-        inputCountLabel.Text = Formatter.SetInputCountLabel(inputCount);
-        timerLabel.Text = Formatter.SetTimeLabel(activeTimerSeconds);
+        inputCountLabel.Text = LabelFormatter.SetInputCountLabel(inputCount);
+        timerLabel.Text = LabelFormatter.SetTimeLabel(activeTimerSeconds);
         startStopButton.BackColor = UiColors.StartGreen;
 
         // Schedule defaults
@@ -346,7 +346,7 @@ public partial class MainForm : Form
         }
 
         activeTimerSeconds++;
-        timerLabel.Text = Formatter.SetTimeLabel(activeTimerSeconds);
+        timerLabel.Text = LabelFormatter.SetTimeLabel(activeTimerSeconds);
     }
 
     /// <summary>
@@ -358,14 +358,14 @@ public partial class MainForm : Form
         if (stopTime.HasValue && DateTime.Now >= stopTime.Value)
         {
             StartStopButton_Click(sender, EventArgs.Empty);
-            scheduleEnableStopCheck.Checked = false; // optional UI reset
+            scheduleEnableStopCheck.Checked = false;
             return;
         }
 
         PerformTargetInput();
 
         inputCount++;
-        inputCountLabel.Text = Formatter.SetInputCountLabel(inputCount);
+        inputCountLabel.Text = LabelFormatter.SetInputCountLabel(inputCount);
 
         if (runForCountRadio.Checked)
         {
@@ -396,8 +396,8 @@ public partial class MainForm : Form
         activeTimerSeconds = activeTimerSecondsDefault;
         inputCount = inputCountDefault;
         forcedInputCount = forcedInputCountDefault;
-        timerLabel.Text = Formatter.SetTimeLabel(activeTimerSeconds);
-        inputCountLabel.Text = Formatter.SetInputCountLabel(inputCount);
+        timerLabel.Text = LabelFormatter.SetTimeLabel(activeTimerSeconds);
+        inputCountLabel.Text = LabelFormatter.SetInputCountLabel(inputCount);
         intervalInput.Value = inputIntervalDefault;
         runCountInput.Value = runCountInputDefault;
         runUntilStoppedRadio.Checked = true;

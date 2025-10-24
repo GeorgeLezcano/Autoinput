@@ -154,7 +154,7 @@ partial class MainForm
         timerLabel.Name = "timerLabel";
         timerLabel.Size = new System.Drawing.Size(145, 20);
         timerLabel.TabIndex = 2;
-        timerLabel.Text = Formatter.SetTimeLabel(activeTimerSecondsDefault);
+        timerLabel.Text = LabelFormatter.SetTimeLabel(activeTimerSecondsDefault);
 
         // Input count
         inputCountLabel.AutoSize = true;
@@ -163,7 +163,7 @@ partial class MainForm
         inputCountLabel.Name = "inputCountLabel";
         inputCountLabel.Size = new System.Drawing.Size(116, 20);
         inputCountLabel.TabIndex = 3;
-        inputCountLabel.Text = Formatter.SetInputCountLabel(inputCountDefault);
+        inputCountLabel.Text = LabelFormatter.SetInputCountLabel(inputCountDefault);
 
         // Timers
         runTimer.Interval = activeTimerIntervalDefault;
@@ -226,7 +226,7 @@ partial class MainForm
         labelIntervalHint.AutoSize = true;
         labelIntervalHint.ForeColor = UiColors.TextSecondary;
         labelIntervalHint.Location = new System.Drawing.Point(200, 61);
-        labelIntervalHint.Text = $"Range: {intervalMinimum} – {intervalMaximum} ms \n1 second = 1000 milliseconds";
+        labelIntervalHint.Text = LabelFormatter.SetIntervalHint(intervalMinimum, intervalMaximum);
 
         // Run Mode controls
         runUntilStoppedRadio.AutoSize = true;
@@ -330,7 +330,7 @@ partial class MainForm
         tabSchedule.Text = "Schedule";
         tabSchedule.BackColor = UiColors.PanelBack;
 
-        groupSchedule.Text = "Start/Stop Schedule (Not Implemented Yet)";
+        groupSchedule.Text = "Start/Stop Schedule";
         groupSchedule.ForeColor = ForeColor;
         groupSchedule.BackColor = UiColors.PanelBack;
         groupSchedule.Location = new System.Drawing.Point(16, 16);

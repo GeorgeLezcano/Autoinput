@@ -1,6 +1,6 @@
 namespace App.Utils;
 
-public static class Formatter
+internal static class LabelFormatter
 {
     /// <summary>
     /// Build the time elapsed label text.
@@ -22,5 +22,16 @@ public static class Formatter
     public static string SetInputCountLabel(int count)
     {
         return $"Input Count: {count}";
+    }
+
+    /// <summary>
+    /// Builds the label for the time interval hint.
+    /// </summary>
+    /// <param name="min">Minimun interval value</param>
+    /// <param name="max">Maximum interval value</param>
+    /// <returns></returns>
+    public static string SetIntervalHint(int min, int max)
+    {
+        return  $"Range: {min} – {max} ms \n1 second = 1000 milliseconds";
     }
 }
