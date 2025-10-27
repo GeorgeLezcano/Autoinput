@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.Windows.Forms;
 using App.Utils;
 
 namespace App.Tests;
@@ -112,6 +113,45 @@ public class UtilTests : IDisposable
         string actual = XmlHelpers.GetAppVersion();
         Assert.Equal(expected, actual);
     }
+
+    [Fact]
+    public void PreFilterMessage_Should_Return_False_When_Not_Mouse_Input()
+    {
+        bool clicked = false;
+        var filter = new MouseBindFilter(_ => clicked = true);
+
+        var message = new Message
+        {
+            Msg = 0x0100,
+            WParam = IntPtr.Zero,
+            LParam = IntPtr.Zero
+        };
+
+        bool result = filter.PreFilterMessage(ref message);
+
+        Assert.False(result);
+        Assert.False(clicked);
+    }
+
+    [Theory]
+    [InlineData(0x0201, MouseButtons.Left)]  
+    [InlineData(0x0204, MouseButtons.Right)]  
+    [InlineData(0x0207, MouseButtons.Middle)]
+    public void PreFilterMessage_Should_Invoke_OnClick_For_MouseButtons(int msg, MouseButtons expected)
+    {
+        MouseButtons? clicked = null;
+        var filter = new MouseBindFilter(b => clicked = b);
+
+        var message = new Message { Msg = msg };
+        bool result = filter.PreFilterMessage(ref message);
+
+        Assert.True(result);
+        Assert.Equal(expected, clicked);
+    }
+
+    /********************
+    ***Private helpers***
+    *********************/
 
     /// <summary>
     /// Deletes the created csproj file if exists.
