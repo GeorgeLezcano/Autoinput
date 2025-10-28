@@ -1,5 +1,11 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace App;
 
+/// <summary>
+/// Application program class.
+/// </summary>
+[ExcludeFromCodeCoverage]
 internal static class Program
 {
     /// <summary>

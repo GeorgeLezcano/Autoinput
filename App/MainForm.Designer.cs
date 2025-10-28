@@ -1,4 +1,5 @@
-﻿using App.Constants;
+﻿using System.Diagnostics.CodeAnalysis;
+using App.Constants;
 using App.Utils;
 
 namespace App;

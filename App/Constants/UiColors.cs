@@ -1,8 +1,11 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace App.Constants;
 
 /// <summary>
 /// Centralized UI colors used across the General tab and shell.
 /// </summary>
+[ExcludeFromCodeCoverage]
 internal static class UiColors
 {
     /// <summary>
