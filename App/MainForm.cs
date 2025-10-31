@@ -344,22 +344,37 @@ public partial class MainForm : Form
 
     #region Sequence Tab
 
+    /// <summary>
+    /// TODO
+    /// </summary>
     private void SequenceAddButton_Click(object? sender, EventArgs e)
         => MessageBox.Show("TODO: Add sequence step dialog.", "Not implemented",
             MessageBoxButtons.OK, MessageBoxIcon.Information);
 
+    /// <summary>
+    /// TODO
+    /// </summary>
     private void SequenceEditButton_Click(object? sender, EventArgs e)
         => MessageBox.Show("TODO: Edit selected sequence step.", "Not implemented",
             MessageBoxButtons.OK, MessageBoxIcon.Information);
 
+    /// <summary>
+    /// TODO
+    /// </summary>
     private void SequenceRemoveButton_Click(object? sender, EventArgs e)
         => MessageBox.Show("TODO: Remove selected sequence step.", "Not implemented",
             MessageBoxButtons.OK, MessageBoxIcon.Information);
 
+    /// <summary>
+    /// TODO
+    /// </summary>
     private void SequenceMoveUpButton_Click(object? sender, EventArgs e)
         => MessageBox.Show("TODO: Move selected step up.", "Not implemented",
             MessageBoxButtons.OK, MessageBoxIcon.Information);
 
+    /// <summary>
+    /// TODO
+    /// </summary>
     private void SequenceMoveDownButton_Click(object? sender, EventArgs e)
         => MessageBox.Show("TODO: Move selected sequence step.", "Not implemented",
             MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -368,22 +383,82 @@ public partial class MainForm : Form
 
     #region Config Tab
 
+    /// <summary>
+    /// On click method to save the current configuration to a file.
+    /// Current support is json format.
+    /// </summary>
     private void SaveConfigButton_Click(object? sender, EventArgs e)
-        => MessageBox.Show("TODO: Serialize settings to file.", "Not implemented",
-            MessageBoxButtons.OK, MessageBoxIcon.Information);
-
-    private void LoadConfigButton_Click(object? sender, EventArgs e)
-        => MessageBox.Show("TODO: Load settings from file.", "Not implemented",
-            MessageBoxButtons.OK, MessageBoxIcon.Information);
-
-    private void LoadOnStartupCheck_CheckedChanged(object? sender, EventArgs e)
     {
-        // TODO: implement persist preference
+        SaveFileDialog saveFileDialog = new()
+        {
+            Filter = fileFormatFilter,
+            FilterIndex = 1,
+            RestoreDirectory = true,
+            InitialDirectory = configPathText.Text,
+            FileName = defaultConfigFileName,
+            Title = "Select a location to save current configuration"
+        };
+
+        if (saveFileDialog.ShowDialog() == DialogResult.OK)
+        {
+            string filePath = saveFileDialog.FileName;
+            SaveConfigurationToFile(filePath);
+            MessageBox.Show($"Settings successfully saved to: {filePath}", "Save Successful", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
     }
 
-    private void OpenConfigFolderButton_Click(object? sender, EventArgs e)
-        => MessageBox.Show("TODO: Open configuration folder.", "Not implemented",
+    /// <summary>
+    /// Attemps to load a file with configuration.
+    /// If the format is incorrect, or values are out of range, display a 
+    /// "Failed to load message".
+    /// </summary>
+    private void LoadConfigButton_Click(object? sender, EventArgs e)
+    {
+        OpenFileDialog openFileDialog = new()
+        {
+            Filter = fileFormatFilter,
+            FilterIndex = 1,
+            RestoreDirectory = true,
+            InitialDirectory = configPathText.Text,
+            Title = "Select a configuration file to load"
+        };
+
+        if (openFileDialog.ShowDialog() == DialogResult.OK)
+        {
+            LoadConfigurationFromFile(openFileDialog.FileName);
+        }
+    }
+
+    /// <summary>
+    /// Loads the file at startup when its checked.
+    /// </summary>
+    private void LoadOnStartupCheck_CheckedChanged(object? sender, EventArgs e)
+    {
+        // TODO: Decide what to do for persistance and startup config
+
+        if (loadOnStartupCheck.Checked)
+        {
+            MessageBox.Show("Startup config coming soon...", "Not implemented",
             MessageBoxButtons.OK, MessageBoxIcon.Information);
+            loadOnStartupCheck.Checked = false;
+        }
+    }
+
+    /// <summary>
+    /// Opens a folder to set the default config file path location.
+    /// </summary>
+    private void OpenConfigFolderButton_Click(object? sender, EventArgs e)
+    {
+        FolderBrowserDialog folderBrowserDialog = new()
+        {
+            InitialDirectory = configPathText.Text
+        };
+
+        if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
+        {
+            configPathText.Text = folderBrowserDialog.SelectedPath;
+        }
+    }
 
     #endregion
 }

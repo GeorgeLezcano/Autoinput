@@ -60,9 +60,9 @@ partial class MainForm
     private const bool isScheduledDefault = false;
 
     /// <summary>
-    /// Config placeholder defaults.
+    /// Config placeholder default path.
     /// </summary>
-    private const string configPathTextDefault = "<not set>";
+    private readonly string configPathTextDefault = AppContext.BaseDirectory;
 
     /// <summary>
     /// Default hotkey (Start/Stop).
@@ -80,5 +80,15 @@ partial class MainForm
     private const string startBtnLabel = "Start";
     private const string stopBtnLabel = "Stop";
     private const string scheduleBtnLabel = "Scheduled";
+
+    /// <summary>
+    /// Defautl file filter for configuration files.
+    /// </summary>
+    private const string fileFormatFilter = "JSON Files (*.json)|*.json";
+
+    /// <summary>
+    /// Filename as a default configuration file.
+    /// </summary>
+    private const string defaultConfigFileName = "AutoInput_Config.json";
 
 }

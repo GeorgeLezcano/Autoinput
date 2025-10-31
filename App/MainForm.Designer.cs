@@ -532,7 +532,7 @@ partial class MainForm
         tabConfig.Text = "Config";
         tabConfig.BackColor = UiColors.PanelBack;
 
-        groupConfig.Text = "Configuration (Not Implemented Yet)";
+        groupConfig.Text = "Configuration";
         groupConfig.ForeColor = ForeColor;
         groupConfig.BackColor = UiColors.PanelBack;
         groupConfig.Location = new System.Drawing.Point(16, 16);
@@ -561,13 +561,13 @@ partial class MainForm
         loadOnStartupCheck.AutoSize = true;
         loadOnStartupCheck.ForeColor = UiColors.TextSecondary;
         loadOnStartupCheck.Location = new System.Drawing.Point(24, 86);
-        loadOnStartupCheck.Text = "Load saved configuration on startup";
+        loadOnStartupCheck.Text = "Load saved configuration on startup (Not Implemented)";
         loadOnStartupCheck.CheckedChanged += LoadOnStartupCheck_CheckedChanged;
 
         configPathLabel.AutoSize = true;
         configPathLabel.ForeColor = UiColors.TextSecondary;
         configPathLabel.Location = new System.Drawing.Point(24, 120);
-        configPathLabel.Text = "Config path:";
+        configPathLabel.Text = "Configuration Path:";
 
         configPathText.ReadOnly = true;
         configPathText.BorderStyle = BorderStyle.FixedSingle;

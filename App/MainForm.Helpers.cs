@@ -384,4 +384,48 @@ partial class MainForm
     }
 
     #endregion
+
+    #region Configuration Helpers
+
+
+    /// <summary>
+    /// Saves the current configuration to a file.
+    /// </summary>
+    /// <param name="path">String path of the saved file.</param>
+    private void SaveConfigurationToFile(string path)
+    {
+        // Implementation for serializing and writing your settings goes here
+        // The idea is to save is as json for now. Open to changes.
+        File.WriteAllText(path, "Placeholder configuration data.");
+    }
+
+    /// <summary>
+    /// Loads a config file.
+    /// Shows an error message if file is invalid.
+    /// </summary>
+    /// <param name="path"></param>
+    private void LoadConfigurationFromFile(string path)
+    {
+        MessageBox.Show($"TODO: Load settings from file at {path}", "Not implemented",
+            MessageBoxButtons.OK, MessageBoxIcon.Information);
+    }
+
+    /// <summary>
+    /// Gets the current values for all configuration
+    /// in the tabs and fields.
+    /// </summary>
+    private void GetCurrentConfigValuesFromApp()
+    {
+
+    }
+    
+    /// <summary>
+    /// Applies the configuration to the app.
+    /// </summary>
+    private void ApplyLoadedConfigToApp()
+    {
+        
+    }
+
+    #endregion
 }
