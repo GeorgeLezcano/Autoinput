@@ -214,6 +214,8 @@ public partial class MainForm : Form
 
         // Re-apply default global hotkey
         RegisterGlobalHotkey(hotKey);
+
+        configPathText.Text = configPathTextDefault;
     }
 
     #endregion
@@ -283,6 +285,15 @@ public partial class MainForm : Form
 
         if (isTargetKeyBinding)
         {
+            if (e.KeyCode == hotKey)
+            {
+                MessageBox.Show(
+                    "That key is already used as the Start/Stop hotkey. Pick a different target key.",
+                    "Key conflict", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                e.Handled = true;
+                return;
+            }
+
             targetKey = e.KeyCode;
             targetKeyButton.Text = targetKey.ToString();
             isTargetKeyBinding = false;

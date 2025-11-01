@@ -71,8 +71,9 @@ partial class MainForm
                     {
                         hotKey = hotKeyDefault;
                         keybindButton.Text = hotKey.ToString();
-                        MessageBox.Show("That hotkey is in use by another app. Reverted to F8.", "Hotkey in use",
-                            MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        MessageBox.Show(
+                            "That hotkey is already in use by another app. Reverted to F8.",
+                            "Hotkey in use", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     }
                 }
             }
@@ -432,19 +433,30 @@ partial class MainForm
     {
         if (!File.Exists(path))
         {
-            MessageBox.Show($"Invalid path: '{path}'", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            MessageBox.Show($"The file does not exist:\n{path}", "Open configuration",
+                MessageBoxButtons.OK, MessageBoxIcon.Error);
             return;
         }
-        string jsonString = File.ReadAllText(path);
-        AppConfig? appConfig = JsonSerializer.Deserialize<AppConfig>(jsonString, jsonSerializerOption);
 
-        if (appConfig is null)
+        try
         {
-            MessageBox.Show($"Failed to load configuration", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            return;
-        }
+            string jsonString = File.ReadAllText(path);
+            AppConfig? appConfig = JsonSerializer.Deserialize<AppConfig>(jsonString, jsonSerializerOption) ?? throw new InvalidOperationException("Deserialized object was null.");
+            ApplyLoadedConfigToApp(appConfig);
 
-        ApplyLoadedConfigToApp(appConfig);
+            MessageBox.Show($"Configuration loaded:\n{path}", "Open configuration",
+                MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+        catch (JsonException jx)
+        {
+            MessageBox.Show($"That file is not valid JSON:\n{path}\n\nDetails: {jx.Message}",
+                "Open configuration", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Failed to load configuration:\n{path}\n\nDetails: {ex.Message}",
+                "Open configuration", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
     }
 
     /// <summary>
@@ -500,18 +512,19 @@ partial class MainForm
 
             configPathText.Text = appConfig.ConfigFolderPath;
 
-            if (TryParseKeys(appConfig.StartStopKeybind, out var parsedHotkey))
-                hotKey = parsedHotkey;
-            else
-                hotKey = hotKeyDefault;
-
+            hotKey = TryParseKeys(appConfig.StartStopKeybind, out var parsedHotkey) ? parsedHotkey : hotKeyDefault;
             keybindButton.Text = hotKey.ToString();
             RegisterGlobalHotkey(hotKey);
 
-            if (TryParseKeys(appConfig.TargetInputKey, out var parsedTarget))
-                targetKey = parsedTarget;
-            else
+            targetKey = TryParseKeys(appConfig.TargetInputKey, out var parsedTarget) ? parsedTarget : targetKeyDefault;
+
+            if (targetKey == hotKey)
+            {
                 targetKey = targetKeyDefault;
+                MessageBox.Show(
+                    "The loaded configuration used the same key for Start/Stop and Target. Reverted target to default.",
+                    "Key conflict", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
 
             targetKeyButton.Text = targetKey.ToString();
         }
