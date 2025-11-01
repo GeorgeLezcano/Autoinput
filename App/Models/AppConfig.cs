@@ -7,15 +7,19 @@ namespace App.Models;
 public class AppConfig
 {
     /// <summary>
-    /// Interval in milliseconds beteen inputs.
+    /// Interval in milliseconds between inputs.
     /// </summary>
     public int IntervalMilliseconds { get; set; }
 
     /// <summary>
-    /// Flag to indicate if app runs until stopped or
-    /// a set count is provided.
+    /// Flag to indicate if app runs until stopped.
     /// </summary>
-    public bool RunToStopActive { get; set; }
+    public bool RunUntilStopActive { get; set; }
+
+    /// <summary>
+    /// Flag to indicate if app runs until set count. 
+    /// </summary>
+    public bool RunUntilSetCountActive { get; set; }
 
     /// <summary>
     /// Input Count until App stops the inputs.
@@ -48,12 +52,12 @@ public class AppConfig
     public bool ScheduleStopEnabled { get; set; }
 
     /// <summary>
-    /// Time of schedule end.
+    /// Time of scheduled end.
     /// </summary>
     public DateTime ScheduleStopTime { get; set; }
 
     /// <summary>
-    /// Folder path set for configuration files.
+    /// Default folder path for configuration files.
     /// </summary>
     public string ConfigFolderPath { get; set; } = string.Empty;
 }

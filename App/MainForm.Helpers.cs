@@ -57,13 +57,27 @@ partial class MainForm
     {
         try
         {
-            if (IsHandleCreated)
+            if (!IsHandleCreated) return;
+
+            try { UnregisterHotKey(Handle, Win32Hotkey.HOTKEY_ID); } catch { }
+
+            bool ok = RegisterHotKey(Handle, Win32Hotkey.HOTKEY_ID, Win32Hotkey.MOD_NONE, (uint)key);
+            if (!ok)
             {
-                UnregisterHotKey(Handle, Win32Hotkey.HOTKEY_ID);
-                _ = RegisterHotKey(Handle, Win32Hotkey.HOTKEY_ID, Win32Hotkey.MOD_NONE, (uint)key);
+                if (key != hotKeyDefault)
+                {
+                    bool fallback = RegisterHotKey(Handle, Win32Hotkey.HOTKEY_ID, Win32Hotkey.MOD_NONE, (uint)hotKeyDefault);
+                    if (fallback)
+                    {
+                        hotKey = hotKeyDefault;
+                        keybindButton.Text = hotKey.ToString();
+                        MessageBox.Show("That hotkey is in use by another app. Reverted to F8.", "Hotkey in use",
+                            MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
+                }
             }
         }
-        catch { /*do nothing*/ }
+        catch { /* do nothing */ }
     }
 
     #endregion
@@ -156,7 +170,7 @@ partial class MainForm
         startDate = null;
         stopTime = null;
 
-        RestoreUItoIddle();
+        RestoreUItoIdle();
         EnableAllControls();
     }
 
@@ -236,7 +250,7 @@ partial class MainForm
     /// <summary>
     /// Restore UI to idle defaults.
     /// </summary>
-    private void RestoreUItoIddle()
+    private void RestoreUItoIdle()
     {
         startStopButton.Text = startBtnLabel;
         startStopButton.BackColor = UiColors.StartGreen;
@@ -384,6 +398,9 @@ partial class MainForm
     /// </summary>
     private void PerformTargetInput()
     {
+        if (targetKey == Keys.None)
+            return;
+
         if (NativeInput.IsMouseKey(targetKey))
             NativeInput.ClickMouseButton(targetKey);
         else
@@ -413,9 +430,21 @@ partial class MainForm
     /// <param name="path"></param>
     private void LoadConfigurationFromFile(string path)
     {
-        // Call ApplyLoadedConfigToApp after validation.
-        MessageBox.Show($"TODO: Load settings from file at {path}", "Not implemented",
-            MessageBoxButtons.OK, MessageBoxIcon.Information);
+        if (!File.Exists(path))
+        {
+            MessageBox.Show($"Invalid path: '{path}'", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            return;
+        }
+        string jsonString = File.ReadAllText(path);
+        AppConfig? appConfig = JsonSerializer.Deserialize<AppConfig>(jsonString, jsonSerializerOption);
+
+        if (appConfig is null)
+        {
+            MessageBox.Show($"Failed to load configuration", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            return;
+        }
+
+        ApplyLoadedConfigToApp(appConfig);
     }
 
     /// <summary>
@@ -427,10 +456,11 @@ partial class MainForm
         AppConfig appConfig = new()
         {
             IntervalMilliseconds = (int)intervalInput.Value,
-            RunToStopActive = runUntilStoppedRadio.Checked,
+            RunUntilStopActive = runUntilStoppedRadio.Checked,
+            RunUntilSetCountActive = runForCountRadio.Checked,
             StopInputCount = (int)runCountInput.Value,
-            StartStopKeybind = keybindButton.Text,
-            TargetInputKey = targetKeyButton.Text,
+            StartStopKeybind = hotKey.ToString(),
+            TargetInputKey = targetKey.ToString(),
             ScheduleStartEnabled = scheduleEnableStartCheck.Checked,
             ScheduleStartTime = scheduleStartPicker.Value,
             ScheduleStopEnabled = scheduleEnableStopCheck.Checked,
@@ -445,7 +475,61 @@ partial class MainForm
     /// </summary>
     private void ApplyLoadedConfigToApp(AppConfig appConfig)
     {
-        // Use Keys parsedKey = (Keys)Enum.Parse(typeof(Keys), savedKey); to set the key from file
+        try
+        {
+            static DateTime Clamp(DateTime dt, DateTime min, DateTime max)
+                => dt < min ? min : (dt > max ? max : dt);
+
+            static decimal ClampDec(decimal v, decimal min, decimal max)
+                => v < min ? min : (v > max ? max : v);
+
+            intervalInput.Value = ClampDec(appConfig.IntervalMilliseconds, intervalInput.Minimum, intervalInput.Maximum);
+
+            bool runForCount = appConfig.RunUntilSetCountActive;
+            runUntilStoppedRadio.Checked = !runForCount;
+            runForCountRadio.Checked = runForCount;
+
+            runCountInput.Value = ClampDec(appConfig.StopInputCount, runCountInput.Minimum, runCountInput.Maximum);
+            runCountInput.Enabled = runForCountRadio.Checked;
+
+            scheduleEnableStartCheck.Checked = appConfig.ScheduleStartEnabled;
+            scheduleStartPicker.Value = Clamp(appConfig.ScheduleStartTime, scheduleStartPicker.MinDate, scheduleStartPicker.MaxDate);
+
+            scheduleEnableStopCheck.Checked = appConfig.ScheduleStopEnabled;
+            scheduleStopPicker.Value = Clamp(appConfig.ScheduleStopTime, scheduleStopPicker.MinDate, scheduleStopPicker.MaxDate);
+
+            configPathText.Text = appConfig.ConfigFolderPath;
+
+            if (TryParseKeys(appConfig.StartStopKeybind, out var parsedHotkey))
+                hotKey = parsedHotkey;
+            else
+                hotKey = hotKeyDefault;
+
+            keybindButton.Text = hotKey.ToString();
+            RegisterGlobalHotkey(hotKey);
+
+            if (TryParseKeys(appConfig.TargetInputKey, out var parsedTarget))
+                targetKey = parsedTarget;
+            else
+                targetKey = targetKeyDefault;
+
+            targetKeyButton.Text = targetKey.ToString();
+        }
+        catch
+        {
+            MessageBox.Show("Invalid configuration file.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+    }
+
+    /// <summary>
+    /// Attempts to parse the string into a Keys enum.
+    /// </summary>
+    /// <param name="text">The text to be parsed</param>
+    /// <param name="result">The output Keys value</param>
+    /// <returns>True if it was successful or false if parsing fails</returns>
+    private static bool TryParseKeys(string text, out Keys result)
+    {
+        return Enum.TryParse(text, true, out result);
     }
 
     #endregion
