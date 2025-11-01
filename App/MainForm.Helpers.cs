@@ -1,5 +1,7 @@
 using System.Runtime.InteropServices;
+using System.Text.Json;
 using App.Constants;
+using App.Models;
 using App.Utils;
 
 namespace App;
@@ -19,9 +21,14 @@ partial class MainForm
     private int inputCount = inputCountDefault;
     private int forcedInputCount = forcedInputCountDefault;
 
+    private JsonSerializerOptions jsonSerializerOption = new()
+    {
+        WriteIndented = true
+    };
+
     // Binding state
     private bool isHotKeyBinding = false;
-    private bool isTargetKeyBinding = false; 
+    private bool isTargetKeyBinding = false;
     private Keys hotKey = hotKeyDefault;
     private Keys targetKey = targetKeyDefault;
     private MouseBindFilter? mouseFilter;
@@ -394,9 +401,9 @@ partial class MainForm
     /// <param name="path">String path of the saved file.</param>
     private void SaveConfigurationToFile(string path)
     {
-        // Implementation for serializing and writing your settings goes here
-        // The idea is to save is as json for now. Open to changes.
-        File.WriteAllText(path, "Placeholder configuration data.");
+        AppConfig appConfig = GetCurrentConfigValuesFromApp();
+        string jsonString = JsonSerializer.Serialize(appConfig, jsonSerializerOption);
+        File.WriteAllText(path, jsonString);
     }
 
     /// <summary>
@@ -406,6 +413,7 @@ partial class MainForm
     /// <param name="path"></param>
     private void LoadConfigurationFromFile(string path)
     {
+        // Call ApplyLoadedConfigToApp after validation.
         MessageBox.Show($"TODO: Load settings from file at {path}", "Not implemented",
             MessageBoxButtons.OK, MessageBoxIcon.Information);
     }
@@ -414,17 +422,30 @@ partial class MainForm
     /// Gets the current values for all configuration
     /// in the tabs and fields.
     /// </summary>
-    private void GetCurrentConfigValuesFromApp()
+    private AppConfig GetCurrentConfigValuesFromApp()
     {
-
+        AppConfig appConfig = new()
+        {
+            IntervalMilliseconds = (int)intervalInput.Value,
+            RunToStopActive = runUntilStoppedRadio.Checked,
+            StopInputCount = (int)runCountInput.Value,
+            StartStopKeybind = keybindButton.Text,
+            TargetInputKey = targetKeyButton.Text,
+            ScheduleStartEnabled = scheduleEnableStartCheck.Checked,
+            ScheduleStartTime = scheduleStartPicker.Value,
+            ScheduleStopEnabled = scheduleEnableStopCheck.Checked,
+            ScheduleStopTime = scheduleStopPicker.Value,
+            ConfigFolderPath = configPathText.Text
+        };
+        return appConfig;
     }
-    
+
     /// <summary>
     /// Applies the configuration to the app.
     /// </summary>
-    private void ApplyLoadedConfigToApp()
+    private void ApplyLoadedConfigToApp(AppConfig appConfig)
     {
-        
+        // Use Keys parsedKey = (Keys)Enum.Parse(typeof(Keys), savedKey); to set the key from file
     }
 
     #endregion
