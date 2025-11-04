@@ -356,39 +356,49 @@ public partial class MainForm : Form
     #region Sequence Tab
 
     /// <summary>
-    /// TODO
+    /// On click button to add a new key sequence.
     /// </summary>
     private void SequenceAddButton_Click(object? sender, EventArgs e)
-        => MessageBox.Show("TODO: Add sequence step dialog.", "Not implemented",
+    {
+        MessageBox.Show("TODO: Add sequence step dialog.", "Not implemented",
             MessageBoxButtons.OK, MessageBoxIcon.Information);
+    }
 
     /// <summary>
-    /// TODO
+    /// On click button to edit an already created and selected key sequence.
     /// </summary>
     private void SequenceEditButton_Click(object? sender, EventArgs e)
-        => MessageBox.Show("TODO: Edit selected sequence step.", "Not implemented",
-            MessageBoxButtons.OK, MessageBoxIcon.Information);
+    {
+        MessageBox.Show("TODO: Edit selected sequence step.", "Not implemented",
+             MessageBoxButtons.OK, MessageBoxIcon.Information);
+    }
 
     /// <summary>
-    /// TODO
+    /// On click button to delete a selected key sequence.
     /// </summary>
     private void SequenceRemoveButton_Click(object? sender, EventArgs e)
-        => MessageBox.Show("TODO: Remove selected sequence step.", "Not implemented",
+    {
+        MessageBox.Show("TODO: Remove selected sequence step.", "Not implemented",
             MessageBoxButtons.OK, MessageBoxIcon.Information);
+    }
 
     /// <summary>
     /// TODO
     /// </summary>
     private void SequenceMoveUpButton_Click(object? sender, EventArgs e)
-        => MessageBox.Show("TODO: Move selected step up.", "Not implemented",
-            MessageBoxButtons.OK, MessageBoxIcon.Information);
+    {
+        MessageBox.Show("TODO: Move selected step up.", "Not implemented",
+             MessageBoxButtons.OK, MessageBoxIcon.Information);
+    }
 
     /// <summary>
     /// TODO
     /// </summary>
     private void SequenceMoveDownButton_Click(object? sender, EventArgs e)
-        => MessageBox.Show("TODO: Move selected sequence step.", "Not implemented",
+    {
+        MessageBox.Show("TODO: Move selected sequence step.", "Not implemented",
             MessageBoxButtons.OK, MessageBoxIcon.Information);
+    }
 
     #endregion
 

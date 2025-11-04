@@ -1,9 +1,12 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace App.Models;
 
 /// <summary>
 /// Configuration of the application.
 /// Used for persistence and status tracking.
 /// </summary>
+[ExcludeFromCodeCoverage]
 public class AppConfig
 {
     /// <summary>

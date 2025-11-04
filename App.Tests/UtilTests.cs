@@ -49,9 +49,11 @@ public class UtilTests : IDisposable
     [Fact]
     public void SetIntervalHint_Should_Correctly_Display_The_Range()
     {
-        int min = 50;
+        int min = 500;
         int max = 1200;
-        string expected = $"Range: {min} – {max} ms \n1 second = 1000 milliseconds";
+        decimal minSec = TimeUtils.ToSeconds(min);
+        decimal maxSec = TimeUtils.ToSeconds(max);
+        string expected = $"Range: {minSec:0.0} – {maxSec:0.0} s";
         string actual = LabelFormatter.SetIntervalHint(min, max);
         Assert.Equal(expected, actual);
     }
@@ -134,8 +136,8 @@ public class UtilTests : IDisposable
     }
 
     [Theory]
-    [InlineData(0x0201, MouseButtons.Left)]  
-    [InlineData(0x0204, MouseButtons.Right)]  
+    [InlineData(0x0201, MouseButtons.Left)]
+    [InlineData(0x0204, MouseButtons.Right)]
     [InlineData(0x0207, MouseButtons.Middle)]
     public void PreFilterMessage_Should_Invoke_OnClick_For_MouseButtons(int msg, MouseButtons expected)
     {
@@ -147,6 +149,62 @@ public class UtilTests : IDisposable
 
         Assert.True(result);
         Assert.Equal(expected, clicked);
+    }
+
+    [Fact]
+    public void Time_To_Milliseconds_Converts_The_Value()
+    {
+        decimal seconds = 0.3M;
+        int expectedMS = 300;
+        int actualMS = TimeUtils.ToMilliseconds(seconds);
+        Assert.Equal(expectedMS, actualMS);
+    }
+
+    [Fact]
+    public void Time_To_Seconds_Converts_The_Value()
+    {
+        int ms = 800;
+        decimal expectedSeconds = 0.8M;
+        decimal actualSeconds = TimeUtils.ToSeconds(ms);
+        Assert.Equal(expectedSeconds, actualSeconds);
+    }
+
+    [Fact]
+    public void ClampSeconds_Should_Return_Value_When_Within_Bounds()
+    {
+        decimal seconds = 1.5M;
+        int minMs = 1000;
+        int maxMs = 3000;
+        decimal result = TimeUtils.ClampSeconds(seconds, minMs, maxMs);
+        Assert.Equal(1.5M, result);
+    }
+
+    [Fact]
+    public void ClampSeconds_Should_Clamp_To_Min_When_Below_Bounds()
+    {
+        decimal seconds = 0.5M;
+        int minMs = 1000;
+        int maxMs = 3000;
+        decimal result = TimeUtils.ClampSeconds(seconds, minMs, maxMs);
+        Assert.Equal(1.0M, result);
+    }
+
+    [Fact]
+    public void ClampSeconds_Should_Clamp_To_Max_When_Above_Bounds()
+    {
+        decimal seconds = 5.0M;
+        int minMs = 1000;
+        int maxMs = 3000;
+        decimal result = TimeUtils.ClampSeconds(seconds, minMs, maxMs);
+        Assert.Equal(3.0M, result);
+    }
+
+    [Fact]
+    public void IsMouseKey_Should_Return_True_When_MouseKey()
+    {
+        Keys key = Keys.LButton;
+        bool result = NativeInput.IsMouseKey(key);
+        Assert.True(result);
     }
 
     /********************

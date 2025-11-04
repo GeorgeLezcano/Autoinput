@@ -80,4 +80,3 @@ Use the helper script to publish and keep only the `.exe`:
 - Some apps block simulated input; try running AutoInput as Administrator if needed.
 
 ##  **⚠️ Use responsibly!** Avoid sending automated input to systems that disallow it.
-
