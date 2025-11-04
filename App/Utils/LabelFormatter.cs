@@ -33,7 +33,7 @@ public static class LabelFormatter
     {
         decimal minSec = TimeUtils.ToSeconds(min);
         decimal maxSec = TimeUtils.ToSeconds(max);
-        return $"Range: {minSec:0.0} – {maxSec:0.0} s";
+        return $"Range: {minSec:0.0} – {maxSec:0.0} Seconds";
     }
 
     /// <summary>

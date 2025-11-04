@@ -137,12 +137,9 @@ partial class MainForm
         runForCountRadio.Enabled = false;
         runCountInput.Enabled = false;
 
-        sequenceIntervalInput.Enabled = false;
         sequenceAddButton.Enabled = false;
         sequenceEditButton.Enabled = false;
         sequenceRemoveButton.Enabled = false;
-        sequenceMoveUpButton.Enabled = false;
-        sequenceMoveDownButton.Enabled = false;
 
         keybindButton.Enabled = false;
         targetKeyButton.Enabled = false;
@@ -229,12 +226,9 @@ partial class MainForm
         runCountInput.Enabled = !running && runForCountRadio.Checked;
 
         // Sequence tab
-        sequenceIntervalInput.Enabled = !running;
         sequenceAddButton.Enabled = !running;
         sequenceEditButton.Enabled = !running;
         sequenceRemoveButton.Enabled = !running;
-        sequenceMoveUpButton.Enabled = !running;
-        sequenceMoveDownButton.Enabled = !running;
 
         // Keys
         keybindButton.Enabled = !running;
@@ -275,12 +269,9 @@ partial class MainForm
         runForCountRadio.Enabled = true;
         runCountInput.Enabled = runForCountRadio.Checked;
 
-        sequenceIntervalInput.Enabled = true;
         sequenceAddButton.Enabled = true;
         sequenceEditButton.Enabled = true;
         sequenceRemoveButton.Enabled = true;
-        sequenceMoveUpButton.Enabled = true;
-        sequenceMoveDownButton.Enabled = true;
 
         keybindButton.Enabled = true;
         targetKeyButton.Enabled = true;

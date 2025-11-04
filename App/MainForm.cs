@@ -382,24 +382,6 @@ public partial class MainForm : Form
             MessageBoxButtons.OK, MessageBoxIcon.Information);
     }
 
-    /// <summary>
-    /// TODO
-    /// </summary>
-    private void SequenceMoveUpButton_Click(object? sender, EventArgs e)
-    {
-        MessageBox.Show("TODO: Move selected step up.", "Not implemented",
-             MessageBoxButtons.OK, MessageBoxIcon.Information);
-    }
-
-    /// <summary>
-    /// TODO
-    /// </summary>
-    private void SequenceMoveDownButton_Click(object? sender, EventArgs e)
-    {
-        MessageBox.Show("TODO: Move selected sequence step.", "Not implemented",
-            MessageBoxButtons.OK, MessageBoxIcon.Information);
-    }
-
     #endregion
 
     #region Config Tab

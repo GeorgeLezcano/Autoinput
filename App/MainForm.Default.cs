@@ -8,7 +8,7 @@ partial class MainForm
     /// <summary>
     /// Default interval used to reset the interval input (milliseconds).
     /// </summary>
-    private const int inputIntervalDefault = 200;
+    private const int inputIntervalDefault = 300;
 
     /// <summary>
     /// Default interval for run timer, in milliseconds (1000 ms = 1s).
@@ -44,11 +44,6 @@ partial class MainForm
     /// Maximum bounds for "run for count".
     /// </summary>
     private const int runCountInputMaximum = 1000000;
-
-    /// <summary>
-    /// Maximum value for the sequence interval input (milliseconds).
-    /// </summary>
-    private const int sequenceIntervalInputMaximum = 600000;
 
     /// <summary>
     /// Initial counters and state.

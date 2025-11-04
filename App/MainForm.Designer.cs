@@ -89,10 +89,6 @@ partial class MainForm
         sequenceAddButton = new Button();
         sequenceEditButton = new Button();
         sequenceRemoveButton = new Button();
-        sequenceMoveUpButton = new Button();
-        sequenceMoveDownButton = new Button();
-        sequenceIntervalLabel = new Label();
-        sequenceIntervalInput = new NumericUpDown();
 
         // ---- Config tab ----
         groupConfig = new GroupBox();
@@ -112,7 +108,6 @@ partial class MainForm
         ((System.ComponentModel.ISupportInitialize)intervalInput).BeginInit();
         ((System.ComponentModel.ISupportInitialize)runCountInput).BeginInit();
         ((System.ComponentModel.ISupportInitialize)sequenceGrid).BeginInit();
-        ((System.ComponentModel.ISupportInitialize)sequenceIntervalInput).BeginInit();
         SuspendLayout();
 
         #region Theme & Form Chrome
@@ -215,7 +210,7 @@ partial class MainForm
         intervalLabel.Location = new System.Drawing.Point(20, 35);
         intervalLabel.Name = "intervalLabel";
         intervalLabel.Size = new System.Drawing.Size(148, 20);
-        intervalLabel.Text = "Interval (S)";
+        intervalLabel.Text = "Interval (Seconds)";
 
         intervalInput.Value = TimeUtils.ToSeconds(inputIntervalDefault);
         intervalInput.Minimum = TimeUtils.ToSeconds(intervalMinimum);
@@ -432,17 +427,17 @@ partial class MainForm
         colStep.HeaderText = "#";
         colStep.Name = "colStep";
         colStep.ReadOnly = true;
-        colStep.Width = 40;
+        colStep.Width = 100;
 
         colKey.HeaderText = "Key / Click";
         colKey.Name = "colKey";
         colKey.ReadOnly = true;
         colKey.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
 
-        colDelayMs.HeaderText = "Delay (ms)";
+        colDelayMs.HeaderText = "Delay (Seconds)";
         colDelayMs.Name = "colDelayMs";
         colDelayMs.ReadOnly = true;
-        colDelayMs.Width = 120;
+        colDelayMs.Width = 180;
 
         sequenceGrid.Columns.AddRange(new DataGridViewColumn[] { colStep, colKey, colDelayMs });
 
@@ -479,53 +474,12 @@ partial class MainForm
         sequenceRemoveButton.Location = new System.Drawing.Point(10, 90);
         sequenceRemoveButton.Click += SequenceRemoveButton_Click;
 
-        sequenceMoveUpButton.Text = "Move Up";
-        sequenceMoveUpButton.FlatStyle = FlatStyle.Flat;
-        sequenceMoveUpButton.FlatAppearance.BorderColor = UiColors.Border;
-        sequenceMoveUpButton.FlatAppearance.BorderSize = 1;
-        sequenceMoveUpButton.BackColor = UiColors.ButtonBackDefault;
-        sequenceMoveUpButton.ForeColor = ForeColor;
-        sequenceMoveUpButton.Size = new System.Drawing.Size(120, 30);
-        sequenceMoveUpButton.Location = new System.Drawing.Point(10, 130);
-        sequenceMoveUpButton.Click += SequenceMoveUpButton_Click;
-
-        sequenceMoveDownButton.Text = "Move Down";
-        sequenceMoveDownButton.FlatStyle = FlatStyle.Flat;
-        sequenceMoveDownButton.FlatAppearance.BorderColor = UiColors.Border;
-        sequenceMoveDownButton.FlatAppearance.BorderSize = 1;
-        sequenceMoveDownButton.BackColor = UiColors.ButtonBackDefault;
-        sequenceMoveDownButton.ForeColor = ForeColor;
-        sequenceMoveDownButton.Size = new System.Drawing.Size(120, 30);
-        sequenceMoveDownButton.Location = new System.Drawing.Point(10, 170);
-        sequenceMoveDownButton.Click += SequenceMoveDownButton_Click;
-
         sequenceButtonsPanel.Controls.Add(sequenceAddButton);
         sequenceButtonsPanel.Controls.Add(sequenceEditButton);
         sequenceButtonsPanel.Controls.Add(sequenceRemoveButton);
-        sequenceButtonsPanel.Controls.Add(sequenceMoveUpButton);
-        sequenceButtonsPanel.Controls.Add(sequenceMoveDownButton);
-
-        sequenceIntervalLabel.AutoSize = true;
-        sequenceIntervalLabel.ForeColor = UiColors.TextSecondary;
-        sequenceIntervalLabel.Location = new System.Drawing.Point(20, 350);
-        sequenceIntervalLabel.Text = "Sequence interval (S):";
-
-        sequenceIntervalInput.BorderStyle = BorderStyle.FixedSingle;
-        sequenceIntervalInput.BackColor = System.Drawing.Color.FromArgb(52, 56, 72);
-        sequenceIntervalInput.ForeColor = ForeColor;
-        sequenceIntervalInput.Minimum = intervalMinimum / 1000M;
-        sequenceIntervalInput.Maximum = sequenceIntervalInputMaximum / 1000M;
-        sequenceIntervalInput.Value = inputIntervalDefault / 1000M;
-        sequenceIntervalInput.Location = new System.Drawing.Point(190, 346);
-        sequenceIntervalInput.Size = new System.Drawing.Size(120, 27);
-        sequenceIntervalInput.Increment = intervalInputIncrement / 1000M;
-        sequenceIntervalInput.DecimalPlaces = 1;
-        sequenceIntervalInput.ThousandsSeparator = false;
 
         groupSequence.Controls.Add(sequenceGrid);
         groupSequence.Controls.Add(sequenceButtonsPanel);
-        groupSequence.Controls.Add(sequenceIntervalLabel);
-        groupSequence.Controls.Add(sequenceIntervalInput);
 
         tabSequence.Controls.Add(groupSequence);
 
@@ -652,7 +606,6 @@ partial class MainForm
         ((System.ComponentModel.ISupportInitialize)intervalInput).EndInit();
         ((System.ComponentModel.ISupportInitialize)runCountInput).EndInit();
         ((System.ComponentModel.ISupportInitialize)sequenceGrid).EndInit();
-        ((System.ComponentModel.ISupportInitialize)sequenceIntervalInput).EndInit();
 
         ResumeLayout(false);
         PerformLayout();
@@ -716,10 +669,6 @@ partial class MainForm
     private Button sequenceAddButton;
     private Button sequenceEditButton;
     private Button sequenceRemoveButton;
-    private Button sequenceMoveUpButton;
-    private Button sequenceMoveDownButton;
-    private Label sequenceIntervalLabel;
-    private NumericUpDown sequenceIntervalInput;
 
     // Config
     private GroupBox groupConfig;
