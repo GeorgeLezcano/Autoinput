@@ -31,7 +31,9 @@ public static class LabelFormatter
     /// <param name="max">Maximum interval value</param>
     public static string SetIntervalHint(int min, int max)
     {
-        return $"Range: {min} – {max} ms \n1 second = 1000 milliseconds";
+        decimal minSec = TimeUtils.ToSeconds(min);
+        decimal maxSec = TimeUtils.ToSeconds(max);
+        return $"Range: {minSec:0.0} – {maxSec:0.0} s";
     }
 
     /// <summary>

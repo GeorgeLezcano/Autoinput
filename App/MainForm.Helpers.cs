@@ -467,7 +467,7 @@ partial class MainForm
     {
         AppConfig appConfig = new()
         {
-            IntervalMilliseconds = (int)intervalInput.Value,
+            IntervalMilliseconds = TimeUtils.ToMilliseconds(intervalInput.Value),
             RunUntilStopActive = runUntilStoppedRadio.Checked,
             RunUntilSetCountActive = runForCountRadio.Checked,
             StopInputCount = (int)runCountInput.Value,
@@ -495,7 +495,10 @@ partial class MainForm
             static decimal ClampDec(decimal v, decimal min, decimal max)
                 => v < min ? min : (v > max ? max : v);
 
-            intervalInput.Value = ClampDec(appConfig.IntervalMilliseconds, intervalInput.Minimum, intervalInput.Maximum);
+            intervalInput.Value = TimeUtils.ClampSeconds(
+                appConfig.IntervalMilliseconds / 1000M,
+                intervalMinimum,
+                intervalMaximum);
 
             bool runForCount = appConfig.RunUntilSetCountActive;
             runUntilStoppedRadio.Checked = !runForCount;

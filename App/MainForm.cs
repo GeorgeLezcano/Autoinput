@@ -95,7 +95,7 @@ public partial class MainForm : Form
                 EnterScheduledMode();
                 return;
             }
-            inputCountTimer.Interval = (int)intervalInput.Value;
+            inputCountTimer.Interval = TimeUtils.ToMilliseconds(intervalInput.Value);
         }
 
         isRunning = !isRunning;
@@ -114,7 +114,7 @@ public partial class MainForm : Form
             StopScheduleTimer();
             isScheduled = false;
 
-            inputCountTimer.Interval = (int)intervalInput.Value;
+            inputCountTimer.Interval = TimeUtils.ToMilliseconds(intervalInput.Value);
             inputCountTimer.Start();
 
             startStopButton.Text = "Stop";
@@ -187,7 +187,7 @@ public partial class MainForm : Form
         forcedInputCount = forcedInputCountDefault;
         timerLabel.Text = LabelFormatter.SetTimeLabel(activeTimerSeconds);
         inputCountLabel.Text = LabelFormatter.SetInputCountLabel(inputCount);
-        intervalInput.Value = inputIntervalDefault;
+        intervalInput.Value = TimeUtils.ToSeconds(inputIntervalDefault);
         runCountInput.Value = runCountInputDefault;
         runUntilStoppedRadio.Checked = true;
 

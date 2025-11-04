@@ -8,7 +8,7 @@ partial class MainForm
     /// <summary>
     /// Default interval used to reset the interval input (milliseconds).
     /// </summary>
-    private const int inputIntervalDefault = 250;
+    private const int inputIntervalDefault = 200;
 
     /// <summary>
     /// Default interval for run timer, in milliseconds (1000 ms = 1s).
@@ -33,7 +33,7 @@ partial class MainForm
     /// <summary>
     /// Increment between time-interval steps for input fields (milliseconds).
     /// </summary>
-    private const int intervalInputIncrement = 1;
+    private const int intervalInputIncrement = 100;
 
     /// <summary>
     /// Minimum bounds for "run for count".

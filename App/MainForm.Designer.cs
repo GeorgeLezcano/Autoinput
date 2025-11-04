@@ -215,12 +215,14 @@ partial class MainForm
         intervalLabel.Location = new System.Drawing.Point(20, 35);
         intervalLabel.Name = "intervalLabel";
         intervalLabel.Size = new System.Drawing.Size(148, 20);
-        intervalLabel.Text = "Interval (milliseconds)";
+        intervalLabel.Text = "Interval (S)";
 
-        intervalInput.Increment = new decimal(new int[] { intervalInputIncrement, 0, 0, 0 });
-        intervalInput.Maximum = new decimal(new int[] { intervalMaximum, 0, 0, 0 });
-        intervalInput.Minimum = new decimal(new int[] { intervalMinimum, 0, 0, 0 });
-        intervalInput.Value = new decimal(new int[] { inputIntervalDefault, 0, 0, 0 });
+        intervalInput.Value = TimeUtils.ToSeconds(inputIntervalDefault);
+        intervalInput.Minimum = TimeUtils.ToSeconds(intervalMinimum);
+        intervalInput.Maximum = TimeUtils.ToSeconds(intervalMaximum);
+        intervalInput.Increment = TimeUtils.ToSeconds(intervalInputIncrement);
+        intervalInput.DecimalPlaces = 1;
+        intervalInput.ThousandsSeparator = false;
         intervalInput.BorderStyle = BorderStyle.FixedSingle;
         intervalInput.BackColor = System.Drawing.Color.FromArgb(52, 56, 72);
         intervalInput.ForeColor = ForeColor;
@@ -506,17 +508,19 @@ partial class MainForm
         sequenceIntervalLabel.AutoSize = true;
         sequenceIntervalLabel.ForeColor = UiColors.TextSecondary;
         sequenceIntervalLabel.Location = new System.Drawing.Point(20, 350);
-        sequenceIntervalLabel.Text = "Sequence interval (ms):";
+        sequenceIntervalLabel.Text = "Sequence interval (S):";
 
         sequenceIntervalInput.BorderStyle = BorderStyle.FixedSingle;
         sequenceIntervalInput.BackColor = System.Drawing.Color.FromArgb(52, 56, 72);
         sequenceIntervalInput.ForeColor = ForeColor;
-        sequenceIntervalInput.Minimum = new decimal(new int[] { intervalMinimum, 0, 0, 0 });
-        sequenceIntervalInput.Maximum = new decimal(new int[] { sequenceIntervalInputMaximum, 0, 0, 0 });
-        sequenceIntervalInput.Value = new decimal(new int[] { inputIntervalDefault, 0, 0, 0 });
+        sequenceIntervalInput.Minimum = intervalMinimum / 1000M;
+        sequenceIntervalInput.Maximum = sequenceIntervalInputMaximum / 1000M;
+        sequenceIntervalInput.Value = inputIntervalDefault / 1000M;
         sequenceIntervalInput.Location = new System.Drawing.Point(190, 346);
         sequenceIntervalInput.Size = new System.Drawing.Size(120, 27);
-        sequenceIntervalInput.Increment = intervalInputIncrement;
+        sequenceIntervalInput.Increment = intervalInputIncrement / 1000M;
+        sequenceIntervalInput.DecimalPlaces = 1;
+        sequenceIntervalInput.ThousandsSeparator = false;
 
         groupSequence.Controls.Add(sequenceGrid);
         groupSequence.Controls.Add(sequenceButtonsPanel);
