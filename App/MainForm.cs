@@ -34,6 +34,16 @@ public partial class MainForm : Form
     /// </summary>
     private void MainForm_Load(object sender, EventArgs e)
     {
+        // Tries to oad default config file first 
+        string exeDir = AppDomain.CurrentDomain.BaseDirectory;
+        string defaultConfigPath = Path.Combine(exeDir, defaultConfigFileName);
+
+        if (File.Exists(defaultConfigPath))
+        {
+            LoadConfigurationFromFile(defaultConfigPath);
+            return;
+        }
+
         // Status labels
         inputCountLabel.Text = LabelFormatter.SetInputCountLabel(inputCount);
         timerLabel.Text = LabelFormatter.SetTimeLabel(activeTimerSeconds);
@@ -51,14 +61,12 @@ public partial class MainForm : Form
 
         // Config defaults
         configPathText.Text = configPathTextDefault;
-        loadOnStartupCheck.Checked = false;
 
         // Ensure the hotkey works minimized/unfocused.
         RegisterGlobalHotkey(hotKey);
 
         // Sequence defaults
         PopulateKeyDropdown();
-
         RefreshSequencePicker();
         sequencePicker.SelectedIndex = 0;
         _currentSequenceIndex = 0;
@@ -648,21 +656,6 @@ public partial class MainForm : Form
         if (openFileDialog.ShowDialog() == DialogResult.OK)
         {
             LoadConfigurationFromFile(openFileDialog.FileName);
-        }
-    }
-
-    /// <summary>
-    /// Loads the file at startup when its checked.
-    /// </summary>
-    private void LoadOnStartupCheck_CheckedChanged(object? sender, EventArgs e)
-    {
-        // TODO: Decide what to do for persistance and startup config
-
-        if (loadOnStartupCheck.Checked)
-        {
-            MessageBox.Show("Startup config coming soon...", "Not implemented",
-            MessageBoxButtons.OK, MessageBoxIcon.Information);
-            loadOnStartupCheck.Checked = false;
         }
     }
 

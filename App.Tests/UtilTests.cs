@@ -53,7 +53,7 @@ public class UtilTests : IDisposable
         int max = 1200;
         decimal minSec = TimeUtils.ToSeconds(min);
         decimal maxSec = TimeUtils.ToSeconds(max);
-        string expected = $"Range: {minSec:0.0} – {maxSec:0.0} s";
+        string expected = $"Range: {minSec:0.0} – {maxSec:0.0} Seconds";
         string actual = LabelFormatter.SetIntervalHint(min, max);
         Assert.Equal(expected, actual);
     }

@@ -145,7 +145,6 @@ partial class MainForm
 
         saveConfigButton.Enabled = false;
         loadConfigButton.Enabled = false;
-        loadOnStartupCheck.Enabled = false;
         configPathText.Enabled = false;
         openConfigFolderButton.Enabled = false;
 
@@ -235,7 +234,6 @@ partial class MainForm
         // Config
         saveConfigButton.Enabled = !running;
         loadConfigButton.Enabled = !running;
-        loadOnStartupCheck.Enabled = !running;
         configPathText.Enabled = !running;
         openConfigFolderButton.Enabled = !running;
     }
@@ -275,7 +273,6 @@ partial class MainForm
 
         saveConfigButton.Enabled = true;
         loadConfigButton.Enabled = true;
-        loadOnStartupCheck.Enabled = true;
         configPathText.Enabled = true;
         openConfigFolderButton.Enabled = true;
     }
@@ -435,9 +432,6 @@ partial class MainForm
                 throw new InvalidDataException();
 
             ApplyLoadedConfigToApp(appConfig);
-
-            MessageBox.Show("Configuration loaded successfully.", "Open configuration",
-                MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
         catch
         {

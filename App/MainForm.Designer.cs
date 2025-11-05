@@ -93,7 +93,6 @@ partial class MainForm
         groupConfig = new GroupBox();
         saveConfigButton = new Button();
         loadConfigButton = new Button();
-        loadOnStartupCheck = new CheckBox();
         configPathLabel = new Label();
         configPathText = new TextBox();
         openConfigFolderButton = new Button();
@@ -627,12 +626,6 @@ partial class MainForm
         loadConfigButton.Size = new System.Drawing.Size(140, 32);
         loadConfigButton.Click += LoadConfigButton_Click;
 
-        loadOnStartupCheck.AutoSize = true;
-        loadOnStartupCheck.ForeColor = UiColors.TextSecondary;
-        loadOnStartupCheck.Location = new System.Drawing.Point(24, 86);
-        loadOnStartupCheck.Text = "Load saved configuration on startup (Not Implemented)";
-        loadOnStartupCheck.CheckedChanged += LoadOnStartupCheck_CheckedChanged;
-
         configPathLabel.AutoSize = true;
         configPathLabel.ForeColor = UiColors.TextSecondary;
         configPathLabel.Location = new System.Drawing.Point(24, 120);
@@ -658,7 +651,6 @@ partial class MainForm
 
         groupConfig.Controls.Add(saveConfigButton);
         groupConfig.Controls.Add(loadConfigButton);
-        groupConfig.Controls.Add(loadOnStartupCheck);
         groupConfig.Controls.Add(configPathLabel);
         groupConfig.Controls.Add(configPathText);
         groupConfig.Controls.Add(openConfigFolderButton);
@@ -821,7 +813,6 @@ partial class MainForm
     private GroupBox groupConfig;
     private Button saveConfigButton;
     private Button loadConfigButton;
-    private CheckBox loadOnStartupCheck;
     private Label configPathLabel;
     private TextBox configPathText;
     private Button openConfigFolderButton;
