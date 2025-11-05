@@ -6,7 +6,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>App</RootNamespace>
-    <Version>1.2.0</Version>
+    <Version>1.3.0</Version>
     <AssemblyName>$([System.String]::Concat('AutoInput_v', '$(Version)'))</AssemblyName>
     <ApplicationIcon>Resources/app_default.ico</ApplicationIcon>
   </PropertyGroup>
