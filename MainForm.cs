@@ -616,7 +616,7 @@ public partial class MainForm : Form
     /// </summary>
     private void SequenceModeCheck_CheckedChanged(object? sender, EventArgs e)
     {
-        //TODO: figure out what to do with sequence mode.
+        //TODO, figure out what to do with sequence mode.
     }
 
     #endregion

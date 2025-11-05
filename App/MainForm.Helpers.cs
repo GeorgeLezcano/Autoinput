@@ -226,6 +226,11 @@ partial class MainForm
         // Sequence tab
         sequenceAddButton.Enabled = !running;
         sequenceRemoveButton.Enabled = !running;
+        newSequenceButton.Enabled = !running;
+        removeSequenceButton.Enabled = !running;
+        sequencePicker.Enabled = !running;
+        sequenceNameText.Enabled = !running;
+        sequenceGrid.Enabled = !running;
 
         // Keys
         keybindButton.Enabled = !running;
@@ -236,6 +241,10 @@ partial class MainForm
         loadConfigButton.Enabled = !running;
         configPathText.Enabled = !running;
         openConfigFolderButton.Enabled = !running;
+        sequenceModeCheck.Enabled = !running;
+
+        // Info
+        userGuideButton.Enabled = !running;
     }
 
     /// <summary>
@@ -292,8 +301,8 @@ partial class MainForm
         }
         else
         {
-            startStopButton.FlatAppearance.MouseOverBackColor = UiColors.ButtonBackDefault;
-            startStopButton.FlatAppearance.MouseDownBackColor = UiColors.ButtonBackDefault;
+            startStopButton.FlatAppearance.MouseOverBackColor = Color.Empty;
+            startStopButton.FlatAppearance.MouseDownBackColor = Color.Empty;
         }
     }
 
@@ -492,7 +501,8 @@ partial class MainForm
             ScheduleStopTime = scheduleStopPicker.Value,
             ConfigFolderPath = configPathText.Text,
             SelectedSequenceIndex = _currentSequenceIndex,
-            Sequences = _sequences
+            Sequences = _sequences,
+            SequenceModeActive = sequenceModeCheck.Checked
         };
         return appConfig;
     }
@@ -547,6 +557,7 @@ partial class MainForm
             targetKeyButton.Text = targetKey.ToString();
 
             LoadSequencesFromConfig(appConfig);
+            sequenceModeCheck.Checked = appConfig.SequenceModeActive;
         }
         catch
         {

@@ -88,6 +88,7 @@ partial class MainForm
         sequenceButtonsPanel = new Panel();
         sequenceAddButton = new Button();
         sequenceRemoveButton = new Button();
+        sequenceModeCheck = new CheckBox();
 
         // ---- Config tab ----
         groupConfig = new GroupBox();
@@ -472,6 +473,15 @@ partial class MainForm
         sequenceButtonsPanel.Location = new System.Drawing.Point(630, 34);
         sequenceButtonsPanel.Size = new System.Drawing.Size(140, 300);
 
+        sequenceModeCheck.AutoSize = true;
+        sequenceModeCheck.Text = "Sequence Mode";
+        sequenceModeCheck.ForeColor = UiColors.TextSecondary;
+        sequenceModeCheck.BackColor = UiColors.PanelBack;
+        sequenceModeCheck.Location = new Point(640, 20);
+        sequenceModeCheck.Checked = false;
+        sequenceModeCheck.TabIndex = 50;
+        sequenceModeCheck.CheckedChanged += SequenceModeCheck_CheckedChanged;
+
         sequenceAddButton.Text = "Add";
         sequenceAddButton.FlatStyle = FlatStyle.Flat;
         sequenceAddButton.FlatAppearance.BorderColor = UiColors.Border;
@@ -479,7 +489,7 @@ partial class MainForm
         sequenceAddButton.BackColor = UiColors.ButtonBackDefault;
         sequenceAddButton.ForeColor = ForeColor;
         sequenceAddButton.Size = new System.Drawing.Size(120, 30);
-        sequenceAddButton.Location = new System.Drawing.Point(10, 10);
+        sequenceAddButton.Location = new System.Drawing.Point(10, 30);
         sequenceAddButton.Click += SequenceAddButton_Click;
 
         sequenceRemoveButton.Text = "Remove";
@@ -489,16 +499,17 @@ partial class MainForm
         sequenceRemoveButton.BackColor = UiColors.ButtonBackDefault;
         sequenceRemoveButton.ForeColor = ForeColor;
         sequenceRemoveButton.Size = new System.Drawing.Size(120, 30);
-        sequenceRemoveButton.Location = new System.Drawing.Point(10, 60);
+        sequenceRemoveButton.Location = new System.Drawing.Point(10, 90);
         sequenceRemoveButton.Click += SequenceRemoveButton_Click;
 
         sequenceButtonsPanel.Controls.Add(sequenceAddButton);
         sequenceButtonsPanel.Controls.Add(sequenceRemoveButton);
+        groupSequence.Controls.Add(sequenceModeCheck);
 
         groupSequence.Controls.Add(sequenceGrid);
         groupSequence.Controls.Add(sequenceButtonsPanel);
 
-        // --- Sequence Picker Panel (bottom of Sequence tab) ---
+        // Sequence Picker Panel
         sequencePickerPanel = new Panel
         {
             Location = new Point(16, 350),
@@ -684,8 +695,8 @@ partial class MainForm
         infoDescription.MaximumSize = new Size(720, 0);
         infoDescription.Location = new System.Drawing.Point(40, 78);
         infoDescription.Text =
-            "AutoInput is a lightweight, timed input automation tool designed for repetitive tasks. " +
-            "It supports intervals, scheduling, sequences, and configuration profiles.\n\n" +
+            "AutoInput is a lightweight, timed input automation tool for repetitive tasks. " +
+            "It supports intervals, scheduling, sequences with optional Sequence Mode, and configuration profiles.\n\n" +
             "You can open the in-app User Guide below for usage details, feature tips, and examples.";
 
         userGuideButton = new Button();
@@ -808,6 +819,7 @@ partial class MainForm
     private TextBox sequenceNameText;
     private Button newSequenceButton;
     private Button removeSequenceButton;
+    private CheckBox sequenceModeCheck;
 
     // Config
     private GroupBox groupConfig;

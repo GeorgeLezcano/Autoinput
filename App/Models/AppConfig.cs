@@ -74,4 +74,10 @@ public class AppConfig
     /// Collection of user defined input sequences.
     /// </summary>
     public List<Sequence> Sequences { get; set; } = [];
+
+    /// <summary>
+    /// Indicates wether the app is running the sequence or
+    /// the single target key.
+    /// </summary>
+    public bool SequenceModeActive { get; set; }
 }
