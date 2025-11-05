@@ -10,6 +10,8 @@ public partial class MainForm : Form
 {
     #region Lifecycle
 
+    private UserGuideForm? _manual;
+
     /// <summary>
     /// Constructor wires up the Designer.
     /// </summary>
@@ -228,6 +230,26 @@ public partial class MainForm : Form
             RegisterGlobalHotkey(hotKey);
 
             configPathText.Text = configPathTextDefault;
+        }
+    }
+
+    /// <summary>
+    /// Opens the internal User Guide window (modeless, themed).
+    /// </summary>
+    private void UserGuideButton_Click(object? sender, EventArgs e)
+    {
+        if (_manual is null || _manual.IsDisposed)
+        {
+            _manual = new UserGuideForm
+            {
+                StartPosition = FormStartPosition.CenterParent
+            };
+            _manual.Show(this);
+        }
+        else
+        {
+            _manual.BringToFront();
+            _manual.Focus();
         }
     }
 

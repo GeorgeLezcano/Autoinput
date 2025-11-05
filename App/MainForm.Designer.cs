@@ -580,18 +580,50 @@ partial class MainForm
         tabInfo.Text = "Info";
         tabInfo.BackColor = UiColors.PanelBack;
 
-        groupInfo.Text = "Information";
+        groupInfo.Text = string.Empty; 
         groupInfo.ForeColor = ForeColor;
         groupInfo.BackColor = UiColors.PanelBack;
         groupInfo.Location = new System.Drawing.Point(16, 16);
-        groupInfo.Size = new System.Drawing.Size(790, 100);
+        groupInfo.Size = new System.Drawing.Size(790, 240);
+        groupInfo.FlatStyle = FlatStyle.Flat;
 
         versionLabel.AutoSize = true;
         versionLabel.ForeColor = UiColors.TextSecondary;
-        versionLabel.Location = new System.Drawing.Point(24, 34);
+        versionLabel.Font = new Font("Segoe UI", 11F, FontStyle.Regular);
+        versionLabel.Location = new System.Drawing.Point(40, 36);
         versionLabel.Text = LabelFormatter.SetVersionLabel();
 
+        var infoDescription = new Label();
+        infoDescription.AutoSize = true;
+        infoDescription.ForeColor = UiColors.TextMuted;
+        infoDescription.Font = new Font("Segoe UI", 9.5F);
+        infoDescription.MaximumSize = new Size(720, 0);
+        infoDescription.Location = new System.Drawing.Point(40, 78);
+        infoDescription.Text =
+            "AutoInput is a lightweight, timed input automation tool designed for repetitive tasks. " +
+            "It supports intervals, scheduling, sequences, and configuration profiles.\n\n" +
+            "You can open the in-app User Guide below for usage details, feature tips, and examples.";
+
+        userGuideButton = new Button();
+        userGuideButton.Text = "📘  Open User Guide";
+        userGuideButton.Font = new Font("Segoe UI", 10F, FontStyle.Regular);
+        userGuideButton.Size = new Size(200, 40);
+        userGuideButton.Location = new Point(40, 180);
+        userGuideButton.FlatStyle = FlatStyle.Flat;
+        userGuideButton.FlatAppearance.BorderSize = 1;
+        userGuideButton.FlatAppearance.BorderColor = UiColors.Border;
+        userGuideButton.BackColor = UiColors.ButtonBackDefault;
+        userGuideButton.ForeColor = UiColors.TextSecondary;
+        userGuideButton.Cursor = Cursors.Hand;
+        userGuideButton.Name = "userGuideButton";
+        userGuideButton.Click += UserGuideButton_Click;
+
+        userGuideButton.MouseEnter += (s, e) => userGuideButton.BackColor = UiColors.ButtonBackHover;
+        userGuideButton.MouseLeave += (s, e) => userGuideButton.BackColor = UiColors.ButtonBackDefault;
+
         groupInfo.Controls.Add(versionLabel);
+        groupInfo.Controls.Add(infoDescription);
+        groupInfo.Controls.Add(userGuideButton);
 
         tabInfo.Controls.Add(groupInfo);
 
@@ -701,6 +733,7 @@ partial class MainForm
 
     private GroupBox groupInfo;
     private Label versionLabel;
+    private Button userGuideButton;
 
     #endregion
 }
