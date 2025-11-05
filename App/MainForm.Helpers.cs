@@ -421,7 +421,7 @@ partial class MainForm
     {
         if (!File.Exists(path))
         {
-            MessageBox.Show($"The file does not exist:\n{path}", "Open configuration",
+            MessageBox.Show("The configuration file does not exist.", "Open configuration",
                 MessageBoxButtons.OK, MessageBoxIcon.Error);
             return;
         }
@@ -429,22 +429,53 @@ partial class MainForm
         try
         {
             string jsonString = File.ReadAllText(path);
-            AppConfig? appConfig = JsonSerializer.Deserialize<AppConfig>(jsonString, jsonSerializerOption) ?? throw new InvalidOperationException("Deserialized object was null.");
+            AppConfig? appConfig = JsonSerializer.Deserialize<AppConfig>(jsonString, jsonSerializerOption);
+
+            if (appConfig is null || !TryValidate(appConfig))
+                throw new InvalidDataException();
+
             ApplyLoadedConfigToApp(appConfig);
 
-            MessageBox.Show($"Configuration loaded:\n{path}", "Open configuration",
+            MessageBox.Show("Configuration loaded successfully.", "Open configuration",
                 MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
-        catch (JsonException jx)
+        catch
         {
-            MessageBox.Show($"That file is not valid JSON:\n{path}\n\nDetails: {jx.Message}",
-                "Open configuration", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            MessageBox.Show("Invalid configuration file.", "Open configuration",
+                MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
-        catch (Exception ex)
-        {
-            MessageBox.Show($"Failed to load configuration:\n{path}\n\nDetails: {ex.Message}",
-                "Open configuration", MessageBoxButtons.OK, MessageBoxIcon.Error);
-        }
+    }
+
+    /// <summary>
+    /// Validates a deserialized AppConfig before applying it to the UI.
+    /// Ensures ranges, required fields, and parseable keys.
+    /// </summary>
+    private bool TryValidate(AppConfig c)
+    {
+        if (c.IntervalMilliseconds < intervalMinimum || c.IntervalMilliseconds > intervalMaximum)
+            return false;
+
+        if (string.IsNullOrWhiteSpace(c.StartStopKeybind) || !TryParseKeys(c.StartStopKeybind, out var parsedHotkey))
+            return false;
+
+        if (string.IsNullOrWhiteSpace(c.TargetInputKey) || !TryParseKeys(c.TargetInputKey, out var parsedTarget))
+            return false;
+
+        if (parsedHotkey == parsedTarget)
+            return false;
+
+        if (c.RunUntilSetCountActive && (c.StopInputCount <= 0 ||
+            c.StopInputCount < (int)runCountInput.Minimum ||
+            c.StopInputCount > (int)runCountInput.Maximum))
+            return false;
+
+        if (c.ScheduleStartEnabled && c.ScheduleStartTime == default)
+            return false;
+
+        if (c.ScheduleStopEnabled && c.ScheduleStopTime == default)
+            return false;
+
+        return true;
     }
 
     /// <summary>

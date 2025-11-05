@@ -625,7 +625,7 @@ public partial class MainForm : Form
         {
             string filePath = saveFileDialog.FileName;
             SaveConfigurationToFile(filePath);
-            MessageBox.Show($"Settings successfully saved to: {filePath}", "Save Successful", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show($"Settings successfully saved.", "Save Successful", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
     }
 
