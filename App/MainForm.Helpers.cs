@@ -496,7 +496,9 @@ partial class MainForm
             ScheduleStartTime = scheduleStartPicker.Value,
             ScheduleStopEnabled = scheduleEnableStopCheck.Checked,
             ScheduleStopTime = scheduleStopPicker.Value,
-            ConfigFolderPath = configPathText.Text
+            ConfigFolderPath = configPathText.Text,
+            SelectedSequenceIndex = _currentSequenceIndex,
+            Sequences = _sequences
         };
         return appConfig;
     }
@@ -549,6 +551,8 @@ partial class MainForm
             }
 
             targetKeyButton.Text = targetKey.ToString();
+
+            LoadSequencesFromConfig(appConfig);
         }
         catch
         {
@@ -672,7 +676,7 @@ partial class MainForm
         if (_sequences.All(s => !string.Equals(s.Name, baseName, StringComparison.OrdinalIgnoreCase)))
             return baseName;
 
-        int n = 2;
+        int n = 1;
         while (_sequences.Any(s => string.Equals(s.Name, $"{baseName} ({n})", StringComparison.OrdinalIgnoreCase)))
             n++;
 
@@ -754,6 +758,113 @@ partial class MainForm
         {
             _suppressSequencePickerSync = false;
         }
+    }
+
+    /// <summary>
+    /// Loads sequences from the given config into runtime state and syncs the UI.
+    /// Uses existing helpers to refresh the picker and grid. Falls back to a single
+    /// default sequence if none are provided or everything sanitizes away.
+    /// </summary>
+    private void LoadSequencesFromConfig(AppConfig appConfig)
+    {
+        sequenceGrid.EndEdit();
+
+        var sanitized = SanitizeSequences(
+            appConfig.Sequences,
+            intervalMinimum,
+            intervalMaximum
+        );
+
+        if (sanitized.Count == 0)
+            sanitized.Add(new Sequence());
+
+        int selected = ClampIndex(appConfig.SelectedSequenceIndex, sanitized.Count);
+
+        ApplySequencesToUi(sanitized, selected);
+    }
+
+    /// <summary>
+    /// Clamps the the index.
+    /// </summary>
+    private static int ClampIndex(int i, int count)
+    => (i < 0 || i >= count) ? 0 : i;
+
+    /// <summary>
+    /// Sanitizes the sequence and returns a cleaned
+    /// sequences with valid ranges and values.
+    /// </summary>
+    private static Sequence SanitizeSequence(Sequence? sequence, int minMs, int maxMs)
+    {
+        sequence ??= new Sequence();
+
+        var name = string.IsNullOrWhiteSpace(sequence.Name) ? "New Sequence" : sequence.Name.Trim();
+        var steps = sequence.Steps ?? [];
+
+        var cleaned = new List<SequenceStep>(steps.Count);
+        foreach (var step in steps)
+        {
+            if (step is null) continue;
+            if (step.Key == Keys.None) continue;
+
+            var ms = step.DelayMS;
+            if (ms < minMs) ms = minMs;
+            if (ms > maxMs) ms = maxMs;
+
+            cleaned.Add(new SequenceStep { Key = step.Key, DelayMS = ms });
+        }
+
+        return new Sequence { Name = name, Steps = cleaned };
+    }
+
+    /// <summary>
+    /// Sanitizes the list of sequences.
+    /// </summary>
+    private static List<Sequence> SanitizeSequences(IEnumerable<Sequence>? sequences, int minMs, int maxMs)
+    {
+        var list = new List<Sequence>();
+        if (sequences is null) return list;
+
+        foreach (var seq in sequences)
+            list.Add(SanitizeSequence(seq, minMs, maxMs));
+
+        return list;
+    }
+
+    /// <summary>
+    /// Populates the UI with the loaded sequences.
+    /// </summary>
+    private void ApplySequencesToUi(List<Sequence> sequences, int selectedIndex)
+    {
+        _suppressSequencePickerSync = true;
+        try
+        {
+            _sequences = sequences;
+
+            RefreshSequencePicker();
+
+            sequencePicker.SelectedIndex = selectedIndex;
+            _currentSequenceIndex = selectedIndex;
+
+            _isSyncingSequenceName = true;
+            sequenceNameText.Text = _sequences[_currentSequenceIndex].Name;
+            _isSyncingSequenceName = false;
+
+            PopulateKeyDropdown();
+
+            RefreshSequenceGridFrom(_sequences[_currentSequenceIndex]);
+            UpdateRemoveButtonEnabled();
+
+            if (sequenceGrid.Rows.Count > 0)
+            {
+                sequenceGrid.ClearSelection();
+                sequenceGrid.CurrentCell = null;
+            }
+        }
+        finally
+        {
+            _suppressSequencePickerSync = false;
+        }
+        SyncSequenceUiFromSelection();
     }
 
     #endregion

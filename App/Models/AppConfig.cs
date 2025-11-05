@@ -63,4 +63,15 @@ public class AppConfig
     /// Default folder path for configuration files.
     /// </summary>
     public string ConfigFolderPath { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Currently seleted sequence from the list.
+    /// Defaults to zero as a fallback.
+    /// </summary>
+    public int SelectedSequenceIndex { get; set; } = 0;
+
+    /// <summary>
+    /// Collection of user defined input sequences.
+    /// </summary>
+    public List<Sequence> Sequences { get; set; } = [];
 }

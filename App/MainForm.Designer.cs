@@ -553,7 +553,7 @@ partial class MainForm
         {
             Text = "New",
             Location = new Point(600, 4),
-            Size = new Size(70, 30),
+            Size = new Size(74, 30),
             FlatStyle = FlatStyle.Flat,
             BackColor = UiColors.ButtonBackDefault,
             ForeColor = ForeColor
@@ -567,7 +567,7 @@ partial class MainForm
         {
             Text = "Remove",
             Location = new Point(680, 4),
-            Size = new Size(70, 30),
+            Size = new Size(74, 30),
             FlatStyle = FlatStyle.Flat,
             BackColor = UiColors.ButtonBackDefault,
             ForeColor = ForeColor
