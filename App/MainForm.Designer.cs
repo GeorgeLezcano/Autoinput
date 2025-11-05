@@ -83,11 +83,10 @@ partial class MainForm
         groupSequence = new GroupBox();
         sequenceGrid = new DataGridView();
         colStep = new DataGridViewTextBoxColumn();
-        colKey = new DataGridViewTextBoxColumn();
+        colKey = new DataGridViewComboBoxColumn();
         colDelayMs = new DataGridViewTextBoxColumn();
         sequenceButtonsPanel = new Panel();
         sequenceAddButton = new Button();
-        sequenceEditButton = new Button();
         sequenceRemoveButton = new Button();
 
         // ---- Config tab ----
@@ -219,8 +218,8 @@ partial class MainForm
         intervalInput.DecimalPlaces = 1;
         intervalInput.ThousandsSeparator = false;
         intervalInput.BorderStyle = BorderStyle.FixedSingle;
-        intervalInput.BackColor = System.Drawing.Color.FromArgb(52, 56, 72);
-        intervalInput.ForeColor = ForeColor;
+        intervalInput.BackColor = UiColors.InputBack;
+        intervalInput.ForeColor = UiColors.InputFore;
         intervalInput.Location = new System.Drawing.Point(24, 58);
         intervalInput.Size = new System.Drawing.Size(160, 27);
         intervalInput.Name = "intervalInput";
@@ -246,8 +245,8 @@ partial class MainForm
         runForCountRadio.CheckedChanged += RunForInputsSelected_Changed;
 
         runCountInput.BorderStyle = BorderStyle.FixedSingle;
-        runCountInput.BackColor = System.Drawing.Color.FromArgb(52, 56, 72);
-        runCountInput.ForeColor = ForeColor;
+        runCountInput.BackColor = UiColors.InputBack;
+        runCountInput.ForeColor = UiColors.InputFore;
         runCountInput.Minimum = new decimal(new int[] { runCountInputMinimum, 0, 0, 0 });
         runCountInput.Maximum = new decimal(new int[] { runCountInputMaximum, 0, 0, 0 });
         runCountInput.Value = new decimal(new int[] { runCountInputDefault, 0, 0, 0 });
@@ -401,7 +400,7 @@ partial class MainForm
         tabSequence.Text = "Sequence";
         tabSequence.BackColor = UiColors.PanelBack;
 
-        groupSequence.Text = "Key Sequence (Not Implemented Yet)";
+        groupSequence.Text = "Key Sequence";
         groupSequence.ForeColor = ForeColor;
         groupSequence.BackColor = UiColors.PanelBack;
         groupSequence.Location = new System.Drawing.Point(16, 16);
@@ -421,7 +420,35 @@ partial class MainForm
         sequenceGrid.RowHeadersVisible = false;
         sequenceGrid.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
         sequenceGrid.Size = new System.Drawing.Size(600, 300);
-        sequenceGrid.ReadOnly = true;
+        sequenceGrid.ReadOnly = false;
+        sequenceGrid.EditMode = DataGridViewEditMode.EditOnEnter;
+
+        sequenceGrid.CellValidating += SequenceGrid_CellValidating;
+        sequenceGrid.EditingControlShowing += SequenceGrid_EditingControlShowing;
+        sequenceGrid.CellEndEdit += SequenceGrid_CellEndEdit;
+
+
+        // === THEME: sequenceGrid ===
+        sequenceGrid.BackgroundColor = UiColors.GridBack;
+        sequenceGrid.GridColor = UiColors.GridLines;
+
+        // Header
+        sequenceGrid.ColumnHeadersDefaultCellStyle.BackColor = UiColors.GridHeaderBack;
+        sequenceGrid.ColumnHeadersDefaultCellStyle.ForeColor = UiColors.GridHeaderFore;
+        sequenceGrid.ColumnHeadersDefaultCellStyle.SelectionBackColor = UiColors.GridHeaderBack;
+        sequenceGrid.ColumnHeadersDefaultCellStyle.SelectionForeColor = UiColors.GridHeaderFore;
+
+        // Rows
+        sequenceGrid.DefaultCellStyle.BackColor = UiColors.GridRowBack;
+        sequenceGrid.DefaultCellStyle.ForeColor = UiColors.FormFore;
+        sequenceGrid.AlternatingRowsDefaultCellStyle.BackColor = UiColors.GridAltRowBack;
+        sequenceGrid.DefaultCellStyle.SelectionBackColor = UiColors.GridSelectionBack;
+        sequenceGrid.DefaultCellStyle.SelectionForeColor = UiColors.GridSelectionFore;
+
+        // Borders
+        sequenceGrid.BorderStyle = BorderStyle.None;
+        sequenceGrid.CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal;
+        sequenceGrid.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None;
 
         // Columns
         colStep.HeaderText = "#";
@@ -431,13 +458,16 @@ partial class MainForm
 
         colKey.HeaderText = "Key / Click";
         colKey.Name = "colKey";
-        colKey.ReadOnly = true;
+        colKey.ReadOnly = false;
         colKey.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+        colKey.DisplayStyle = DataGridViewComboBoxDisplayStyle.DropDownButton;
+        colKey.FlatStyle = FlatStyle.Flat;
 
         colDelayMs.HeaderText = "Delay (Seconds)";
         colDelayMs.Name = "colDelayMs";
-        colDelayMs.ReadOnly = true;
+        colDelayMs.ReadOnly = false;
         colDelayMs.Width = 180;
+        colDelayMs.DefaultCellStyle.Format = "N1";
 
         sequenceGrid.Columns.AddRange(new DataGridViewColumn[] { colStep, colKey, colDelayMs });
 
@@ -454,16 +484,6 @@ partial class MainForm
         sequenceAddButton.Location = new System.Drawing.Point(10, 10);
         sequenceAddButton.Click += SequenceAddButton_Click;
 
-        sequenceEditButton.Text = "Edit";
-        sequenceEditButton.FlatStyle = FlatStyle.Flat;
-        sequenceEditButton.FlatAppearance.BorderColor = UiColors.Border;
-        sequenceEditButton.FlatAppearance.BorderSize = 1;
-        sequenceEditButton.BackColor = UiColors.ButtonBackDefault;
-        sequenceEditButton.ForeColor = ForeColor;
-        sequenceEditButton.Size = new System.Drawing.Size(120, 30);
-        sequenceEditButton.Location = new System.Drawing.Point(10, 50);
-        sequenceEditButton.Click += SequenceEditButton_Click;
-
         sequenceRemoveButton.Text = "Remove";
         sequenceRemoveButton.FlatStyle = FlatStyle.Flat;
         sequenceRemoveButton.FlatAppearance.BorderColor = UiColors.Border;
@@ -471,11 +491,10 @@ partial class MainForm
         sequenceRemoveButton.BackColor = UiColors.ButtonBackDefault;
         sequenceRemoveButton.ForeColor = ForeColor;
         sequenceRemoveButton.Size = new System.Drawing.Size(120, 30);
-        sequenceRemoveButton.Location = new System.Drawing.Point(10, 90);
+        sequenceRemoveButton.Location = new System.Drawing.Point(10, 60);
         sequenceRemoveButton.Click += SequenceRemoveButton_Click;
 
         sequenceButtonsPanel.Controls.Add(sequenceAddButton);
-        sequenceButtonsPanel.Controls.Add(sequenceEditButton);
         sequenceButtonsPanel.Controls.Add(sequenceRemoveButton);
 
         groupSequence.Controls.Add(sequenceGrid);
@@ -529,8 +548,8 @@ partial class MainForm
 
         configPathText.ReadOnly = true;
         configPathText.BorderStyle = BorderStyle.FixedSingle;
-        configPathText.BackColor = System.Drawing.Color.FromArgb(52, 56, 72);
-        configPathText.ForeColor = ForeColor;
+        configPathText.BackColor = UiColors.InputBack;
+        configPathText.ForeColor = UiColors.InputFore;
         configPathText.Location = new System.Drawing.Point(24, 144);
         configPathText.Size = new System.Drawing.Size(520, 27);
         configPathText.Text = configPathTextDefault;
@@ -663,11 +682,10 @@ partial class MainForm
     private GroupBox groupSequence;
     private DataGridView sequenceGrid;
     private DataGridViewTextBoxColumn colStep;
-    private DataGridViewTextBoxColumn colKey;
+    private DataGridViewComboBoxColumn colKey;
     private DataGridViewTextBoxColumn colDelayMs;
     private Panel sequenceButtonsPanel;
     private Button sequenceAddButton;
-    private Button sequenceEditButton;
     private Button sequenceRemoveButton;
 
     // Config

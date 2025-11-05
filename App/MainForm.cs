@@ -44,6 +44,7 @@ public partial class MainForm : Form
 
         // Ensure the hotkey works minimized/unfocused.
         RegisterGlobalHotkey(hotKey);
+        PopulateKeyDropdown();
     }
 
     /// <summary>
@@ -181,41 +182,53 @@ public partial class MainForm : Form
     /// </summary>
     private void ResetButton_Click(object sender, EventArgs e)
     {
-        // General tab
-        activeTimerSeconds = activeTimerSecondsDefault;
-        inputCount = inputCountDefault;
-        forcedInputCount = forcedInputCountDefault;
-        timerLabel.Text = LabelFormatter.SetTimeLabel(activeTimerSeconds);
-        inputCountLabel.Text = LabelFormatter.SetInputCountLabel(inputCount);
-        intervalInput.Value = TimeUtils.ToSeconds(inputIntervalDefault);
-        runCountInput.Value = runCountInputDefault;
-        runUntilStoppedRadio.Checked = true;
+        var result = MessageBox.Show(
+            "This will reset all settings to their default values.\n\n" +
+            "Any unsaved changes will be lost. Do you want to proceed?",
+            "Confirm Reset",
+            MessageBoxButtons.YesNo,
+            MessageBoxIcon.Warning,
+            MessageBoxDefaultButton.Button2
+        );
 
-        // Binding state/UI
-        isHotKeyBinding = false;
-        isTargetKeyBinding = false;
-        hotKey = hotKeyDefault;
-        keybindButton.Text = hotKey.ToString();
-        targetKey = targetKeyDefault;
-        targetKeyButton.Text = targetKey.ToString();
+        if (result == DialogResult.Yes)
+        {
+            // General tab
+            activeTimerSeconds = activeTimerSecondsDefault;
+            inputCount = inputCountDefault;
+            forcedInputCount = forcedInputCountDefault;
+            timerLabel.Text = LabelFormatter.SetTimeLabel(activeTimerSeconds);
+            inputCountLabel.Text = LabelFormatter.SetInputCountLabel(inputCount);
+            intervalInput.Value = TimeUtils.ToSeconds(inputIntervalDefault);
+            runCountInput.Value = runCountInputDefault;
+            runUntilStoppedRadio.Checked = true;
 
-        // Schedule fields
-        scheduleEnableStartCheck.Checked = false;
-        scheduleEnableStopCheck.Checked = false;
-        startDate = null;
-        stopTime = null;
-        isScheduled = false;
-        StopScheduleTimer();
-        SetStartButtonScheduledVisuals(false);
+            // Binding state/UI
+            isHotKeyBinding = false;
+            isTargetKeyBinding = false;
+            hotKey = hotKeyDefault;
+            keybindButton.Text = hotKey.ToString();
+            targetKey = targetKeyDefault;
+            targetKeyButton.Text = targetKey.ToString();
 
-        // Top bar visuals
-        startStopButton.Text = "Start";
-        startStopButton.BackColor = UiColors.StartGreen;
+            // Schedule fields
+            scheduleEnableStartCheck.Checked = false;
+            scheduleEnableStopCheck.Checked = false;
+            startDate = null;
+            stopTime = null;
+            isScheduled = false;
+            StopScheduleTimer();
+            SetStartButtonScheduledVisuals(false);
 
-        // Re-apply default global hotkey
-        RegisterGlobalHotkey(hotKey);
+            // Top bar visuals
+            startStopButton.Text = "Start";
+            startStopButton.BackColor = UiColors.StartGreen;
 
-        configPathText.Text = configPathTextDefault;
+            // Re-apply default global hotkey
+            RegisterGlobalHotkey(hotKey);
+
+            configPathText.Text = configPathTextDefault;
+        }
     }
 
     #endregion
@@ -360,17 +373,15 @@ public partial class MainForm : Form
     /// </summary>
     private void SequenceAddButton_Click(object? sender, EventArgs e)
     {
-        MessageBox.Show("TODO: Add sequence step dialog.", "Not implemented",
-            MessageBoxButtons.OK, MessageBoxIcon.Information);
-    }
+        int nextStep = sequenceGrid.Rows.Count + 1;
 
-    /// <summary>
-    /// On click button to edit an already created and selected key sequence.
-    /// </summary>
-    private void SequenceEditButton_Click(object? sender, EventArgs e)
-    {
-        MessageBox.Show("TODO: Edit selected sequence step.", "Not implemented",
-             MessageBoxButtons.OK, MessageBoxIcon.Information);
+        decimal delay = TimeUtils.ToSeconds(inputIntervalDefault);
+        string key = Keys.LButton.ToString();
+
+        sequenceGrid.Rows.Add(nextStep, key, delay);
+
+        sequenceGrid.ClearSelection();
+        sequenceGrid.Rows[^1].Selected = true;
     }
 
     /// <summary>
@@ -378,8 +389,86 @@ public partial class MainForm : Form
     /// </summary>
     private void SequenceRemoveButton_Click(object? sender, EventArgs e)
     {
-        MessageBox.Show("TODO: Remove selected sequence step.", "Not implemented",
-            MessageBoxButtons.OK, MessageBoxIcon.Information);
+        if (sequenceGrid.SelectedRows.Count > 0)
+        {
+            int rowIndex = sequenceGrid.SelectedRows[0].Index;
+            sequenceGrid.Rows.RemoveAt(rowIndex);
+            RenumberSequenceSteps();
+        }
+    }
+
+    /// <summary>
+    /// Enforce numeric delay within the same min/max rules as intervalInput (seconds).
+    /// </summary>
+    private void SequenceGrid_CellValidating(object? sender, DataGridViewCellValidatingEventArgs e)
+    {
+        if (sequenceGrid.Columns[e.ColumnIndex].Name != "colDelayMs" || e.RowIndex < 0)
+            return;
+
+        var text = e.FormattedValue?.ToString() ?? string.Empty;
+
+        // Allow empty if you're okay with it; otherwise require a number:
+        if (!decimal.TryParse(text, out var seconds))
+        {
+            MessageBox.Show("Delay must be a number in seconds (e.g., 0.5, 1.0, 2.5).",
+                "Invalid value", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            e.Cancel = true;
+            return;
+        }
+
+        var min = TimeUtils.ToSeconds(intervalMinimum);
+        var max = TimeUtils.ToSeconds(intervalMaximum);
+
+        if (seconds < min || seconds > max)
+        {
+            MessageBox.Show($"Delay must be between {min:N1} and {max:N1} seconds.",
+                "Out of range", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            e.Cancel = true;
+        }
+    }
+
+    /// <summary>
+    /// Rounds the delay value to 1 decimal place when editing ends.
+    /// </summary>
+    private void SequenceGrid_CellEndEdit(object? sender, DataGridViewCellEventArgs e)
+    {
+        if (sequenceGrid.Columns[e.ColumnIndex].Name != "colDelayMs" || e.RowIndex < 0)
+            return;
+
+        var cell = sequenceGrid.Rows[e.RowIndex].Cells[e.ColumnIndex];
+        var text = cell.Value?.ToString() ?? string.Empty;
+
+        if (decimal.TryParse(text, out var seconds))
+        {
+            cell.Value = Math.Round(seconds, 1).ToString("0.0");
+        }
+    }
+
+    /// <summary>
+    /// Limit typing in Delay to digits, control keys, and a single dot.
+    /// </summary>
+    private void SequenceGrid_EditingControlShowing(object? sender, DataGridViewEditingControlShowingEventArgs e)
+    {
+        if (sequenceGrid.CurrentCell?.OwningColumn?.Name == "colDelayMs" && e.Control is TextBox tb)
+        {
+            tb.KeyPress -= DelayTextBox_KeyPress;
+            tb.KeyPress += DelayTextBox_KeyPress;
+        }
+    }
+
+    private void DelayTextBox_KeyPress(object? sender, KeyPressEventArgs e)
+    {
+        // Allow control keys
+        if (char.IsControl(e.KeyChar)) return;
+
+        // Allow digits
+        if (char.IsDigit(e.KeyChar)) return;
+
+        // Allow one dot
+        if (e.KeyChar == '.' && sender is TextBox tb && !tb.Text.Contains('.')) return;
+
+        // Otherwise block
+        e.Handled = true;
     }
 
     #endregion

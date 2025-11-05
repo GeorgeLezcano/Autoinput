@@ -138,7 +138,6 @@ partial class MainForm
         runCountInput.Enabled = false;
 
         sequenceAddButton.Enabled = false;
-        sequenceEditButton.Enabled = false;
         sequenceRemoveButton.Enabled = false;
 
         keybindButton.Enabled = false;
@@ -227,7 +226,6 @@ partial class MainForm
 
         // Sequence tab
         sequenceAddButton.Enabled = !running;
-        sequenceEditButton.Enabled = !running;
         sequenceRemoveButton.Enabled = !running;
 
         // Keys
@@ -270,7 +268,6 @@ partial class MainForm
         runCountInput.Enabled = runForCountRadio.Checked;
 
         sequenceAddButton.Enabled = true;
-        sequenceEditButton.Enabled = true;
         sequenceRemoveButton.Enabled = true;
 
         keybindButton.Enabled = true;
@@ -537,6 +534,53 @@ partial class MainForm
     private static bool TryParseKeys(string text, out Keys result)
     {
         return Enum.TryParse(text, true, out result);
+    }
+
+    #endregion
+
+    #region Sequence Helpers
+
+    /// <summary>
+    /// Re-numbers the sequence steps after any add/remove.
+    /// </summary>
+    private void RenumberSequenceSteps()
+    {
+        for (int i = 0; i < sequenceGrid.Rows.Count; i++)
+        {
+            sequenceGrid.Rows[i].Cells["colStep"].Value = i + 1;
+        }
+    }
+
+    /// <summary>
+    /// Fills the colKey combo with a curated set of Keys values.
+    /// </summary>
+    private void PopulateKeyDropdown()
+    {
+        if (colKey is not DataGridViewComboBoxColumn combo) return;
+
+        combo.Items.Clear();
+        var common = new List<Keys>
+    {
+        Keys.LButton, Keys.RButton, Keys.MButton,
+        Keys.Space, Keys.Enter, Keys.Tab, Keys.Escape,
+        Keys.Up, Keys.Down, Keys.Left, Keys.Right
+    };
+
+        // Letters A-Z
+        common.AddRange(Enumerable.Range((int)Keys.A, 26).Select(i => (Keys)i));
+
+        // Top-row digits 0-9 (D0..D9)
+        common.AddRange(Enumerable.Range((int)Keys.D0, 10).Select(i => (Keys)i));
+
+        // Numpad digits 0-9
+        common.AddRange(Enumerable.Range((int)Keys.NumPad0, 10).Select(i => (Keys)i));
+
+        // Function keys F1..F24
+        common.AddRange(Enumerable.Range((int)Keys.F1, 24).Select(i => (Keys)i));
+
+        // Remove duplicates and any weird flagged entries (just in case)
+        foreach (var k in common.Distinct().OrderBy(k => k.ToString()))
+            combo.Items.Add(k.ToString());
     }
 
     #endregion
