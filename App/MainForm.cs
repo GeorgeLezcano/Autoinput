@@ -1,4 +1,5 @@
 using App.Constants;
+using App.Models;
 using App.Utils;
 
 namespace App;
@@ -11,6 +12,14 @@ public partial class MainForm : Form
     #region Lifecycle
 
     private UserGuideForm? _manual;
+
+    private List<Sequence> _sequences = [
+        new Sequence()
+    ];
+
+    private int _currentSequenceIndex = 0;
+    private bool _isSyncingSequenceName = false;
+    private bool _suppressSequencePickerSync = false;
 
     /// <summary>
     /// Constructor wires up the Designer.
@@ -46,7 +55,14 @@ public partial class MainForm : Form
 
         // Ensure the hotkey works minimized/unfocused.
         RegisterGlobalHotkey(hotKey);
+
+        // Sequence defaults
         PopulateKeyDropdown();
+
+        RefreshSequencePicker();
+        sequencePicker.SelectedIndex = 0;
+        _currentSequenceIndex = 0;
+        SyncSequenceUiFromSelection();
     }
 
     /// <summary>
@@ -230,6 +246,9 @@ public partial class MainForm : Form
             RegisterGlobalHotkey(hotKey);
 
             configPathText.Text = configPathTextDefault;
+
+            // Sequence tab
+            ResetSequences();
         }
     }
 
@@ -395,15 +414,20 @@ public partial class MainForm : Form
     /// </summary>
     private void SequenceAddButton_Click(object? sender, EventArgs e)
     {
-        int nextStep = sequenceGrid.Rows.Count + 1;
+        var seq = GetSelectedSequence();
+        if (seq is null) return;
 
-        decimal delay = TimeUtils.ToSeconds(inputIntervalDefault);
-        string key = Keys.LButton.ToString();
+        seq.Steps.Add(new SequenceStep { Key = Keys.LButton, DelayMS = inputIntervalDefault });
 
-        sequenceGrid.Rows.Add(nextStep, key, delay);
+        RefreshSequenceGridFrom(seq);
 
-        sequenceGrid.ClearSelection();
-        sequenceGrid.Rows[^1].Selected = true;
+        if (sequenceGrid.Rows.Count > 0)
+        {
+            var last = sequenceGrid.Rows[^1];
+            sequenceGrid.ClearSelection();
+            last.Selected = true;
+            sequenceGrid.FirstDisplayedScrollingRowIndex = last.Index;
+        }
     }
 
     /// <summary>
@@ -411,11 +435,20 @@ public partial class MainForm : Form
     /// </summary>
     private void SequenceRemoveButton_Click(object? sender, EventArgs e)
     {
-        if (sequenceGrid.SelectedRows.Count > 0)
+        var seq = GetSelectedSequence();
+        if (seq is null) return;
+        if (sequenceGrid.SelectedRows.Count == 0) return;
+
+        int rowIndex = sequenceGrid.SelectedRows[0].Index;
+        if (rowIndex < 0 || rowIndex >= seq.Steps.Count) return;
+
+        seq.Steps.RemoveAt(rowIndex);
+        RefreshSequenceGridFrom(seq);
+
+        if (sequenceGrid.Rows.Count > 0)
         {
-            int rowIndex = sequenceGrid.SelectedRows[0].Index;
-            sequenceGrid.Rows.RemoveAt(rowIndex);
-            RenumberSequenceSteps();
+            int idx = Math.Min(rowIndex, sequenceGrid.Rows.Count - 1);
+            sequenceGrid.Rows[idx].Selected = true;
         }
     }
 
@@ -450,20 +483,19 @@ public partial class MainForm : Form
     }
 
     /// <summary>
-    /// Rounds the delay value to 1 decimal place when editing ends.
+    /// Rounds the delay to 1 decimal and saves to the selected sequence.
     /// </summary>
     private void SequenceGrid_CellEndEdit(object? sender, DataGridViewCellEventArgs e)
     {
-        if (sequenceGrid.Columns[e.ColumnIndex].Name != "colDelayMs" || e.RowIndex < 0)
-            return;
-
-        var cell = sequenceGrid.Rows[e.RowIndex].Cells[e.ColumnIndex];
-        var text = cell.Value?.ToString() ?? string.Empty;
-
-        if (decimal.TryParse(text, out var seconds))
+        if (sequenceGrid.Columns[e.ColumnIndex].Name == "colDelayMs" && e.RowIndex >= 0)
         {
-            cell.Value = Math.Round(seconds, 1).ToString("0.0");
+            var cell = sequenceGrid.Rows[e.RowIndex].Cells[e.ColumnIndex];
+            if (decimal.TryParse(cell.Value?.ToString(), out var seconds))
+                cell.Value = Math.Round(seconds, 1).ToString("0.0");
         }
+
+        var sequence = GetSelectedSequence();
+        if (sequence is not null) SaveGridIntoSequence(sequence);
     }
 
     /// <summary>
@@ -480,17 +512,93 @@ public partial class MainForm : Form
 
     private void DelayTextBox_KeyPress(object? sender, KeyPressEventArgs e)
     {
-        // Allow control keys
         if (char.IsControl(e.KeyChar)) return;
-
-        // Allow digits
         if (char.IsDigit(e.KeyChar)) return;
-
-        // Allow one dot
         if (e.KeyChar == '.' && sender is TextBox tb && !tb.Text.Contains('.')) return;
-
-        // Otherwise block
         e.Handled = true;
+    }
+
+    /// <summary>
+    /// Adds a new sequence with a unique default name and selects it.
+    /// </summary>
+    private void NewSequenceButton_Click(object? sender, EventArgs e)
+    {
+        if (_currentSequenceIndex >= 0 && _currentSequenceIndex < _sequences.Count)
+            SaveGridIntoSequence(_sequences[_currentSequenceIndex]);
+
+        var name = GetNextNewSequenceName();
+        var seq = new Sequence { Name = name };
+        _sequences.Add(seq);
+
+        RefreshSequencePicker();
+        sequencePicker.SelectedIndex = _sequences.Count - 1;
+    }
+
+    /// <summary>
+    /// Removes the currently selected sequence, guarding the last default.
+    /// </summary>
+    private void RemoveSequenceButton_Click(object? sender, EventArgs e)
+    {
+        if (_sequences.Count <= 1)
+        {
+            MessageBox.Show("You must keep at least one sequence (the default).",
+                "Cannot Remove", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            return;
+        }
+
+        var idx = sequencePicker.SelectedIndex;
+        if (idx < 0 || idx >= _sequences.Count) return;
+
+        if (_currentSequenceIndex >= 0 && _currentSequenceIndex < _sequences.Count)
+            SaveGridIntoSequence(_sequences[_currentSequenceIndex]);
+
+        var confirm = MessageBox.Show(
+            $"Remove sequence \"{_sequences[idx].Name}\"?",
+            "Confirm Removal",
+            MessageBoxButtons.YesNo, MessageBoxIcon.Question,
+            MessageBoxDefaultButton.Button2);
+
+        if (confirm != DialogResult.Yes) return;
+
+        _sequences.RemoveAt(idx);
+        RefreshSequencePicker();
+
+        var newIndex = Math.Min(idx, _sequences.Count - 1);
+        sequencePicker.SelectedIndex = newIndex;
+    }
+
+    /// <summary>
+    /// Renames the currently selected sequence and updates the picker item.
+    /// </summary>
+    private void SequenceNameText_TextChanged(object? sender, EventArgs e)
+    {
+        if (_isSyncingSequenceName) return;
+
+        var idx = sequencePicker.SelectedIndex;
+        if (idx < 0 || idx >= _sequences.Count) return;
+
+        var newName = sequenceNameText.Text;
+        if (string.IsNullOrWhiteSpace(newName)) return;
+
+        _sequences[idx].Name = newName;
+        sequencePicker.Items[idx] = newName;
+    }
+
+    /// <summary>
+    /// When user picks a different sequence from the dropdown.
+    /// </summary>
+    private void SequencePicker_SelectedIndexChanged(object? sender, EventArgs e)
+    {
+        if (_suppressSequencePickerSync) return;
+
+        var nextIndex = sequencePicker.SelectedIndex;
+        if (nextIndex < 0 || nextIndex >= _sequences.Count) return;
+
+        if (_currentSequenceIndex >= 0 && _currentSequenceIndex < _sequences.Count)
+            SaveGridIntoSequence(_sequences[_currentSequenceIndex]);
+
+        _currentSequenceIndex = nextIndex;
+        SyncSequenceUiFromSelection();
     }
 
     #endregion

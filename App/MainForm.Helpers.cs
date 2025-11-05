@@ -583,5 +583,147 @@ partial class MainForm
             combo.Items.Add(k.ToString());
     }
 
+    /// <summary>
+    /// Refreshes the sequence dropdown items from the _sequences list.
+    /// </summary>
+    private void RefreshSequencePicker()
+    {
+        if (sequencePicker is null) return;
+
+        sequencePicker.BeginUpdate();
+        sequencePicker.Items.Clear();
+        foreach (var seq in _sequences)
+            sequencePicker.Items.Add(seq.Name);
+        sequencePicker.EndUpdate();
+
+        UpdateRemoveButtonEnabled();
+    }
+
+    /// <summary>
+    /// Updates name textbox and the steps grid from the currently selected sequence.
+    /// </summary>
+    private void SyncSequenceUiFromSelection()
+    {
+        var idx = sequencePicker.SelectedIndex;
+        if (idx < 0 || idx >= _sequences.Count) return;
+
+        var selected = _sequences[idx];
+
+        _isSyncingSequenceName = true;
+        if (!string.Equals(sequenceNameText.Text, selected.Name, StringComparison.Ordinal))
+            sequenceNameText.Text = selected.Name;
+        _isSyncingSequenceName = false;
+
+        RefreshSequenceGridFrom(selected);
+    }
+
+    /// <summary>
+    /// Rebuilds the grid rows to reflect a given sequence.
+    /// </summary>
+    private void RefreshSequenceGridFrom(Sequence sequence)
+    {
+        sequenceGrid.Rows.Clear();
+        var stepNum = 1;
+        foreach (var step in sequence.Steps)
+        {
+            var keyLabel = step.Key.ToString();
+            var delaySec = (step.DelayMS / 1000m).ToString("0.0");
+            sequenceGrid.Rows.Add(stepNum++, keyLabel, delaySec);
+        }
+    }
+
+    /// <summary>
+    /// Generates a unique "New Sequence", "New Sequence (2)" ... name.
+    /// </summary>
+    private string GetNextNewSequenceName()
+    {
+        const string baseName = "New Sequence";
+        if (_sequences.All(s => !string.Equals(s.Name, baseName, StringComparison.OrdinalIgnoreCase)))
+            return baseName;
+
+        int n = 2;
+        while (_sequences.Any(s => string.Equals(s.Name, $"{baseName} ({n})", StringComparison.OrdinalIgnoreCase)))
+            n++;
+
+        return $"{baseName} ({n})";
+    }
+
+    /// <summary>
+    /// Enables/disables the Remove button based on count.
+    /// </summary>
+    private void UpdateRemoveButtonEnabled()
+    {
+        if (removeSequenceButton is null) return;
+        removeSequenceButton.Enabled = _sequences.Count > 1;
+    }
+
+    /// <summary>
+    /// Saves the DataGridView rows back into the given Sequence.Steps.
+    /// Expects colKey (string) and colDelayMs (seconds, 1 decimal).
+    /// </summary>
+    private void SaveGridIntoSequence(Sequence seq)
+    {
+        var newSteps = new List<SequenceStep>();
+
+        foreach (DataGridViewRow row in sequenceGrid.Rows)
+        {
+            if (row.IsNewRow) continue;
+
+            var keyLabel = row.Cells["colKey"].Value?.ToString()?.Trim();
+            var delayText = row.Cells["colDelayMs"].Value?.ToString()?.Trim();
+
+            if (string.IsNullOrEmpty(keyLabel) || string.IsNullOrEmpty(delayText)) continue;
+            if (!Enum.TryParse<Keys>(keyLabel, ignoreCase: true, out var key)) continue;
+            if (!decimal.TryParse(delayText, out var seconds)) continue;
+
+            var ms = (int)Math.Round(seconds * 1000m, MidpointRounding.AwayFromZero);
+            newSteps.Add(new SequenceStep { Key = key, DelayMS = ms });
+        }
+        seq.Steps = newSteps;
+    }
+
+    /// <summary>
+    /// Gets the selected sequence.
+    /// </summary>
+    private Sequence? GetSelectedSequence()
+    {
+        var idx = sequencePicker.SelectedIndex;
+        return (idx >= 0 && idx < _sequences.Count) ? _sequences[idx] : null;
+    }
+
+    /// <summary>
+    /// Resets all sequences back to a single default one and updates the UI.
+    /// </summary>
+    private void ResetSequences()
+    {
+        sequenceGrid.EndEdit();
+
+        _suppressSequencePickerSync = true;
+        try
+        {
+            _currentSequenceIndex = 0;
+            _sequences.Clear();
+            _sequences.Add(new Sequence());
+
+            RefreshSequencePicker();
+            sequencePicker.SelectedIndex = 0;
+
+            sequenceGrid.Rows.Clear();
+            sequenceGrid.CurrentCell = null;
+            sequenceGrid.ClearSelection();
+
+            _isSyncingSequenceName = true;
+            sequenceNameText.Text = _sequences[0].Name;
+            _isSyncingSequenceName = false;
+
+            RefreshSequenceGridFrom(_sequences[0]);
+            UpdateRemoveButtonEnabled();
+        }
+        finally
+        {
+            _suppressSequencePickerSync = false;
+        }
+    }
+
     #endregion
 }

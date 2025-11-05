@@ -3,7 +3,7 @@ using App.Constants;
 namespace App;
 
 /// <summary>
-/// Simple in-app manual placeholder window.
+/// Simple in-app manual window.
 /// </summary>
 public sealed class UserGuideForm : Form
 {
@@ -27,7 +27,7 @@ public sealed class UserGuideForm : Form
             Font = new Font("Segoe UI", 12F, FontStyle.Italic),
             ForeColor = UiColors.TextSecondary,
             Text =
-                " User Guide Placeholder"
+                " User Guide Coming Soon!"
         };
 
         Controls.Add(placeholder);

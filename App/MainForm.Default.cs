@@ -8,7 +8,7 @@ partial class MainForm
     /// <summary>
     /// Default interval used to reset the interval input (milliseconds).
     /// </summary>
-    private const int inputIntervalDefault = 300;
+    private const int inputIntervalDefault = 500;
 
     /// <summary>
     /// Default interval for run timer, in milliseconds (1000 ms = 1s).

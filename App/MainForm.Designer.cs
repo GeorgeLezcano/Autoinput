@@ -427,7 +427,6 @@ partial class MainForm
         sequenceGrid.EditingControlShowing += SequenceGrid_EditingControlShowing;
         sequenceGrid.CellEndEdit += SequenceGrid_CellEndEdit;
 
-
         // === THEME: sequenceGrid ===
         sequenceGrid.BackgroundColor = UiColors.GridBack;
         sequenceGrid.GridColor = UiColors.GridLines;
@@ -499,6 +498,99 @@ partial class MainForm
 
         groupSequence.Controls.Add(sequenceGrid);
         groupSequence.Controls.Add(sequenceButtonsPanel);
+
+        // --- Sequence Picker Panel (bottom of Sequence tab) ---
+        sequencePickerPanel = new Panel
+        {
+            Location = new Point(16, 350),
+            Size = new Size(760, 56),
+            BackColor = UiColors.PanelBack
+        };
+
+        // Label: Sequence
+        var sequencePickerLabel = new Label
+        {
+            AutoSize = true,
+            Text = "Sequence:",
+            ForeColor = UiColors.TextSecondary,
+            Location = new Point(0, 8)
+        };
+
+        // ComboBox: pick sequence
+        sequencePicker = new ComboBox
+        {
+            DropDownStyle = ComboBoxStyle.DropDownList,
+            FlatStyle = FlatStyle.Flat,
+            Location = new Point(90, 5),
+            Size = new Size(220, 28),
+            BackColor = UiColors.InputBack,
+            ForeColor = UiColors.InputFore
+        };
+        sequencePicker.SelectedIndexChanged += SequencePicker_SelectedIndexChanged;
+
+        // Label: Name
+        var sequenceNameLabel = new Label
+        {
+            AutoSize = true,
+            Text = "Name:",
+            ForeColor = UiColors.TextSecondary,
+            Location = new Point(330, 8)
+        };
+
+        // TextBox: rename selected sequence
+        sequenceNameText = new TextBox
+        {
+            Location = new Point(380, 5),
+            Size = new Size(200, 27),
+            BorderStyle = BorderStyle.FixedSingle,
+            BackColor = UiColors.InputBack,
+            ForeColor = UiColors.InputFore
+        };
+        sequenceNameText.TextChanged += SequenceNameText_TextChanged;
+
+        // New Sequence
+        newSequenceButton = new Button
+        {
+            Text = "New",
+            Location = new Point(600, 4),
+            Size = new Size(70, 30),
+            FlatStyle = FlatStyle.Flat,
+            BackColor = UiColors.ButtonBackDefault,
+            ForeColor = ForeColor
+        };
+        newSequenceButton.FlatAppearance.BorderSize = 1;
+        newSequenceButton.FlatAppearance.BorderColor = UiColors.Border;
+        newSequenceButton.Click += NewSequenceButton_Click;
+
+        // Remove Sequence
+        removeSequenceButton = new Button
+        {
+            Text = "Remove",
+            Location = new Point(680, 4),
+            Size = new Size(70, 30),
+            FlatStyle = FlatStyle.Flat,
+            BackColor = UiColors.ButtonBackDefault,
+            ForeColor = ForeColor
+        };
+        removeSequenceButton.FlatAppearance.BorderSize = 1;
+        removeSequenceButton.FlatAppearance.BorderColor = UiColors.Border;
+        removeSequenceButton.Click += RemoveSequenceButton_Click;
+
+        // Hover polish
+        newSequenceButton.MouseEnter += (s, e) => newSequenceButton.BackColor = UiColors.ButtonBackHover;
+        newSequenceButton.MouseLeave += (s, e) => newSequenceButton.BackColor = UiColors.ButtonBackDefault;
+        removeSequenceButton.MouseEnter += (s, e) => removeSequenceButton.BackColor = UiColors.ButtonBackHover;
+        removeSequenceButton.MouseLeave += (s, e) => removeSequenceButton.BackColor = UiColors.ButtonBackDefault;
+
+        // Assemble
+        sequencePickerPanel.Controls.Add(sequencePickerLabel);
+        sequencePickerPanel.Controls.Add(sequencePicker);
+        sequencePickerPanel.Controls.Add(sequenceNameLabel);
+        sequencePickerPanel.Controls.Add(sequenceNameText);
+        sequencePickerPanel.Controls.Add(newSequenceButton);
+        sequencePickerPanel.Controls.Add(removeSequenceButton);
+
+        groupSequence.Controls.Add(sequencePickerPanel);
 
         tabSequence.Controls.Add(groupSequence);
 
@@ -580,7 +672,7 @@ partial class MainForm
         tabInfo.Text = "Info";
         tabInfo.BackColor = UiColors.PanelBack;
 
-        groupInfo.Text = string.Empty; 
+        groupInfo.Text = string.Empty;
         groupInfo.ForeColor = ForeColor;
         groupInfo.BackColor = UiColors.PanelBack;
         groupInfo.Location = new System.Drawing.Point(16, 16);
@@ -719,6 +811,11 @@ partial class MainForm
     private Panel sequenceButtonsPanel;
     private Button sequenceAddButton;
     private Button sequenceRemoveButton;
+    private Panel sequencePickerPanel;
+    private ComboBox sequencePicker;
+    private TextBox sequenceNameText;
+    private Button newSequenceButton;
+    private Button removeSequenceButton;
 
     // Config
     private GroupBox groupConfig;

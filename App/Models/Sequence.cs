@@ -16,6 +16,5 @@ public sealed class Sequence
     /// Collection of sequence steps.
     /// Defaults to empty list.
     /// </summary>
-    public List<SequenceStep> Steps = [];
-
+    public List<SequenceStep> Steps { get; set; } = [];
 }
