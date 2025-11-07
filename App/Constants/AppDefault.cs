@@ -1,89 +1,94 @@
-namespace App;
+namespace App.Constants;
 
 /// <summary>
 /// Default values and states for the application.
 /// </summary>
-partial class MainForm
+public static class AppDefault
 {
     /// <summary>
     /// Default interval used to reset the interval input (milliseconds).
     /// </summary>
-    private const int inputIntervalDefault = 500;
+    public const int InputInterval = 500;
 
     /// <summary>
     /// Default interval for run timer, in milliseconds (1000 ms = 1s).
     /// </summary>
-    private const int activeTimerIntervalDefault = 1000;
+    public const int ActiveTimerInterval = 1000;
 
     /// <summary>
     /// Default value for the run-until-count field.
     /// </summary>
-    private const int runCountInputDefault = 100;
+    public const int RunCountInput = 100;
 
     /// <summary>
     /// Minimum time interval bounds (milliseconds).
     /// </summary>
-    private const int intervalMinimum = 100;
+    public const int IntervalMinimum = 100;
 
     /// <summary>
     /// Maximum time interval bounds (milliseconds).
     /// </summary>
-    private const int intervalMaximum = 600000;
+    public const int IntervalMaximum = 600000;
 
     /// <summary>
     /// Increment between time-interval steps for input fields (milliseconds).
     /// </summary>
-    private const int intervalInputIncrement = 100;
+    public const int IntervalInputIncrement = 100;
 
     /// <summary>
     /// Minimum bounds for "run for count".
     /// </summary>
-    private const int runCountInputMinimum = 1;
+    public const int RunCountInputMinimum = 1;
 
     /// <summary>
     /// Maximum bounds for "run for count".
     /// </summary>
-    private const int runCountInputMaximum = 1000000;
+    public const int RunCountInputMaximum = 1000000;
 
     /// <summary>
     /// Initial counters and state.
     /// </summary>
-    private const int inputCountDefault = 0;
-    private const int activeTimerSecondsDefault = 0;
-    private const bool isRunningDefault = false;
-    private const int forcedInputCountDefault = 0;
-    private const bool isScheduledDefault = false;
+    public const int InputCount = 0;
+    public const int ActiveTimerSeconds = 0;
+    public const bool IsRunning = false;
+    public const int ForcedInputCount = 0;
+    public const bool IsScheduled = false;
 
     /// <summary>
     /// Config placeholder default path.
     /// </summary>
-    private readonly string configPathTextDefault = AppContext.BaseDirectory;
+    public static readonly string ConfigPathText = AppContext.BaseDirectory;
 
     /// <summary>
     /// Default hotkey (Start/Stop).
     /// </summary>
-    private const Keys hotKeyDefault = Keys.F8;
+    public const Keys HotKey = Keys.F8;
 
     /// <summary>
     /// Default target key to be pressed (Left Mouse Button).
     /// </summary>
-    private const Keys targetKeyDefault = Keys.LButton;
+    public const Keys TargetKey = Keys.LButton;
 
     /// <summary>
     /// Button Labels
     /// </summary>
-    private const string startBtnLabel = "Start";
-    private const string stopBtnLabel = "Stop";
-    private const string scheduleBtnLabel = "Scheduled";
+    public const string StartBtnLabel = "Start";
+    public const string StopBtnLabel = "Stop";
+    public const string ScheduleBtnLabel = "Scheduled";
+    public const string ResetBtnLabel = "Reset";
 
     /// <summary>
     /// Defautl file filter for configuration files.
     /// </summary>
-    private const string fileFormatFilter = "JSON Files (*.json)|*.json";
+    public const string FileFormatFilter = "JSON Files (*.json)|*.json";
 
     /// <summary>
     /// Filename as a default configuration file.
     /// </summary>
-    private const string defaultConfigFileName = "AutoInput_Config.json";
+    public const string DefaultConfigFileName = "AutoInput_Config.json";
 
+    /// <summary>
+    /// Default state for the sequence index selection.
+    /// </summary>
+    public const int SequenceIndex = 0;
 }

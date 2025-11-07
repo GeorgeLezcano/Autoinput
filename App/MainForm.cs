@@ -17,7 +17,7 @@ public partial class MainForm : Form
         new Sequence()
     ];
 
-    private int _currentSequenceIndex = 0;
+    private int _currentSequenceIndex = AppDefault.SequenceIndex;
     private bool _isSyncingSequenceName = false;
     private bool _suppressSequencePickerSync = false;
 
@@ -36,7 +36,7 @@ public partial class MainForm : Form
     {
         // Tries to oad default config file first 
         string exeDir = AppDomain.CurrentDomain.BaseDirectory;
-        string defaultConfigPath = Path.Combine(exeDir, defaultConfigFileName);
+        string defaultConfigPath = Path.Combine(exeDir, AppDefault.DefaultConfigFileName);
 
         if (File.Exists(defaultConfigPath))
         {
@@ -60,7 +60,7 @@ public partial class MainForm : Form
         runForCountRadio.Checked = false;
 
         // Config defaults
-        configPathText.Text = configPathTextDefault;
+        configPathText.Text = AppDefault.ConfigPathText;
 
         // Ensure the hotkey works minimized/unfocused.
         RegisterGlobalHotkey(hotKey);
@@ -144,7 +144,7 @@ public partial class MainForm : Form
             inputCountTimer.Interval = TimeUtils.ToMilliseconds(intervalInput.Value);
             inputCountTimer.Start();
 
-            startStopButton.Text = "Stop";
+            startStopButton.Text = AppDefault.StopBtnLabel;
             startStopButton.BackColor = UiColors.StopRed;
             SetStartButtonScheduledVisuals(false);
         }
@@ -189,7 +189,7 @@ public partial class MainForm : Form
             if (forcedInputCount >= runCountInput.Value)
             {
                 StartStopButton_Click(sender, e);
-                forcedInputCount = forcedInputCountDefault;
+                forcedInputCount = AppDefault.ForcedInputCount;
                 return;
             }
         }
@@ -220,21 +220,21 @@ public partial class MainForm : Form
         if (result == DialogResult.Yes)
         {
             // General tab
-            activeTimerSeconds = activeTimerSecondsDefault;
-            inputCount = inputCountDefault;
-            forcedInputCount = forcedInputCountDefault;
+            activeTimerSeconds = AppDefault.ActiveTimerSeconds;
+            inputCount = AppDefault.InputCount;
+            forcedInputCount = AppDefault.ForcedInputCount;
             timerLabel.Text = LabelFormatter.SetTimeLabel(activeTimerSeconds);
             inputCountLabel.Text = LabelFormatter.SetInputCountLabel(inputCount);
-            intervalInput.Value = TimeUtils.ToSeconds(inputIntervalDefault);
-            runCountInput.Value = runCountInputDefault;
+            intervalInput.Value = TimeUtils.ToSeconds(AppDefault.InputInterval);
+            runCountInput.Value = AppDefault.RunCountInput;
             runUntilStoppedRadio.Checked = true;
 
             // Binding state/UI
             isHotKeyBinding = false;
             isTargetKeyBinding = false;
-            hotKey = hotKeyDefault;
+            hotKey = AppDefault.HotKey;
             keybindButton.Text = hotKey.ToString();
-            targetKey = targetKeyDefault;
+            targetKey = AppDefault.TargetKey;
             targetKeyButton.Text = targetKey.ToString();
 
             // Schedule fields
@@ -247,13 +247,13 @@ public partial class MainForm : Form
             SetStartButtonScheduledVisuals(false);
 
             // Top bar visuals
-            startStopButton.Text = "Start";
+            startStopButton.Text = AppDefault.StartBtnLabel;
             startStopButton.BackColor = UiColors.StartGreen;
 
             // Re-apply default global hotkey
             RegisterGlobalHotkey(hotKey);
 
-            configPathText.Text = configPathTextDefault;
+            configPathText.Text = AppDefault.ConfigPathText;
 
             // Sequence tab
             ResetSequences();
@@ -426,7 +426,7 @@ public partial class MainForm : Form
         var seq = GetSelectedSequence();
         if (seq is null) return;
 
-        seq.Steps.Add(new SequenceStep { Key = Keys.LButton, DelayMS = inputIntervalDefault });
+        seq.Steps.Add(new SequenceStep { Key = Keys.LButton, DelayMS = AppDefault.InputInterval });
 
         RefreshSequenceGridFrom(seq);
 
@@ -480,8 +480,8 @@ public partial class MainForm : Form
             return;
         }
 
-        var min = TimeUtils.ToSeconds(intervalMinimum);
-        var max = TimeUtils.ToSeconds(intervalMaximum);
+        var min = TimeUtils.ToSeconds(AppDefault.IntervalMinimum);
+        var max = TimeUtils.ToSeconds(AppDefault.IntervalMaximum);
 
         if (seconds < min || seconds > max)
         {
@@ -631,11 +631,11 @@ public partial class MainForm : Form
     {
         SaveFileDialog saveFileDialog = new()
         {
-            Filter = fileFormatFilter,
+            Filter = AppDefault.FileFormatFilter,
             FilterIndex = 1,
             RestoreDirectory = true,
             InitialDirectory = configPathText.Text,
-            FileName = defaultConfigFileName,
+            FileName = AppDefault.DefaultConfigFileName,
             Title = "Select a location to save current configuration"
         };
 
@@ -656,7 +656,7 @@ public partial class MainForm : Form
     {
         OpenFileDialog openFileDialog = new()
         {
-            Filter = fileFormatFilter,
+            Filter = AppDefault.FileFormatFilter,
             FilterIndex = 1,
             RestoreDirectory = true,
             InitialDirectory = configPathText.Text,

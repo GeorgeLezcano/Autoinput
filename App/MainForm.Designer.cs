@@ -129,7 +129,7 @@ partial class MainForm
         startStopButton.Name = "startStopButton";
         startStopButton.Size = new System.Drawing.Size(180, 52);
         startStopButton.TabIndex = 0;
-        startStopButton.Text = "Start";
+        startStopButton.Text = AppDefault.StartBtnLabel;
         startStopButton.UseVisualStyleBackColor = false;
         startStopButton.Click += StartStopButton_Click;
 
@@ -138,7 +138,7 @@ partial class MainForm
         resetButton.Name = "resetButton";
         resetButton.Size = new System.Drawing.Size(120, 52);
         resetButton.TabIndex = 1;
-        resetButton.Text = "Reset";
+        resetButton.Text = AppDefault.ResetBtnLabel;
         resetButton.FlatStyle = FlatStyle.Flat;
         resetButton.FlatAppearance.BorderColor = UiColors.Border;
         resetButton.FlatAppearance.BorderSize = 1;
@@ -154,7 +154,7 @@ partial class MainForm
         timerLabel.Name = "timerLabel";
         timerLabel.Size = new System.Drawing.Size(145, 20);
         timerLabel.TabIndex = 2;
-        timerLabel.Text = LabelFormatter.SetTimeLabel(activeTimerSecondsDefault);
+        timerLabel.Text = LabelFormatter.SetTimeLabel(AppDefault.ActiveTimerSeconds);
 
         // Input count
         inputCountLabel.AutoSize = true;
@@ -163,13 +163,13 @@ partial class MainForm
         inputCountLabel.Name = "inputCountLabel";
         inputCountLabel.Size = new System.Drawing.Size(116, 20);
         inputCountLabel.TabIndex = 3;
-        inputCountLabel.Text = LabelFormatter.SetInputCountLabel(inputCountDefault);
+        inputCountLabel.Text = LabelFormatter.SetInputCountLabel(AppDefault.InputCount);
 
         // Timers
-        runTimer.Interval = activeTimerIntervalDefault;
+        runTimer.Interval = AppDefault.ActiveTimerInterval;
         runTimer.Tick += RunTimer_Tick;
 
-        inputCountTimer.Interval = inputIntervalDefault;
+        inputCountTimer.Interval = AppDefault.InputInterval;
         inputCountTimer.Tick += InputCount_Tick;
 
         #endregion
@@ -211,10 +211,10 @@ partial class MainForm
         intervalLabel.Size = new System.Drawing.Size(148, 20);
         intervalLabel.Text = "Interval (Seconds)";
 
-        intervalInput.Value = TimeUtils.ToSeconds(inputIntervalDefault);
-        intervalInput.Minimum = TimeUtils.ToSeconds(intervalMinimum);
-        intervalInput.Maximum = TimeUtils.ToSeconds(intervalMaximum);
-        intervalInput.Increment = TimeUtils.ToSeconds(intervalInputIncrement);
+        intervalInput.Value = TimeUtils.ToSeconds(AppDefault.InputInterval);
+        intervalInput.Minimum = TimeUtils.ToSeconds(AppDefault.IntervalMinimum);
+        intervalInput.Maximum = TimeUtils.ToSeconds(AppDefault.IntervalMaximum);
+        intervalInput.Increment = TimeUtils.ToSeconds(AppDefault.IntervalInputIncrement);
         intervalInput.DecimalPlaces = 1;
         intervalInput.ThousandsSeparator = false;
         intervalInput.BorderStyle = BorderStyle.FixedSingle;
@@ -229,7 +229,7 @@ partial class MainForm
         labelIntervalHint.AutoSize = true;
         labelIntervalHint.ForeColor = UiColors.TextSecondary;
         labelIntervalHint.Location = new System.Drawing.Point(200, 61);
-        labelIntervalHint.Text = LabelFormatter.SetIntervalHint(intervalMinimum, intervalMaximum);
+        labelIntervalHint.Text = LabelFormatter.SetIntervalHint(AppDefault.IntervalMinimum, AppDefault.IntervalMaximum);
 
         // Run Mode controls
         runUntilStoppedRadio.AutoSize = true;
@@ -247,9 +247,9 @@ partial class MainForm
         runCountInput.BorderStyle = BorderStyle.FixedSingle;
         runCountInput.BackColor = UiColors.InputBack;
         runCountInput.ForeColor = UiColors.InputFore;
-        runCountInput.Minimum = new decimal(new int[] { runCountInputMinimum, 0, 0, 0 });
-        runCountInput.Maximum = new decimal(new int[] { runCountInputMaximum, 0, 0, 0 });
-        runCountInput.Value = new decimal(new int[] { runCountInputDefault, 0, 0, 0 });
+        runCountInput.Minimum = new decimal(new int[] { AppDefault.RunCountInputMinimum, 0, 0, 0 });
+        runCountInput.Maximum = new decimal(new int[] { AppDefault.RunCountInputMaximum, 0, 0, 0 });
+        runCountInput.Value = new decimal(new int[] { AppDefault.RunCountInput, 0, 0, 0 });
         runCountInput.Location = new System.Drawing.Point(264, 130);
         runCountInput.Size = new System.Drawing.Size(120, 27);
         runCountInput.TabIndex = 40;
@@ -289,7 +289,7 @@ partial class MainForm
         keybindButton.Name = "keybindButton";
         keybindButton.Size = new System.Drawing.Size(160, 32);
         keybindButton.TabIndex = 11;
-        keybindButton.Text = hotKeyDefault.ToString();
+        keybindButton.Text = AppDefault.HotKey.ToString();
         keybindButton.FlatStyle = FlatStyle.Flat;
         keybindButton.FlatAppearance.BorderColor = UiColors.Border;
         keybindButton.FlatAppearance.BorderSize = 1;
@@ -310,7 +310,7 @@ partial class MainForm
         targetKeyButton.Name = "targetKeyButton";
         targetKeyButton.Size = new System.Drawing.Size(160, 32);
         targetKeyButton.TabIndex = 13;
-        targetKeyButton.Text = targetKeyDefault.ToString();
+        targetKeyButton.Text = AppDefault.TargetKey.ToString();
         targetKeyButton.FlatStyle = FlatStyle.Flat;
         targetKeyButton.FlatAppearance.BorderColor = UiColors.Border;
         targetKeyButton.FlatAppearance.BorderSize = 1;
@@ -648,7 +648,7 @@ partial class MainForm
         configPathText.ForeColor = UiColors.InputFore;
         configPathText.Location = new System.Drawing.Point(24, 144);
         configPathText.Size = new System.Drawing.Size(520, 27);
-        configPathText.Text = configPathTextDefault;
+        configPathText.Text = AppDefault.ConfigPathText;
 
         openConfigFolderButton.Text = "Open Folder";
         openConfigFolderButton.FlatStyle = FlatStyle.Flat;

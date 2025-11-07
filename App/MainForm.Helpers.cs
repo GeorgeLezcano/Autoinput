@@ -15,11 +15,11 @@ partial class MainForm
     #region Fields & Runtime State
 
     // Runtime state 
-    private bool isRunning = isRunningDefault;
-    private bool isScheduled = isScheduledDefault;
-    private int activeTimerSeconds = activeTimerSecondsDefault;
-    private int inputCount = inputCountDefault;
-    private int forcedInputCount = forcedInputCountDefault;
+    private bool isRunning = AppDefault.IsRunning;
+    private bool isScheduled = AppDefault.IsScheduled;
+    private int activeTimerSeconds = AppDefault.ActiveTimerSeconds;
+    private int inputCount = AppDefault.InputCount;
+    private int forcedInputCount = AppDefault.ForcedInputCount;
 
     private JsonSerializerOptions jsonSerializerOption = new()
     {
@@ -29,8 +29,8 @@ partial class MainForm
     // Binding state
     private bool isHotKeyBinding = false;
     private bool isTargetKeyBinding = false;
-    private Keys hotKey = hotKeyDefault;
-    private Keys targetKey = targetKeyDefault;
+    private Keys hotKey = AppDefault.HotKey;
+    private Keys targetKey = AppDefault.TargetKey;
     private MouseBindFilter? mouseFilter;
 
     // Scheduling snapshot
@@ -64,12 +64,12 @@ partial class MainForm
             bool ok = RegisterHotKey(Handle, Win32Hotkey.HOTKEY_ID, Win32Hotkey.MOD_NONE, (uint)key);
             if (!ok)
             {
-                if (key != hotKeyDefault)
+                if (key != AppDefault.HotKey)
                 {
-                    bool fallback = RegisterHotKey(Handle, Win32Hotkey.HOTKEY_ID, Win32Hotkey.MOD_NONE, (uint)hotKeyDefault);
+                    bool fallback = RegisterHotKey(Handle, Win32Hotkey.HOTKEY_ID, Win32Hotkey.MOD_NONE, (uint)AppDefault.HotKey);
                     if (fallback)
                     {
-                        hotKey = hotKeyDefault;
+                        hotKey = AppDefault.HotKey;
                         keybindButton.Text = hotKey.ToString();
                         MessageBox.Show(
                             "That hotkey is already in use by another app. Reverted to F8.",
@@ -204,7 +204,7 @@ partial class MainForm
         (running ? (Action)inputCountTimer.Start : inputCountTimer.Stop)();
 
         // Top bar items
-        startStopButton.Text = running ? stopBtnLabel : startBtnLabel;
+        startStopButton.Text = running ? AppDefault.StopBtnLabel : AppDefault.StartBtnLabel;
         startStopButton.BackColor = running ? UiColors.StopRed : UiColors.StartGreen;
         SetStartButtonScheduledVisuals(false);
         resetButton.Enabled = !running;
@@ -252,7 +252,7 @@ partial class MainForm
     /// </summary>
     private void RestoreUItoIdle()
     {
-        startStopButton.Text = startBtnLabel;
+        startStopButton.Text = AppDefault.StartBtnLabel;
         startStopButton.BackColor = UiColors.StartGreen;
         SetStartButtonScheduledVisuals(false);
         resetButton.Enabled = true;
@@ -293,7 +293,7 @@ partial class MainForm
     {
         if (scheduled)
         {
-            startStopButton.Text = scheduleBtnLabel;
+            startStopButton.Text = AppDefault.ScheduleBtnLabel;
             startStopButton.BackColor = UiColors.ScheduledOrange;
             startStopButton.ForeColor = Color.White;
             startStopButton.FlatAppearance.MouseOverBackColor = UiColors.ScheduledOrangeHover;
@@ -455,7 +455,7 @@ partial class MainForm
     /// </summary>
     private bool TryValidate(AppConfig c)
     {
-        if (c.IntervalMilliseconds < intervalMinimum || c.IntervalMilliseconds > intervalMaximum)
+        if (c.IntervalMilliseconds < AppDefault.IntervalMinimum || c.IntervalMilliseconds > AppDefault.IntervalMaximum)
             return false;
 
         if (string.IsNullOrWhiteSpace(c.StartStopKeybind) || !TryParseKeys(c.StartStopKeybind, out var parsedHotkey))
@@ -522,8 +522,8 @@ partial class MainForm
 
             intervalInput.Value = TimeUtils.ClampSeconds(
                 appConfig.IntervalMilliseconds / 1000M,
-                intervalMinimum,
-                intervalMaximum);
+                AppDefault.IntervalMinimum,
+                AppDefault.IntervalMaximum);
 
             bool runForCount = appConfig.RunUntilSetCountActive;
             runUntilStoppedRadio.Checked = !runForCount;
@@ -540,15 +540,15 @@ partial class MainForm
 
             configPathText.Text = appConfig.ConfigFolderPath;
 
-            hotKey = TryParseKeys(appConfig.StartStopKeybind, out var parsedHotkey) ? parsedHotkey : hotKeyDefault;
+            hotKey = TryParseKeys(appConfig.StartStopKeybind, out var parsedHotkey) ? parsedHotkey : AppDefault.HotKey;
             keybindButton.Text = hotKey.ToString();
             RegisterGlobalHotkey(hotKey);
 
-            targetKey = TryParseKeys(appConfig.TargetInputKey, out var parsedTarget) ? parsedTarget : targetKeyDefault;
+            targetKey = TryParseKeys(appConfig.TargetInputKey, out var parsedTarget) ? parsedTarget : AppDefault.TargetKey;
 
             if (targetKey == hotKey)
             {
-                targetKey = targetKeyDefault;
+                targetKey = AppDefault.TargetKey;
                 MessageBox.Show(
                     "The loaded configuration used the same key for Start/Stop and Target. Reverted target to default.",
                     "Key conflict", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -776,8 +776,8 @@ partial class MainForm
 
         var sanitized = SanitizeSequences(
             appConfig.Sequences,
-            intervalMinimum,
-            intervalMaximum
+            AppDefault.IntervalMinimum,
+            AppDefault.IntervalMaximum
         );
 
         if (sanitized.Count == 0)
