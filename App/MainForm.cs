@@ -20,6 +20,7 @@ public partial class MainForm : Form
     private int _currentSequenceIndex = AppDefault.SequenceIndex;
     private bool _isSyncingSequenceName = false;
     private bool _suppressSequencePickerSync = false;
+    private int _sequenceStepIndex = 0;
 
     /// <summary>
     /// Constructor wires up the Designer.
@@ -123,6 +124,7 @@ public partial class MainForm : Form
                 return;
             }
             inputCountTimer.Interval = TimeUtils.ToMilliseconds(intervalInput.Value);
+            _sequenceStepIndex = 0;
         }
 
         isRunning = !isRunning;
@@ -140,6 +142,8 @@ public partial class MainForm : Form
         {
             StopScheduleTimer();
             isScheduled = false;
+
+            _sequenceStepIndex = 0;
 
             inputCountTimer.Interval = TimeUtils.ToMilliseconds(intervalInput.Value);
             inputCountTimer.Start();
@@ -167,32 +171,23 @@ public partial class MainForm : Form
     }
 
     /// <summary>
-    /// Tick: send target input + counts + run-for-count enforcement.
+    /// Tick: send input based on mode + counts + run-for-count enforcement.
+    /// - Regular mode: same behavior as before (send target key every interval).
+    /// - Sequence mode: walk steps; delay between steps is per-row Delay, and
+    ///   after the last step we wait the General interval before the next sequence.
+    ///   Input Count increments once per whole sequence.
     /// </summary>
     private void InputCount_Tick(object sender, EventArgs e)
     {
-        if (ShouldStopNow())
+        if (EnforceScheduledStopIfDue(sender, e)) return;
+
+        if (!sequenceModeCheck.Checked)
         {
-            StartStopButton_Click(sender, EventArgs.Empty);
-            scheduleEnableStopCheck.Checked = false;
+            DoSingleTargetTick(sender, e);
             return;
         }
 
-        PerformTargetInput();
-
-        inputCount++;
-        inputCountLabel.Text = LabelFormatter.SetInputCountLabel(inputCount);
-
-        if (runForCountRadio.Checked)
-        {
-            forcedInputCount++;
-            if (forcedInputCount >= runCountInput.Value)
-            {
-                StartStopButton_Click(sender, e);
-                forcedInputCount = AppDefault.ForcedInputCount;
-                return;
-            }
-        }
+        DoSequenceTick(sender, e);
     }
 
     /// <summary>
@@ -228,6 +223,7 @@ public partial class MainForm : Form
             intervalInput.Value = TimeUtils.ToSeconds(AppDefault.InputInterval);
             runCountInput.Value = AppDefault.RunCountInput;
             runUntilStoppedRadio.Checked = true;
+            _sequenceStepIndex = 0;
 
             // Binding state/UI
             isHotKeyBinding = false;
@@ -608,15 +604,6 @@ public partial class MainForm : Form
 
         _currentSequenceIndex = nextIndex;
         SyncSequenceUiFromSelection();
-    }
-
-    /// <summary>
-    /// Activate/Deactivate sequence mode.
-    /// When activated, runs the sequence instead of just the target key.
-    /// </summary>
-    private void SequenceModeCheck_CheckedChanged(object? sender, EventArgs e)
-    {
-        //TODO: figure out what to do with sequence mode.
     }
 
     #endregion

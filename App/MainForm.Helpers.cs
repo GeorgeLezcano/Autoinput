@@ -402,10 +402,105 @@ partial class MainForm
             NativeInput.SendKeyPress(targetKey);
     }
 
+    /// <summary>
+    /// Sends a single key or mouse click using existing NativeInput helpers.
+    /// </summary>
+    private static void SendKeyOrMouse(Keys key)
+    {
+        if (key == Keys.None) return;
+
+        if (NativeInput.IsMouseKey(key))
+            NativeInput.ClickMouseButton(key);
+        else
+            NativeInput.SendKeyPress(key);
+    }
+
+    #endregion
+
+    #region Tick helpers
+
+    /// <summary>
+    /// If stop time is reached, stop and return true; else false.
+    /// </summary>
+    private bool EnforceScheduledStopIfDue(object sender, EventArgs e)
+    {
+        if (!ShouldStopNow()) return false;
+
+        StartStopButton_Click(sender, EventArgs.Empty);
+        scheduleEnableStopCheck.Checked = false;
+        return true;
+    }
+
+    /// <summary>
+    /// Single-target mode: send target input and apply counting/stop rules.
+    /// </summary>
+    private void DoSingleTargetTick(object sender, EventArgs e)
+    {
+        PerformTargetInput();
+        _ = IncrementCountAndMaybeStop(sender, e);
+    }
+
+    /// <summary>
+    /// Sequence mode driver. Walks steps, applies per-step delay; on completion counts once,
+    /// enforces run-for-count, then waits General interval before next sequence.
+    /// Falls back to single-target if no sequence/steps.
+    /// </summary>
+    private void DoSequenceTick(object sender, EventArgs e)
+    {
+        var seq = GetSelectedSequence();
+
+        if (seq is null || seq.Steps is null || seq.Steps.Count == 0)
+        {
+            DoSingleTargetTick(sender, e);
+            return;
+        }
+
+        if (_sequenceStepIndex < 0 || _sequenceStepIndex >= seq.Steps.Count)
+            _sequenceStepIndex = 0;
+
+        var step = seq.Steps[_sequenceStepIndex];
+        SendKeyOrMouse(step.Key);
+
+        _sequenceStepIndex++;
+
+        if (_sequenceStepIndex < seq.Steps.Count)
+        {
+            inputCountTimer.Interval = Math.Max(step.DelayMS, 1);
+            return;
+        }
+
+        if (IncrementCountAndMaybeStop(sender, e))
+            return;
+
+        _sequenceStepIndex = 0;
+        inputCountTimer.Interval = TimeUtils.ToMilliseconds(intervalInput.Value);
+    }
+
+    /// <summary>
+    /// Increments inputCount label and enforces Run-for-N.
+    /// Returns true if we stopped the run.
+    /// </summary>
+    private bool IncrementCountAndMaybeStop(object sender, EventArgs e)
+    {
+        inputCount++;
+        inputCountLabel.Text = LabelFormatter.SetInputCountLabel(inputCount);
+
+        if (!runForCountRadio.Checked) return false;
+
+        forcedInputCount++;
+        if (forcedInputCount >= runCountInput.Value)
+        {
+            StartStopButton_Click(sender, e);
+            forcedInputCount = AppDefault.ForcedInputCount;
+            return true;
+        }
+
+        return false;
+    }
+
     #endregion
 
     #region Configuration Helpers
-
 
     /// <summary>
     /// Saves the current configuration to a file.

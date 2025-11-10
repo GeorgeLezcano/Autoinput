@@ -480,7 +480,6 @@ partial class MainForm
         sequenceModeCheck.Location = new Point(640, 20);
         sequenceModeCheck.Checked = false;
         sequenceModeCheck.TabIndex = 50;
-        sequenceModeCheck.CheckedChanged += SequenceModeCheck_CheckedChanged;
 
         sequenceAddButton.Text = "Add";
         sequenceAddButton.FlatStyle = FlatStyle.Flat;
