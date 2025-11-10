@@ -129,6 +129,7 @@ public partial class MainForm : Form
 
         isRunning = !isRunning;
         ApplyRunningUiState(isRunning);
+        if (isRunning) ActiveControl = null;
     }
 
     /// <summary>

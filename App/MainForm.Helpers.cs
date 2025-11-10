@@ -209,6 +209,17 @@ partial class MainForm
         SetStartButtonScheduledVisuals(false);
         resetButton.Enabled = !running;
 
+        if (running)
+        {
+            ActiveControl = null;        
+            AcceptButton = null;         
+            startStopButton.TabStop = false;
+        }
+        else
+        {
+            startStopButton.TabStop = true;                                   
+        }
+
         // General tab
         intervalInput.Enabled = !running;
 
