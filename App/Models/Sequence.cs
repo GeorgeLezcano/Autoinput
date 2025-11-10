@@ -1,9 +1,12 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace App.Models;
 
 /// <summary>
 /// Represents a set of steps (inputs + delay)
 /// in a sequencial way to perform a sequence loop.
 /// </summary>
+[ExcludeFromCodeCoverage]
 public sealed class Sequence
 {
     /// <summary>

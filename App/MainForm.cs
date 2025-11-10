@@ -129,7 +129,8 @@ public partial class MainForm : Form
 
         isRunning = !isRunning;
         ApplyRunningUiState(isRunning);
-        if (isRunning) ActiveControl = null;
+
+        if (isRunning) WindowState = FormWindowState.Minimized;
     }
 
     /// <summary>
@@ -148,6 +149,8 @@ public partial class MainForm : Form
 
             inputCountTimer.Interval = TimeUtils.ToMilliseconds(intervalInput.Value);
             inputCountTimer.Start();
+
+            WindowState = FormWindowState.Minimized;
 
             startStopButton.Text = AppDefault.StopBtnLabel;
             startStopButton.BackColor = UiColors.StopRed;

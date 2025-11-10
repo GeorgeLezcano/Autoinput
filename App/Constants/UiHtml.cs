@@ -1,9 +1,12 @@
 
+using System.Diagnostics.CodeAnalysis;
+
 namespace App.Constants;
 
 /// <summary>
 /// Constants for the UI html elements in the app.
 /// </summary>
+[ExcludeFromCodeCoverage]
 public static class UiHtml
 {
     /// <summary>

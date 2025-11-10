@@ -1,8 +1,11 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace App.Constants;
 
 /// <summary>
 /// Default values and states for the application.
 /// </summary>
+[ExcludeFromCodeCoverage]
 public static class AppDefault
 {
     /// <summary>

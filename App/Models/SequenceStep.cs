@@ -1,8 +1,11 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace App.Models;
 
 /// <summary>
 /// Represents a step within a sequence of keys/mouse inputs.
 /// </summary>
+[ExcludeFromCodeCoverage]
 public sealed class SequenceStep
 {
     /// <summary>
