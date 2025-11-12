@@ -211,13 +211,13 @@ partial class MainForm
 
         if (running)
         {
-            ActiveControl = null;        
-            AcceptButton = null;         
+            ActiveControl = null;
+            AcceptButton = null;
             startStopButton.TabStop = false;
         }
         else
         {
-            startStopButton.TabStop = true;                                   
+            startStopButton.TabStop = true;
         }
 
         // General tab
@@ -644,6 +644,20 @@ partial class MainForm
             scheduleEnableStopCheck.Checked = appConfig.ScheduleStopEnabled;
             scheduleStopPicker.Value = Clamp(appConfig.ScheduleStopTime, scheduleStopPicker.MinDate, scheduleStopPicker.MaxDate);
 
+            if (scheduleEnableStartCheck.Checked && scheduleStartPicker.Value <= DateTime.Now)
+            {
+                scheduleEnableStartCheck.Checked = false;
+                scheduleStartPicker.Value = DateTime.Now.AddMinutes(1);
+                startDate = null;
+            }
+
+            if (scheduleEnableStopCheck.Checked && scheduleStopPicker.Value <= DateTime.Now)
+            {
+                scheduleEnableStopCheck.Checked = false;
+                scheduleStopPicker.Value = DateTime.Now.AddMinutes(10); 
+                stopTime = null;
+            }
+
             configPathText.Text = appConfig.ConfigFolderPath;
 
             hotKey = TryParseKeys(appConfig.StartStopKeybind, out var parsedHotkey) ? parsedHotkey : AppDefault.HotKey;
@@ -680,6 +694,33 @@ partial class MainForm
     private static bool TryParseKeys(string text, out Keys result)
     {
         return Enum.TryParse(text, true, out result);
+    }
+
+    /// <summary>
+    /// Prompts the user to choose a save location for the current configuration.
+    /// Returns <c>true</c> if the configuration was successfully saved,
+    /// or <c>false</c> if the user canceled the dialog.
+    /// </summary>
+    private bool TryPromptAndSaveConfig()
+    {
+        using SaveFileDialog saveFileDialog = new()
+        {
+            Filter = AppDefault.FileFormatFilter,
+            FilterIndex = 1,
+            RestoreDirectory = true,
+            InitialDirectory = configPathText.Text,
+            FileName = AppDefault.DefaultConfigFileName,
+            Title = "Select a location to save current configuration"
+        };
+
+        if (saveFileDialog.ShowDialog() == DialogResult.OK)
+        {
+            SaveConfigurationToFile(saveFileDialog.FileName);
+            MessageBox.Show("Settings successfully saved.", "Save Successful",
+                MessageBoxButtons.OK, MessageBoxIcon.Information);
+            return true;
+        }
+        return false;
     }
 
     #endregion

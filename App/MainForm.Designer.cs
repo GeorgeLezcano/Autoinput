@@ -745,6 +745,7 @@ partial class MainForm
         Load += MainForm_Load;
         KeyDown += MainForm_KeyDown;
         MouseDown += MainForm_MouseDown;
+        FormClosing += MainForm_FormClosing;
 
         #endregion
 

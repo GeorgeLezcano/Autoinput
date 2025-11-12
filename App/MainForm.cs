@@ -28,6 +28,8 @@ public partial class MainForm : Form
     public MainForm()
     {
         InitializeComponent();
+        SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint, true);
+        UpdateStyles();
     }
 
     /// <summary>
@@ -75,6 +77,46 @@ public partial class MainForm : Form
     }
 
     /// <summary>
+    /// Occurs when the user attempts to close the application.
+    /// Prompts to save unsaved configuration changes and cancels
+    /// closing if the user chooses Cancel or aborts saving.
+    /// </summary>
+    private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
+    {
+        if (isRunning || isScheduled)
+        {
+            runTimer.Stop();
+            inputCountTimer.Stop();
+            isRunning = false;
+            isScheduled = false;
+        }
+
+        var result = MessageBox.Show(
+            "All unsaved changes WILL BE LOST after closing.\n\n" +
+            "Do you want to save the current configuration before exiting?",
+            "Confirm Exit",
+            MessageBoxButtons.YesNoCancel,
+            MessageBoxIcon.Warning,
+            MessageBoxDefaultButton.Button3
+        );
+
+        if (result == DialogResult.Cancel)
+        {
+            e.Cancel = true;
+            return;
+        }
+
+        if (result == DialogResult.Yes)
+        {
+            if (!TryPromptAndSaveConfig())
+            {
+                e.Cancel = true;
+                return;
+            }
+        }
+    }
+
+    /// <summary>
     /// Ensure timers and global hotkey are stopped/unregistered.
     /// </summary>
     protected override void OnHandleDestroyed(EventArgs e)
@@ -116,6 +158,19 @@ public partial class MainForm : Form
         if (togglingOn)
         {
             SnapshotScheduleSelections();
+
+            if (scheduleEnableStartCheck.Checked && startDate.HasValue && startDate.Value <= DateTime.Now)
+            {
+                scheduleEnableStartCheck.Checked = false;
+                startDate = null;
+            }
+
+            if (scheduleEnableStopCheck.Checked && stopTime.HasValue && stopTime.Value <= DateTime.Now)
+            {
+                scheduleEnableStopCheck.Checked = false;
+                stopTime = null;
+            }
+
             NormalizeStopTime();
 
             if (startDate.HasValue && startDate.Value > DateTime.Now)
@@ -155,6 +210,9 @@ public partial class MainForm : Form
             startStopButton.Text = AppDefault.StopBtnLabel;
             startStopButton.BackColor = UiColors.StopRed;
             SetStartButtonScheduledVisuals(false);
+
+            scheduleEnableStartCheck.Checked = false;
+            startDate = null;
         }
     }
 
@@ -620,22 +678,7 @@ public partial class MainForm : Form
     /// </summary>
     private void SaveConfigButton_Click(object? sender, EventArgs e)
     {
-        SaveFileDialog saveFileDialog = new()
-        {
-            Filter = AppDefault.FileFormatFilter,
-            FilterIndex = 1,
-            RestoreDirectory = true,
-            InitialDirectory = configPathText.Text,
-            FileName = AppDefault.DefaultConfigFileName,
-            Title = "Select a location to save current configuration"
-        };
-
-        if (saveFileDialog.ShowDialog() == DialogResult.OK)
-        {
-            string filePath = saveFileDialog.FileName;
-            SaveConfigurationToFile(filePath);
-            MessageBox.Show($"Settings successfully saved.", "Save Successful", MessageBoxButtons.OK, MessageBoxIcon.Information);
-        }
+        TryPromptAndSaveConfig();
     }
 
     /// <summary>

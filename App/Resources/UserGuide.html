@@ -20,17 +20,37 @@
         line-height: 1.5;
       }
 
-      h1 {
+      h1, h2 {
         color: var(--accent);
+      }
+
+      h1 {
         border-bottom: 1px solid var(--border);
         padding-bottom: 6px;
         margin-bottom: 16px;
         font-size: 1.8rem;
       }
 
+      h2 {
+        margin-top: 24px;
+        font-size: 1.3rem;
+      }
+
       p {
         color: var(--muted);
-        margin: 8px 0;
+        margin: 6px 0;
+      }
+
+      ul {
+        margin: 6px 0 14px 20px;
+        color: var(--muted);
+      }
+
+      code {
+        background: #242834;
+        padding: 2px 6px;
+        border-radius: 4px;
+        color: var(--fore);
       }
 
       footer {
@@ -40,13 +60,6 @@
         border-top: 1px solid var(--border);
         padding-top: 10px;
         text-align: center;
-      }
-
-      code {
-        background: #242834;
-        padding: 2px 6px;
-        border-radius: 4px;
-        color: var(--fore);
       }
 
       a {
@@ -60,13 +73,54 @@
     </style>
   </head>
   <body>
-    <h1>AutoInput User Guide - v{{APP_VERSION}}</h1>
+    <h1>AutoInput User Guide <span style="color: var(--muted);">– v{{APP_VERSION}}</span></h1>
 
-    <p><strong>Full guide coming soon!</strong></p>
-    
-    <p>
-      This page will contain detailed information about each tab, configuration,
-      and shortcut within the app.
-    </p>
+    <p><strong>AutoInput</strong> automates key or mouse presses on a timer — great for repetitive actions or testing. This guide walks you through the basics in a few minutes.</p>
+
+    <h2>1. Getting Started</h2>
+    <ul>
+      <li>Pick your target input — a key (e.g. F) or mouse button.</li>
+      <li>Set the interval between presses (from 0.1s up to 10 minutes).</li>
+      <li>Press <strong>Start</strong> or the global hotkey (F8 by default).</li>
+      <li>AutoInput runs until stopped or until it reaches your set input count.</li>
+    </ul>
+
+    <h2>2. Hotkey Setup</h2>
+    <ul>
+      <li><strong>Hotkey</strong> — Starts/stops AutoInput globally (even when minimized).</li>
+      <li><strong>Target Key</strong> — The key or mouse button AutoInput will press repeatedly.</li>
+      <li>Click the button to rebind — then press any key or mouse button to assign.</li>
+    </ul>
+
+    <h2>3. Scheduling</h2>
+    <ul>
+      <li>Enable <strong>Start At</strong> to begin at a specific time.</li>
+      <li>Enable <strong>Stop At</strong> to end automatically.</li>
+      <li>Perfect for time-based testing or automation overnight.</li>
+    </ul>
+
+    <h2>4. Sequence Mode</h2>
+    <ul>
+      <li>Create step-by-step sequences — e.g. press 1, wait 0.5s, press 2, wait 1.0s.</li>
+      <li>Each full run of your sequence counts as <strong>one input</strong>.</li>
+      <li>Switch between regular and sequence mode anytime.</li>
+    </ul>
+
+    <h2>5. Configs</h2>
+    <ul>
+      <li>Save and load presets using the <strong>Config</strong> tab.</li>
+      <li>Saved as simple JSON files for easy sharing or backups.</li>
+    </ul>
+
+    <h2>6. Quick Tips</h2>
+    <ul>
+      <li>Check the <strong>Status Bar</strong> for total inputs and elapsed time.</li>
+      <li><strong>Reset</strong> restores defaults if something feels off.</li>
+      <li>AutoInput minimizes automatically when running — just press the hotkey again to stop.</li>
+    </ul>
+
+    <footer>
+      AutoInput © {{YEAR}} — Quick, simple automation made easy.
+    </footer>
   </body>
 </html>

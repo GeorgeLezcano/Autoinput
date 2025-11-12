@@ -56,7 +56,8 @@ public sealed class UserGuideForm : Form
         string version = WebUtility.HtmlEncode(XmlHelpers.GetAppVersion());
 
         html = html
-            .Replace("{{APP_VERSION}}", version);
+            .Replace("{{APP_VERSION}}", version ?? "1.0.0")
+            .Replace("{{YEAR}}", DateTime.UtcNow.Year.ToString());
 
         _viewer.DocumentText = html;
     }
