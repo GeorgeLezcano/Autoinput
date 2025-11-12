@@ -2,7 +2,9 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <title>AutoInput — User Guide</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <style>
       :root {
         --back: #14161c;
@@ -13,18 +15,23 @@
       }
 
       body {
+        background-color: #14161c; /* fallback for IE */
         background-color: var(--back);
+        color: #f8f9fc;
         color: var(--fore);
-        font-family: "Segoe UI", sans-serif;
+        font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
         margin: 40px;
         line-height: 1.5;
       }
 
-      h1, h2 {
+      h1,
+      h2 {
+        color: #4da3ff;
         color: var(--accent);
       }
 
       h1 {
+        border-bottom: 1px solid #3a404e;
         border-bottom: 1px solid var(--border);
         padding-bottom: 6px;
         margin-bottom: 16px;
@@ -37,35 +44,51 @@
       }
 
       p {
+        color: #d2d7e1;
         color: var(--muted);
         margin: 6px 0;
       }
 
       ul {
         margin: 6px 0 14px 20px;
+        color: #d2d7e1;
         color: var(--muted);
       }
 
       code {
-        background: #242834;
-        padding: 2px 6px;
+        background: #1e2230;
+        color: #4da3ff; /* fallback for IE */
+        color: var(--accent);
+        padding: 1px 5px;
         border-radius: 4px;
-        color: var(--fore);
+        font-family: Consolas, "Courier New", monospace;
+        display: inline;
+        white-space: nowrap;
+        line-height: 1.2;
+        vertical-align: baseline;
+      }
+
+      li code {
+        display: inline;
       }
 
       footer {
         margin-top: 40px;
+        color: #d2d7e1;
         color: var(--muted);
         font-size: 0.9em;
+        border-top: 1px solid #3a404e;
         border-top: 1px solid var(--border);
         padding-top: 10px;
         text-align: center;
       }
 
       a {
+        color: #4da3ff;
         color: var(--accent);
         text-decoration: none;
       }
+
       a:hover {
         color: #8cbeff;
         text-decoration: underline;
@@ -73,23 +96,45 @@
     </style>
   </head>
   <body>
-    <h1>AutoInput User Guide <span style="color: var(--muted);">– v{{APP_VERSION}}</span></h1>
+    <h1>
+      AutoInput User Guide
+      <span style="color: #d2d7e1; color: var(--muted)"
+        >– v{{APP_VERSION}}</span
+      >
+    </h1>
 
-    <p><strong>AutoInput</strong> automates key or mouse presses on a timer — great for repetitive actions or testing. This guide walks you through the basics in a few minutes.</p>
+    <p>
+      <strong>AutoInput</strong> automates key or mouse presses on a timer —
+      great for repetitive actions or testing. This guide walks you through the
+      basics in a few minutes.
+    </p>
 
     <h2>1. Getting Started</h2>
     <ul>
       <li>Pick your target input — a key (e.g. F) or mouse button.</li>
       <li>Set the interval between presses (from 0.1s up to 10 minutes).</li>
-      <li>Press <strong>Start</strong> or the global hotkey (F8 by default).</li>
-      <li>AutoInput runs until stopped or until it reaches your set input count.</li>
+      <li>
+        Press <strong>Start</strong> or the global hotkey (F8 by default).
+      </li>
+      <li>
+        AutoInput runs until stopped or until it reaches your set input count.
+      </li>
     </ul>
 
     <h2>2. Hotkey Setup</h2>
     <ul>
-      <li><strong>Hotkey</strong> — Starts/stops AutoInput globally (even when minimized).</li>
-      <li><strong>Target Key</strong> — The key or mouse button AutoInput will press repeatedly.</li>
-      <li>Click the button to rebind — then press any key or mouse button to assign.</li>
+      <li>
+        <strong>Hotkey</strong> — Starts/stops AutoInput globally (even when
+        minimized).
+      </li>
+      <li>
+        <strong>Target Key</strong> — The key or mouse button AutoInput will
+        press repeatedly.
+      </li>
+      <li>
+        Click the button to rebind — then press any key or mouse button to
+        assign.
+      </li>
     </ul>
 
     <h2>3. Scheduling</h2>
@@ -101,8 +146,13 @@
 
     <h2>4. Sequence Mode</h2>
     <ul>
-      <li>Create step-by-step sequences — e.g. press 1, wait 0.5s, press 2, wait 1.0s.</li>
-      <li>Each full run of your sequence counts as <strong>one input</strong>.</li>
+      <li>
+        Create step-by-step sequences — e.g. press 1, wait 0.5s, press 2, wait
+        1.0s.
+      </li>
+      <li>
+        Each full run of your sequence counts as <strong>one input</strong>.
+      </li>
       <li>Switch between regular and sequence mode anytime.</li>
     </ul>
 
@@ -114,13 +164,51 @@
 
     <h2>6. Quick Tips</h2>
     <ul>
-      <li>Check the <strong>Status Bar</strong> for total inputs and elapsed time.</li>
+      <li>
+        Check the <strong>Status Bar</strong> for total inputs and elapsed time.
+      </li>
       <li><strong>Reset</strong> restores defaults if something feels off.</li>
-      <li>AutoInput minimizes automatically when running — just press the hotkey again to stop.</li>
+      <li>
+        AutoInput minimizes automatically when running — just press the hotkey
+        again to stop.
+      </li>
     </ul>
 
-    <footer>
-      AutoInput © {{YEAR}} — Quick, simple automation made easy.
-    </footer>
+    <h2>7. Key Reference</h2>
+    <p>
+      Some keys may appear under less intuitive names in the list. Here’s a
+      quick reference:
+    </p>
+    <ul>
+      <li><code>Oemtilde</code> → <strong>`</strong> or <strong>~</strong></li>
+      <li><code>OemMinus</code> → <strong>-</strong> or <strong>_</strong></li>
+      <li><code>Oemplus</code> → <strong>=</strong> or <strong>+</strong></li>
+      <li>
+        <code>OemOpenBrackets</code> → <strong>[</strong> or <strong>{</strong>
+      </li>
+      <li>
+        <code>OemCloseBrackets</code> → <strong>]</strong> or <strong>}</strong>
+      </li>
+      <li><code>OemPipe</code> → <strong>\\</strong> or <strong>|</strong></li>
+      <li>
+        <code>OemSemicolon</code> → <strong>;</strong> or <strong>:</strong>
+      </li>
+      <li><code>OemQuotes</code> → <strong>'</strong> or <strong>"</strong></li>
+      <li>
+        <code>Oemcomma</code> → <strong>,</strong> or <strong>&lt;</strong>
+      </li>
+      <li>
+        <code>OemPeriod</code> → <strong>.</strong> or <strong>&gt;</strong>
+      </li>
+      <li>
+        <code>OemQuestion</code> → <strong>/</strong> or <strong>?</strong>
+      </li>
+      <li><code>Menu</code> → <strong>Alt</strong></li>
+      <li><code>ShiftKey</code> → <strong>Shift</strong></li>
+      <li><code>ControlKey</code> → <strong>Ctrl</strong></li>
+      <li><code>Return</code> → <strong>Enter</strong></li>
+    </ul>
+
+    <footer>AutoInput © {{YEAR}} — Quick, simple automation made easy.</footer>
   </body>
 </html>

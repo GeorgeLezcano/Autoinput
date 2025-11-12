@@ -494,7 +494,7 @@ partial class MainForm
     private bool IncrementCountAndMaybeStop(object sender, EventArgs e)
     {
         inputCount++;
-        inputCountLabel.Text = LabelFormatter.SetInputCountLabel(inputCount);
+        inputCountLabel.Text = LabelFormatter.SetInputCountLabel(inputCount, sequenceModeCheck.Checked);
 
         if (!runForCountRadio.Checked) return false;
 
@@ -654,7 +654,7 @@ partial class MainForm
             if (scheduleEnableStopCheck.Checked && scheduleStopPicker.Value <= DateTime.Now)
             {
                 scheduleEnableStopCheck.Checked = false;
-                scheduleStopPicker.Value = DateTime.Now.AddMinutes(10); 
+                scheduleStopPicker.Value = DateTime.Now.AddMinutes(10);
                 stopTime = null;
             }
 
@@ -741,6 +741,10 @@ partial class MainForm
     /// <summary>
     /// Fills the colKey combo with a curated set of Keys values.
     /// </summary>
+    /// <summary>
+    /// Fills the colKey combo with a curated set of Keys values,
+    /// including letters, digits, function keys, arrows, and punctuation.
+    /// </summary>
     private void PopulateKeyDropdown()
     {
         if (colKey is not DataGridViewComboBoxColumn combo) return;
@@ -748,24 +752,46 @@ partial class MainForm
         combo.Items.Clear();
         var common = new List<Keys>
     {
+        // Mouse buttons
         Keys.LButton, Keys.RButton, Keys.MButton,
+
+        // Common controls
         Keys.Space, Keys.Enter, Keys.Tab, Keys.Escape,
-        Keys.Up, Keys.Down, Keys.Left, Keys.Right
+        Keys.Up, Keys.Down, Keys.Left, Keys.Right,
+
+        // Modifiers
+        Keys.ShiftKey, Keys.ControlKey, Keys.Menu, // Alt
+
+        // Navigation
+        Keys.Home, Keys.End, Keys.PageUp, Keys.PageDown, Keys.Insert, Keys.Delete,
+
+        // Punctuation & OEM keys
+        Keys.Oemtilde,         // ` ~
+        Keys.OemMinus,         // - _
+        Keys.Oemplus,          // = +
+        Keys.OemOpenBrackets,  // [ {
+        Keys.OemCloseBrackets, // ] }
+        Keys.OemPipe,          // \ |
+        Keys.OemSemicolon,     // ; :
+        Keys.OemQuotes,        // ' "
+        Keys.Oemcomma,         // , <
+        Keys.OemPeriod,        // . >
+        Keys.OemQuestion       // / ?
     };
 
-        // Letters A-Z
+        // Letters A–Z
         common.AddRange(Enumerable.Range((int)Keys.A, 26).Select(i => (Keys)i));
 
-        // Top-row digits 0-9 (D0..D9)
+        // Top-row digits 0–9 (D0..D9)
         common.AddRange(Enumerable.Range((int)Keys.D0, 10).Select(i => (Keys)i));
 
-        // Numpad digits 0-9
+        // Numpad digits 0–9
         common.AddRange(Enumerable.Range((int)Keys.NumPad0, 10).Select(i => (Keys)i));
 
-        // Function keys F1..F24
+        // Function keys F1–F24
         common.AddRange(Enumerable.Range((int)Keys.F1, 24).Select(i => (Keys)i));
 
-        // Remove duplicates and any weird flagged entries (just in case)
+        // Remove duplicates and add alphabetically
         foreach (var k in common.Distinct().OrderBy(k => k.ToString()))
             combo.Items.Add(k.ToString());
     }

@@ -48,7 +48,7 @@ public partial class MainForm : Form
         }
 
         // Status labels
-        inputCountLabel.Text = LabelFormatter.SetInputCountLabel(inputCount);
+        inputCountLabel.Text = LabelFormatter.SetInputCountLabel(inputCount, sequenceModeCheck.Checked);
         timerLabel.Text = LabelFormatter.SetTimeLabel(activeTimerSeconds);
         startStopButton.BackColor = UiColors.StartGreen;
 
@@ -281,7 +281,7 @@ public partial class MainForm : Form
             inputCount = AppDefault.InputCount;
             forcedInputCount = AppDefault.ForcedInputCount;
             timerLabel.Text = LabelFormatter.SetTimeLabel(activeTimerSeconds);
-            inputCountLabel.Text = LabelFormatter.SetInputCountLabel(inputCount);
+            inputCountLabel.Text = LabelFormatter.SetInputCountLabel(inputCount, sequenceModeCheck.Checked);
             intervalInput.Value = TimeUtils.ToSeconds(AppDefault.InputInterval);
             runCountInput.Value = AppDefault.RunCountInput;
             runUntilStoppedRadio.Checked = true;
@@ -666,6 +666,15 @@ public partial class MainForm : Form
 
         _currentSequenceIndex = nextIndex;
         SyncSequenceUiFromSelection();
+    }
+
+    /// <summary>
+    /// Updates the label based on single input or sequence count.
+    /// </summary>
+    private void SequenceModeCheck_CheckedChanged(object? sender, EventArgs e)
+    {
+        inputCountLabel.Text = LabelFormatter.SetInputCountLabel(inputCount, sequenceModeCheck.Checked);
+         _sequenceStepIndex = 0;
     }
 
     #endregion

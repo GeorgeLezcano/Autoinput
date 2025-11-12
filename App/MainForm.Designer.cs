@@ -163,7 +163,7 @@ partial class MainForm
         inputCountLabel.Name = "inputCountLabel";
         inputCountLabel.Size = new System.Drawing.Size(116, 20);
         inputCountLabel.TabIndex = 3;
-        inputCountLabel.Text = LabelFormatter.SetInputCountLabel(AppDefault.InputCount);
+        inputCountLabel.Text = LabelFormatter.SetInputCountLabel(AppDefault.InputCount, sequenceModeCheck.Checked);
 
         // Timers
         runTimer.Interval = AppDefault.ActiveTimerInterval;
@@ -480,6 +480,7 @@ partial class MainForm
         sequenceModeCheck.Location = new Point(640, 20);
         sequenceModeCheck.Checked = false;
         sequenceModeCheck.TabIndex = 50;
+        sequenceModeCheck.CheckedChanged += SequenceModeCheck_CheckedChanged;
 
         sequenceAddButton.Text = "Add";
         sequenceAddButton.FlatStyle = FlatStyle.Flat;

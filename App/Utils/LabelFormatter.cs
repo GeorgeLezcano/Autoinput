@@ -19,9 +19,11 @@ public static class LabelFormatter
     /// Builds the input count label text.
     /// </summary>
     /// <param name="count">The key press count.</param>
-    public static string SetInputCountLabel(int count)
+    public static string SetInputCountLabel(int count, bool sequenceModeActive)
     {
-        return $"Input Count: {count}";
+        return sequenceModeActive 
+            ? $"Sequence Count: {count}" 
+            : $"Input Count: {count}";
     }
 
     /// <summary>
