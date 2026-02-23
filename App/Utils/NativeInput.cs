@@ -55,6 +55,9 @@ public static class NativeInput
     public static bool IsMouseKey(Keys key) =>
         key == Keys.LButton || key == Keys.RButton || key == Keys.MButton;
 
+    /// <summary>
+    /// Sends a full key press (down + up) for the given key.
+    /// </summary>
     public static void SendKeyPress(Keys key)
     {
         ushort vk = (ushort)key;
@@ -80,6 +83,9 @@ public static class NativeInput
         _ = SendInput((uint)inputs.Length, inputs, Marshal.SizeOf(typeof(INPUT)));
     }
 
+    /// <summary>
+    /// Sends a full mouse click (down + up) for the given mouse button.
+    /// </summary>
     public static void ClickMouseButton(Keys mouseKey)
     {
         uint down, up;
@@ -91,6 +97,102 @@ public static class NativeInput
         var inputs = new INPUT[2];
         inputs[0] = new INPUT { type = INPUT_MOUSE, U = new InputUnion { mi = new MOUSEINPUT { dwFlags = down } } };
         inputs[1] = new INPUT { type = INPUT_MOUSE, U = new InputUnion { mi = new MOUSEINPUT { dwFlags = up } } };
+        _ = SendInput((uint)inputs.Length, inputs, Marshal.SizeOf(typeof(INPUT)));
+    }
+
+    /// <summary>
+    /// Sends a key down (press and hold) for the given key.
+    /// </summary>
+    public static void KeyDown(Keys key)
+    {
+        if (key == Keys.None) return;
+
+        ushort vk = (ushort)key;
+
+        var inputs = new INPUT[1];
+        inputs[0] = new INPUT
+        {
+            type = INPUT_KEYBOARD,
+            U = new InputUnion
+            {
+                ki = new KEYBDINPUT { wVk = vk, dwFlags = 0 }
+            }
+        };
+
+        _ = SendInput((uint)inputs.Length, inputs, Marshal.SizeOf(typeof(INPUT)));
+    }
+
+    /// <summary>
+    /// Sends a key up (release) for the given key.
+    /// </summary>
+    public static void KeyUp(Keys key)
+    {
+        if (key == Keys.None) return;
+
+        ushort vk = (ushort)key;
+
+        var inputs = new INPUT[1];
+        inputs[0] = new INPUT
+        {
+            type = INPUT_KEYBOARD,
+            U = new InputUnion
+            {
+                ki = new KEYBDINPUT { wVk = vk, dwFlags = KEYEVENTF_KEYUP }
+            }
+        };
+
+        _ = SendInput((uint)inputs.Length, inputs, Marshal.SizeOf(typeof(INPUT)));
+    }
+
+    /// <summary>
+    /// Sends a mouse button down (press and hold) for the given mouse button.
+    /// </summary>
+    public static void MouseDown(Keys mouseKey)
+    {
+        uint down =
+            mouseKey == Keys.LButton ? MOUSEEVENTF_LEFTDOWN :
+            mouseKey == Keys.RButton ? MOUSEEVENTF_RIGHTDOWN :
+            mouseKey == Keys.MButton ? MOUSEEVENTF_MIDDLEDOWN :
+            0;
+
+        if (down == 0) return;
+
+        var inputs = new INPUT[1];
+        inputs[0] = new INPUT
+        {
+            type = INPUT_MOUSE,
+            U = new InputUnion
+            {
+                mi = new MOUSEINPUT { dwFlags = down }
+            }
+        };
+
+        _ = SendInput((uint)inputs.Length, inputs, Marshal.SizeOf(typeof(INPUT)));
+    }
+
+    /// <summary>
+    /// Sends a mouse button up (release) for the given mouse button.
+    /// </summary>
+    public static void MouseUp(Keys mouseKey)
+    {
+        uint up =
+            mouseKey == Keys.LButton ? MOUSEEVENTF_LEFTUP :
+            mouseKey == Keys.RButton ? MOUSEEVENTF_RIGHTUP :
+            mouseKey == Keys.MButton ? MOUSEEVENTF_MIDDLEUP :
+            0;
+
+        if (up == 0) return;
+
+        var inputs = new INPUT[1];
+        inputs[0] = new INPUT
+        {
+            type = INPUT_MOUSE,
+            U = new InputUnion
+            {
+                mi = new MOUSEINPUT { dwFlags = up }
+            }
+        };
+
         _ = SendInput((uint)inputs.Length, inputs, Marshal.SizeOf(typeof(INPUT)));
     }
 }

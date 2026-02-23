@@ -91,6 +91,8 @@ public partial class MainForm : Form
             isScheduled = false;
         }
 
+        ReleaseAllHeldInputs();
+
         var result = MessageBox.Show(
             "All unsaved changes will be lost after closing.\n\n" +
             "Do you want to save the current configuration before exiting?",
@@ -182,10 +184,25 @@ public partial class MainForm : Form
             _sequenceStepIndex = 0;
         }
 
+        if (togglingOn)
+        {
+            _sequenceStepIndex = 0;
+
+            if (holdTargetCheck.Checked && !_isTargetHeldDown && targetKey != Keys.None)
+            {
+                SendDown(targetKey);
+                _isTargetHeldDown = true;
+            }
+        }
+
+        if (!togglingOn)
+        {
+            ReleaseAllHeldInputs();
+        }
+
         isRunning = !isRunning;
         ApplyRunningUiState(isRunning);
 
-        //if (isRunning) WindowState = FormWindowState.Minimized;
     }
 
     /// <summary>
@@ -197,15 +214,20 @@ public partial class MainForm : Form
 
         if (DateTime.Now >= startDate.Value)
         {
+            if (holdTargetCheck.Checked && !_isTargetHeldDown && targetKey != Keys.None)
+            {
+                SendDown(targetKey);
+                _isTargetHeldDown = true;
+            }
+
             StopScheduleTimer();
             isScheduled = false;
 
             _sequenceStepIndex = 0;
 
             inputCountTimer.Interval = TimeUtils.ToMilliseconds(intervalInput.Value);
-            inputCountTimer.Start();
-
-            //WindowState = FormWindowState.Minimized;
+            if (!holdTargetCheck.Checked)
+                inputCountTimer.Start();
 
             startStopButton.Text = AppDefault.StopBtnLabel;
             startStopButton.BackColor = UiColors.StopRed;
@@ -274,52 +296,54 @@ public partial class MainForm : Form
             MessageBoxDefaultButton.Button2
         );
 
-        if (result == DialogResult.Yes)
-        {
-            // General tab
-            activeTimerSeconds = AppDefault.ActiveTimerSeconds;
-            inputCount = AppDefault.InputCount;
-            forcedInputCount = AppDefault.ForcedInputCount;
-            timerLabel.Text = LabelFormatter.SetTimeLabel(activeTimerSeconds);
-            inputCountLabel.Text = LabelFormatter.SetInputCountLabel(inputCount, sequenceModeCheck.Checked);
-            intervalInput.Value = TimeUtils.ToSeconds(AppDefault.InputInterval);
-            runCountInput.Value = AppDefault.RunCountInput;
-            runUntilStoppedRadio.Checked = true;
-            _sequenceStepIndex = 0;
-            
-            holdTargetCheck.Checked = false;
-            HoldTargetCheck_CheckedChanged(null, EventArgs.Empty);
-    
-            // Binding state/UI
-            isHotKeyBinding = false;
-            isTargetKeyBinding = false;
-            hotKey = AppDefault.HotKey;
-            keybindButton.Text = hotKey.ToString();
-            targetKey = AppDefault.TargetKey;
-            targetKeyButton.Text = targetKey.ToString();
+        if (result != DialogResult.Yes)
+            return;
 
-            // Schedule fields
-            scheduleEnableStartCheck.Checked = false;
-            scheduleEnableStopCheck.Checked = false;
-            startDate = null;
-            stopTime = null;
-            isScheduled = false;
-            StopScheduleTimer();
-            SetStartButtonScheduledVisuals(false);
+        ReleaseAllHeldInputs();
 
-            // Top bar visuals
-            startStopButton.Text = AppDefault.StartBtnLabel;
-            startStopButton.BackColor = UiColors.StartGreen;
+        // General tab
+        activeTimerSeconds = AppDefault.ActiveTimerSeconds;
+        inputCount = AppDefault.InputCount;
+        forcedInputCount = AppDefault.ForcedInputCount;
+        timerLabel.Text = LabelFormatter.SetTimeLabel(activeTimerSeconds);
+        inputCountLabel.Text = LabelFormatter.SetInputCountLabel(inputCount, sequenceModeCheck.Checked);
+        intervalInput.Value = TimeUtils.ToSeconds(AppDefault.InputInterval);
+        runCountInput.Value = AppDefault.RunCountInput;
+        runUntilStoppedRadio.Checked = true;
+        _sequenceStepIndex = 0;
 
-            // Re-apply default global hotkey
-            RegisterGlobalHotkey(hotKey);
+        holdTargetCheck.Checked = false;
+        HoldTargetCheck_CheckedChanged(null, EventArgs.Empty);
 
-            configPathText.Text = AppDefault.ConfigPathText;
+        // Binding state/UI
+        isHotKeyBinding = false;
+        isTargetKeyBinding = false;
+        hotKey = AppDefault.HotKey;
+        keybindButton.Text = hotKey.ToString();
+        targetKey = AppDefault.TargetKey;
+        targetKeyButton.Text = targetKey.ToString();
 
-            // Sequence tab
-            ResetSequences();
-            sequenceModeCheck.Checked = false;
-        }
+        // Schedule fields
+        scheduleEnableStartCheck.Checked = false;
+        scheduleEnableStopCheck.Checked = false;
+        startDate = null;
+        stopTime = null;
+        isScheduled = false;
+        StopScheduleTimer();
+        SetStartButtonScheduledVisuals(false);
+
+        // Top bar visuals
+        startStopButton.Text = AppDefault.StartBtnLabel;
+        startStopButton.BackColor = UiColors.StartGreen;
+
+        // Re-apply default global hotkey
+        RegisterGlobalHotkey(hotKey);
+
+        configPathText.Text = AppDefault.ConfigPathText;
+
+        // Sequence tab
+        ResetSequences();
+        sequenceModeCheck.Checked = false;
     }
 
     /// <summary>
@@ -714,7 +738,15 @@ public partial class MainForm : Form
         if (sequenceGrid.CurrentCell is null) return;
 
         if (sequenceGrid.IsCurrentCellDirty)
+        {
             sequenceGrid.CommitEdit(DataGridViewDataErrorContexts.Commit);
+
+            if (sequenceGrid.CurrentCell.OwningColumn?.Name == "colHold")
+            {
+                var seq = GetSelectedSequence();
+                if (seq is not null) SaveGridIntoSequence(seq);
+            }
+        }
     }
 
     #endregion

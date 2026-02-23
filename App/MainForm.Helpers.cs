@@ -26,6 +26,10 @@ partial class MainForm
         WriteIndented = true
     };
 
+    private bool _isTargetHeldDown = false;
+    private bool _sequenceAwaitingRelease = false;
+    private Keys _sequenceHeldKey = Keys.None;
+
     // Binding state
     private bool isHotKeyBinding = false;
     private bool isTargetKeyBinding = false;
@@ -157,6 +161,8 @@ partial class MainForm
     /// </summary>
     private void ExitScheduledMode()
     {
+        ReleaseAllHeldInputs();
+
         isScheduled = false;
         StopScheduleTimer();
 
@@ -201,8 +207,11 @@ partial class MainForm
     /// </summary>
     private void ApplyRunningUiState(bool running)
     {
-        (running ? (Action)runTimer.Start : runTimer.Stop)();
-        (running ? (Action)inputCountTimer.Start : inputCountTimer.Stop)();
+        if (running) runTimer.Start();
+        else runTimer.Stop();
+
+        if (running && !holdTargetCheck.Checked) inputCountTimer.Start();
+        else inputCountTimer.Stop();
 
         // Top bar items
         startStopButton.Text = running ? AppDefault.StopBtnLabel : AppDefault.StartBtnLabel;
@@ -431,6 +440,41 @@ partial class MainForm
             NativeInput.SendKeyPress(key);
     }
 
+    private static void SendDown(Keys key)
+    {
+        if (key == Keys.None) return;
+
+        if (NativeInput.IsMouseKey(key)) NativeInput.MouseDown(key);
+        else NativeInput.KeyDown(key);
+    }
+
+    private static void SendUp(Keys key)
+    {
+        if (key == Keys.None) return;
+
+        if (NativeInput.IsMouseKey(key)) NativeInput.MouseUp(key);
+        else NativeInput.KeyUp(key);
+    }
+
+    /// <summary>
+    /// Release anything that may have stayed held down.
+    /// </summary>
+    private void ReleaseAllHeldInputs()
+    {
+        if (_sequenceAwaitingRelease && _sequenceHeldKey != Keys.None)
+        {
+            SendUp(_sequenceHeldKey);
+            _sequenceHeldKey = Keys.None;
+            _sequenceAwaitingRelease = false;
+        }
+
+        if (_isTargetHeldDown && targetKey != Keys.None)
+        {
+            SendUp(targetKey);
+            _isTargetHeldDown = false;
+        }
+    }
+
     #endregion
 
     #region Tick helpers
@@ -452,6 +496,9 @@ partial class MainForm
     /// </summary>
     private void DoSingleTargetTick(object sender, EventArgs e)
     {
+
+        if (holdTargetCheck.Checked) return;
+
         PerformTargetInput();
         _ = IncrementCountAndMaybeStop(sender, e);
     }
@@ -471,12 +518,33 @@ partial class MainForm
             return;
         }
 
+        if (_sequenceAwaitingRelease && _sequenceHeldKey != Keys.None)
+        {
+            SendUp(_sequenceHeldKey);
+            _sequenceHeldKey = Keys.None;
+            _sequenceAwaitingRelease = false;
+
+        }
+
         if (_sequenceStepIndex < 0 || _sequenceStepIndex >= seq.Steps.Count)
             _sequenceStepIndex = 0;
 
         var step = seq.Steps[_sequenceStepIndex];
-        SendKeyOrMouse(step.Key);
 
+        if (step.Hold)
+        {
+            SendDown(step.Key);
+
+            _sequenceHeldKey = step.Key;
+            _sequenceAwaitingRelease = true;
+
+            _sequenceStepIndex++;
+
+            inputCountTimer.Interval = Math.Max(step.DelayMS, 1);
+            return;
+        }
+
+        SendKeyOrMouse(step.Key);
         _sequenceStepIndex++;
 
         if (_sequenceStepIndex < seq.Steps.Count)
@@ -524,6 +592,14 @@ partial class MainForm
     /// <param name="path">String path of the saved file.</param>
     private void SaveConfigurationToFile(string path)
     {
+        if (sequenceGrid.IsCurrentCellDirty)
+            sequenceGrid.CommitEdit(DataGridViewDataErrorContexts.Commit);
+
+        sequenceGrid.EndEdit();
+
+        var seq = GetSelectedSequence();
+        if (seq is not null) SaveGridIntoSequence(seq);
+
         AppConfig appConfig = GetCurrentConfigValuesFromApp();
         string jsonString = JsonSerializer.Serialize(appConfig, jsonSerializerOption);
         File.WriteAllText(path, jsonString);
@@ -893,14 +969,16 @@ partial class MainForm
 
             var keyLabel = row.Cells["colKey"].Value?.ToString()?.Trim();
             var delayText = row.Cells["colDelayMs"].Value?.ToString()?.Trim();
-            var hold = row.Cells["colHold"].Value as bool? ?? false;
+
+            var holdObj = row.Cells["colHold"].Value;
+            var hold = holdObj is not null && Convert.ToBoolean(holdObj);
 
             if (string.IsNullOrEmpty(keyLabel) || string.IsNullOrEmpty(delayText)) continue;
             if (!Enum.TryParse<Keys>(keyLabel, ignoreCase: true, out var key)) continue;
             if (!decimal.TryParse(delayText, out var seconds)) continue;
 
             var ms = (int)Math.Round(seconds * 1000m, MidpointRounding.AwayFromZero);
-            newSteps.Add(new SequenceStep { Key = key, DelayMS = ms , Hold = hold});
+            newSteps.Add(new SequenceStep { Key = key, DelayMS = ms, Hold = hold });
         }
         seq.Steps = newSteps;
     }
@@ -998,7 +1076,7 @@ partial class MainForm
             if (ms < minMs) ms = minMs;
             if (ms > maxMs) ms = maxMs;
 
-            cleaned.Add(new SequenceStep { Key = step.Key, DelayMS = ms });
+            cleaned.Add(new SequenceStep { Key = step.Key, DelayMS = ms, Hold = step.Hold });
         }
 
         return new Sequence { Name = name, Steps = cleaned };
