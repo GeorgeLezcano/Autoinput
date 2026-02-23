@@ -17,4 +17,9 @@ public sealed class SequenceStep
     /// Delay in milliseconds after the key is pressed.
     /// </summary>
     public int DelayMS { get; set; }
+    
+    /// <summary>
+    /// Indicates if the step should hold the key or not.
+    /// </summary>
+    public bool Hold { get; set; }
 }

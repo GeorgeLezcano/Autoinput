@@ -60,6 +60,7 @@ partial class MainForm
         // ---- General tab ----
         groupRun = new GroupBox();
         labelIntervalHint = new Label();
+        holdTargetCheck = new CheckBox();
 
         // Run Mode controls
         runUntilStoppedRadio = new RadioButton();
@@ -89,6 +90,7 @@ partial class MainForm
         sequenceAddButton = new Button();
         sequenceRemoveButton = new Button();
         sequenceModeCheck = new CheckBox();
+        colHold = new DataGridViewCheckBoxColumn();
 
         // ---- Config tab ----
         groupConfig = new GroupBox();
@@ -206,7 +208,7 @@ partial class MainForm
         // Interval controls
         intervalLabel.AutoSize = true;
         intervalLabel.ForeColor = UiColors.TextSecondary;
-        intervalLabel.Location = new System.Drawing.Point(20, 35);
+        intervalLabel.Location = new System.Drawing.Point(20, 32);
         intervalLabel.Name = "intervalLabel";
         intervalLabel.Size = new System.Drawing.Size(148, 20);
         intervalLabel.Text = "Interval (Seconds)";
@@ -220,27 +222,38 @@ partial class MainForm
         intervalInput.BorderStyle = BorderStyle.FixedSingle;
         intervalInput.BackColor = UiColors.InputBack;
         intervalInput.ForeColor = UiColors.InputFore;
-        intervalInput.Location = new System.Drawing.Point(24, 58);
+        intervalInput.Location = new System.Drawing.Point(24, 56);
         intervalInput.Size = new System.Drawing.Size(160, 27);
         intervalInput.Name = "intervalInput";
         intervalInput.TabIndex = 20;
         intervalInput.Enabled = true;
 
+        holdTargetCheck.AutoSize = true;
+        holdTargetCheck.ForeColor = UiColors.TextSecondary;
+        holdTargetCheck.BackColor = UiColors.PanelBack;
+        holdTargetCheck.Location = new System.Drawing.Point(24, 94);
+        holdTargetCheck.Name = "holdTargetCheck";
+        holdTargetCheck.Size = new System.Drawing.Size(250, 24);
+        holdTargetCheck.TabIndex = 25;
+        holdTargetCheck.Text = "Hold Target Input Key (Not Implemented Yet)";
+        holdTargetCheck.Checked = false;
+        holdTargetCheck.CheckedChanged += HoldTargetCheck_CheckedChanged;
+
         labelIntervalHint.AutoSize = true;
         labelIntervalHint.ForeColor = UiColors.TextSecondary;
-        labelIntervalHint.Location = new System.Drawing.Point(200, 61);
+        labelIntervalHint.Location = new System.Drawing.Point(200, 59);
         labelIntervalHint.Text = LabelFormatter.SetIntervalHint(AppDefault.IntervalMinimum, AppDefault.IntervalMaximum);
 
         // Run Mode controls
         runUntilStoppedRadio.AutoSize = true;
         runUntilStoppedRadio.ForeColor = ForeColor;
-        runUntilStoppedRadio.Location = new System.Drawing.Point(24, 100);
+        runUntilStoppedRadio.Location = new System.Drawing.Point(24, 125);
         runUntilStoppedRadio.Text = "Run until stopped";
         runUntilStoppedRadio.Checked = true;
 
         runForCountRadio.AutoSize = true;
         runForCountRadio.ForeColor = ForeColor;
-        runForCountRadio.Location = new System.Drawing.Point(24, 132);
+        runForCountRadio.Location = new System.Drawing.Point(24, 155);
         runForCountRadio.Text = "Run for a number of inputs:";
         runForCountRadio.CheckedChanged += RunForInputsSelected_Changed;
 
@@ -250,14 +263,14 @@ partial class MainForm
         runCountInput.Minimum = new decimal(new int[] { AppDefault.RunCountInputMinimum, 0, 0, 0 });
         runCountInput.Maximum = new decimal(new int[] { AppDefault.RunCountInputMaximum, 0, 0, 0 });
         runCountInput.Value = new decimal(new int[] { AppDefault.RunCountInput, 0, 0, 0 });
-        runCountInput.Location = new System.Drawing.Point(264, 130);
+        runCountInput.Location = new System.Drawing.Point(264, 153);
         runCountInput.Size = new System.Drawing.Size(120, 27);
         runCountInput.TabIndex = 40;
         runCountInput.Enabled = false;
 
         runCountLabel.AutoSize = true;
         runCountLabel.ForeColor = UiColors.TextSecondary;
-        runCountLabel.Location = new System.Drawing.Point(24, 168);
+        runCountLabel.Location = new System.Drawing.Point(24, 180);
         runCountLabel.Text = "When count is reached, stop automatically.";
 
         groupRun.Controls.Add(intervalLabel);
@@ -267,6 +280,7 @@ partial class MainForm
         groupRun.Controls.Add(runForCountRadio);
         groupRun.Controls.Add(runCountInput);
         groupRun.Controls.Add(runCountLabel);
+        groupRun.Controls.Add(holdTargetCheck);
 
         tabGeneral.Controls.Add(groupRun);
 
@@ -422,6 +436,7 @@ partial class MainForm
         sequenceGrid.Size = new System.Drawing.Size(600, 300);
         sequenceGrid.ReadOnly = false;
         sequenceGrid.EditMode = DataGridViewEditMode.EditOnEnter;
+        sequenceGrid.CurrentCellDirtyStateChanged += SequenceGrid_CurrentCellDirtyStateChanged;
 
         sequenceGrid.CellValidating += SequenceGrid_CellValidating;
         sequenceGrid.EditingControlShowing += SequenceGrid_EditingControlShowing;
@@ -453,7 +468,7 @@ partial class MainForm
         colStep.HeaderText = "#";
         colStep.Name = "colStep";
         colStep.ReadOnly = true;
-        colStep.Width = 100;
+        colStep.Width = 60;
 
         colKey.HeaderText = "Key / Click";
         colKey.Name = "colKey";
@@ -465,10 +480,19 @@ partial class MainForm
         colDelayMs.HeaderText = "Delay (Seconds)";
         colDelayMs.Name = "colDelayMs";
         colDelayMs.ReadOnly = false;
-        colDelayMs.Width = 180;
+        colDelayMs.Width = 150;
         colDelayMs.DefaultCellStyle.Format = "N1";
 
-        sequenceGrid.Columns.AddRange(new DataGridViewColumn[] { colStep, colKey, colDelayMs });
+        colHold.HeaderText = "Hold";
+        colHold.Name = "colHold";
+        colHold.ReadOnly = false;
+        colHold.Width = 70;
+        colHold.ThreeState = false;
+        colHold.TrueValue = true;
+        colHold.FalseValue = false;
+        colHold.FlatStyle = FlatStyle.Flat;
+
+        sequenceGrid.Columns.AddRange(new DataGridViewColumn[] { colStep, colKey, colDelayMs, colHold });
 
         sequenceButtonsPanel.Location = new System.Drawing.Point(630, 34);
         sequenceButtonsPanel.Size = new System.Drawing.Size(140, 300);
@@ -787,6 +811,7 @@ partial class MainForm
     // General
     private GroupBox groupRun;
     private Label labelIntervalHint;
+    private CheckBox holdTargetCheck;
 
     // Run Mode
     private RadioButton runUntilStoppedRadio;
@@ -821,6 +846,7 @@ partial class MainForm
     private Button newSequenceButton;
     private Button removeSequenceButton;
     private CheckBox sequenceModeCheck;
+    private DataGridViewCheckBoxColumn colHold;
 
     // Config
     private GroupBox groupConfig;

@@ -32,7 +32,7 @@ public class AppConfig
     /// <summary>
     /// Start/Stop Toggle App keybind.
     /// </summary>
-    public string StartStopKeybind { get; set; }  = string.Empty;
+    public string StartStopKeybind { get; set; } = string.Empty;
 
     /// <summary>
     /// Target Key to be used in the autoinput.
@@ -80,4 +80,9 @@ public class AppConfig
     /// the single target key.
     /// </summary>
     public bool SequenceModeActive { get; set; }
+
+    /// <summary>
+    /// Flag that indicates if the hold key is enabled.
+    /// </summary>
+    public bool HoldTargetEnabled { get; set; }
 }

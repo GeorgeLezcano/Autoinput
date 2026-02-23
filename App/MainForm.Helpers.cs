@@ -136,6 +136,7 @@ partial class MainForm
         runUntilStoppedRadio.Enabled = false;
         runForCountRadio.Enabled = false;
         runCountInput.Enabled = false;
+        holdTargetCheck.Enabled = false;
 
         sequenceAddButton.Enabled = false;
         sequenceRemoveButton.Enabled = false;
@@ -221,7 +222,9 @@ partial class MainForm
         }
 
         // General tab
-        intervalInput.Enabled = !running;
+        intervalInput.Enabled = !running && !holdTargetCheck.Checked;
+        holdTargetCheck.Enabled = !running;
+        labelIntervalHint.Enabled = !running && !holdTargetCheck.Checked;
 
         // Schedule tab
         scheduleStartPicker.Enabled = !running && scheduleEnableStartCheck.Checked;
@@ -231,8 +234,9 @@ partial class MainForm
 
         // Run mode tab
         runUntilStoppedRadio.Enabled = !running;
-        runForCountRadio.Enabled = !running;
-        runCountInput.Enabled = !running && runForCountRadio.Checked;
+        runForCountRadio.Enabled = !running && !holdTargetCheck.Checked;
+        runCountInput.Enabled = !running && runForCountRadio.Checked && !holdTargetCheck.Checked;
+        runCountLabel.Enabled = !running && !holdTargetCheck.Checked;
 
         // Sequence tab
         sequenceAddButton.Enabled = !running;
@@ -284,6 +288,7 @@ partial class MainForm
         runUntilStoppedRadio.Enabled = true;
         runForCountRadio.Enabled = true;
         runCountInput.Enabled = runForCountRadio.Checked;
+        holdTargetCheck.Enabled = true;
 
         sequenceAddButton.Enabled = true;
         sequenceRemoveButton.Enabled = true;
@@ -608,7 +613,8 @@ partial class MainForm
             ConfigFolderPath = configPathText.Text,
             SelectedSequenceIndex = _currentSequenceIndex,
             Sequences = _sequences,
-            SequenceModeActive = sequenceModeCheck.Checked
+            SequenceModeActive = sequenceModeCheck.Checked,
+            HoldTargetEnabled = holdTargetCheck.Checked
         };
         return appConfig;
     }
@@ -637,6 +643,9 @@ partial class MainForm
 
             runCountInput.Value = ClampDec(appConfig.StopInputCount, runCountInput.Minimum, runCountInput.Maximum);
             runCountInput.Enabled = runForCountRadio.Checked;
+
+            holdTargetCheck.Checked = appConfig.HoldTargetEnabled;
+            HoldTargetCheck_CheckedChanged(null, EventArgs.Empty);
 
             scheduleEnableStartCheck.Checked = appConfig.ScheduleStartEnabled;
             scheduleStartPicker.Value = Clamp(appConfig.ScheduleStartTime, scheduleStartPicker.MinDate, scheduleStartPicker.MaxDate);
@@ -841,7 +850,7 @@ partial class MainForm
         {
             var keyLabel = step.Key.ToString();
             var delaySec = (step.DelayMS / 1000m).ToString("0.0");
-            sequenceGrid.Rows.Add(stepNum++, keyLabel, delaySec);
+            sequenceGrid.Rows.Add(stepNum++, keyLabel, delaySec, step.Hold);
         }
     }
 
@@ -884,13 +893,14 @@ partial class MainForm
 
             var keyLabel = row.Cells["colKey"].Value?.ToString()?.Trim();
             var delayText = row.Cells["colDelayMs"].Value?.ToString()?.Trim();
+            var hold = row.Cells["colHold"].Value as bool? ?? false;
 
             if (string.IsNullOrEmpty(keyLabel) || string.IsNullOrEmpty(delayText)) continue;
             if (!Enum.TryParse<Keys>(keyLabel, ignoreCase: true, out var key)) continue;
             if (!decimal.TryParse(delayText, out var seconds)) continue;
 
             var ms = (int)Math.Round(seconds * 1000m, MidpointRounding.AwayFromZero);
-            newSteps.Add(new SequenceStep { Key = key, DelayMS = ms });
+            newSteps.Add(new SequenceStep { Key = key, DelayMS = ms , Hold = hold});
         }
         seq.Steps = newSteps;
     }

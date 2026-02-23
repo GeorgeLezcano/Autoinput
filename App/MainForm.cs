@@ -92,7 +92,7 @@ public partial class MainForm : Form
         }
 
         var result = MessageBox.Show(
-            "All unsaved changes WILL BE LOST after closing.\n\n" +
+            "All unsaved changes will be lost after closing.\n\n" +
             "Do you want to save the current configuration before exiting?",
             "Confirm Exit",
             MessageBoxButtons.YesNoCancel,
@@ -185,7 +185,7 @@ public partial class MainForm : Form
         isRunning = !isRunning;
         ApplyRunningUiState(isRunning);
 
-        if (isRunning) WindowState = FormWindowState.Minimized;
+        //if (isRunning) WindowState = FormWindowState.Minimized;
     }
 
     /// <summary>
@@ -205,7 +205,7 @@ public partial class MainForm : Form
             inputCountTimer.Interval = TimeUtils.ToMilliseconds(intervalInput.Value);
             inputCountTimer.Start();
 
-            WindowState = FormWindowState.Minimized;
+            //WindowState = FormWindowState.Minimized;
 
             startStopButton.Text = AppDefault.StopBtnLabel;
             startStopButton.BackColor = UiColors.StopRed;
@@ -286,7 +286,10 @@ public partial class MainForm : Form
             runCountInput.Value = AppDefault.RunCountInput;
             runUntilStoppedRadio.Checked = true;
             _sequenceStepIndex = 0;
-
+            
+            holdTargetCheck.Checked = false;
+            HoldTargetCheck_CheckedChanged(null, EventArgs.Empty);
+    
             // Binding state/UI
             isHotKeyBinding = false;
             isTargetKeyBinding = false;
@@ -450,6 +453,32 @@ public partial class MainForm : Form
         isTargetKeyBinding = false;
         DisableMouseBinding();
         SetBindingStyle(targetKeyButton, false);
+    }
+
+    /// <summary>
+    /// Handler for the hold key checkbox.
+    /// </summary>
+    private void HoldTargetCheck_CheckedChanged(object? sender, EventArgs e)
+    {
+        var hold = holdTargetCheck.Checked;
+
+        intervalInput.Enabled = !hold;
+        labelIntervalHint.Enabled = !hold;
+
+        runCountLabel.Enabled = !hold;
+
+        if (hold)
+        {
+            runUntilStoppedRadio.Checked = true;
+
+            runForCountRadio.Enabled = false;
+            runCountInput.Enabled = false;
+        }
+        else
+        {
+            runForCountRadio.Enabled = true;
+            runCountInput.Enabled = runForCountRadio.Checked;
+        }
     }
 
     #endregion
@@ -674,7 +703,18 @@ public partial class MainForm : Form
     private void SequenceModeCheck_CheckedChanged(object? sender, EventArgs e)
     {
         inputCountLabel.Text = LabelFormatter.SetInputCountLabel(inputCount, sequenceModeCheck.Checked);
-         _sequenceStepIndex = 0;
+        _sequenceStepIndex = 0;
+    }
+
+    /// <summary>
+    /// On changed handler for the sequence grid.
+    /// </summary>
+    private void SequenceGrid_CurrentCellDirtyStateChanged(object? sender, EventArgs e)
+    {
+        if (sequenceGrid.CurrentCell is null) return;
+
+        if (sequenceGrid.IsCurrentCellDirty)
+            sequenceGrid.CommitEdit(DataGridViewDataErrorContexts.Commit);
     }
 
     #endregion
