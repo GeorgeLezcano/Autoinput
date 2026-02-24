@@ -42,7 +42,7 @@ public class UtilTests : IDisposable
     {
         int count = 230;
         string expected = $"Input Count: {count}";
-        string actual = LabelFormatter.SetInputCountLabel(count);
+        string actual = LabelFormatter.SetInputCountLabel(count, false);
         Assert.Equal(expected, actual);
     }
 

@@ -4,10 +4,22 @@ AutoInput is a small Windows app that runs simple, timed input for you — mouse
 
 ---
 
+## ⚠ **Important Notice**
+
+> AutoInput is intended for legitimate productivity and accessibility use cases.
+>
+> Some applications, games, or online services prohibit automated input or macro tools.  
+> Using AutoInput in restricted environments may violate their terms of service and could result in account penalties.
+>
+> **Use responsibly and at your own discretion.**
+
+---
+
 ## What it does
 
 - Timed automation (0.1 second to 10 minutes).
 - Run modes: **until stopped** or **for N inputs**.
+- Optional **Hold Target Input Key** button for a sustained input instead of multiple times.
 - Global Start/Stop hotkey (default **F8**, configurable).
 - Target options: **Mouse Left**, **Mouse Right**, or a specific **keyboard key**.
 - Scheduling: start at an exact date/time, optional stop time.
@@ -32,32 +44,39 @@ AutoInput is a small Windows app that runs simple, timed input for you — mouse
 ## Tabs overview
 
 ### General
+
 - Choose your automation interval and run mode.
+- Choose your desired input type (Hold key or keep pressing)
 - Set whether to run indefinitely or stop after a set number of inputs.
 - Configure your global hotkey and target key/mouse input.
 
 ### Schedule
+
 - Set exact start and stop times.
 - Enable or disable each independently.
 - Works even when minimized — as long as AutoInput is running.
 
 ### Sequence
+
 - Create a list of steps (key presses or mouse clicks) with delays between them.
 - Use the **Sequence Mode** checkbox to let the global hotkey play the active sequence instead of a single input.
 - Multiple sequences can be saved and selected from a dropdown.
 
 ### Config
+
 - Save and load different configurations (`.json` files).
 - Open the config folder quickly with **Open Folder**.
 - Saved configurations remember interval, run mode, hotkeys, and sequences.
 
-###  Info
+### Info
+
 - Shows app version and basic info.
 - Links to the in-app User Guide (coming soon).
 
 ---
 
 ## Requirements
-- Windows 10 or later
-- .NET 8 Runtime (included in standalone build)
 
+- Windows 10 or later
+- .NET 8 Runtime if manually building the app (included in standalone build).
+- Write permission in the directory of the .exe or where config files are stored.

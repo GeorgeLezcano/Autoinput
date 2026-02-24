@@ -235,7 +235,7 @@ partial class MainForm
         holdTargetCheck.Name = "holdTargetCheck";
         holdTargetCheck.Size = new System.Drawing.Size(250, 24);
         holdTargetCheck.TabIndex = 25;
-        holdTargetCheck.Text = "Hold Target Input Key (Not Implemented Yet)";
+        holdTargetCheck.Text = "Hold Target Input Key";
         holdTargetCheck.Checked = false;
         holdTargetCheck.CheckedChanged += HoldTargetCheck_CheckedChanged;
 
@@ -437,6 +437,7 @@ partial class MainForm
         sequenceGrid.ReadOnly = false;
         sequenceGrid.EditMode = DataGridViewEditMode.EditOnEnter;
         sequenceGrid.CurrentCellDirtyStateChanged += SequenceGrid_CurrentCellDirtyStateChanged;
+        sequenceGrid.RowTemplate.Height = 30;
 
         sequenceGrid.CellValidating += SequenceGrid_CellValidating;
         sequenceGrid.EditingControlShowing += SequenceGrid_EditingControlShowing;
@@ -486,11 +487,12 @@ partial class MainForm
         colHold.HeaderText = "Hold";
         colHold.Name = "colHold";
         colHold.ReadOnly = false;
-        colHold.Width = 70;
+        colHold.Width = 80;
         colHold.ThreeState = false;
         colHold.TrueValue = true;
         colHold.FalseValue = false;
         colHold.FlatStyle = FlatStyle.Flat;
+        colHold.DefaultCellStyle.Padding = new Padding(4, 3, 4, 3);
 
         sequenceGrid.Columns.AddRange(new DataGridViewColumn[] { colStep, colKey, colDelayMs, colHold });
 

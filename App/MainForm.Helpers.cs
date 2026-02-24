@@ -461,9 +461,11 @@ partial class MainForm
     /// </summary>
     private void ReleaseAllHeldInputs()
     {
-        if (_sequenceAwaitingRelease && _sequenceHeldKey != Keys.None)
+        if (_sequenceAwaitingRelease)
         {
-            SendUp(_sequenceHeldKey);
+            if (_sequenceHeldKey != Keys.None)
+                SendUp(_sequenceHeldKey);
+
             _sequenceHeldKey = Keys.None;
             _sequenceAwaitingRelease = false;
         }
@@ -518,12 +520,13 @@ partial class MainForm
             return;
         }
 
-        if (_sequenceAwaitingRelease && _sequenceHeldKey != Keys.None)
+        if (_sequenceAwaitingRelease)
         {
-            SendUp(_sequenceHeldKey);
+            if (_sequenceHeldKey != Keys.None)
+                SendUp(_sequenceHeldKey);
+
             _sequenceHeldKey = Keys.None;
             _sequenceAwaitingRelease = false;
-
         }
 
         if (_sequenceStepIndex < 0 || _sequenceStepIndex >= seq.Steps.Count)
@@ -533,6 +536,13 @@ partial class MainForm
 
         if (step.Hold)
         {
+            if (step.Key == Keys.None)
+            {
+                _sequenceStepIndex++;
+                inputCountTimer.Interval = Math.Max(step.DelayMS, 1);
+                return;
+            }
+
             SendDown(step.Key);
 
             _sequenceHeldKey = step.Key;
