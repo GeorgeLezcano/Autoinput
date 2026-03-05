@@ -50,6 +50,7 @@ public static class NativeInput
 
     private const uint INPUT_MOUSE = 0;
     private const uint INPUT_KEYBOARD = 1;
+
     private const uint KEYEVENTF_EXTENDEDKEY = 0x0001;
     private const uint KEYEVENTF_KEYUP = 0x0002;
     private const uint KEYEVENTF_SCANCODE = 0x0008;
@@ -79,19 +80,10 @@ public static class NativeInput
             return;
         }
 
-        ushort vk = (ushort)((uint)key & 0xFFFF);
-        var extra = GetMessageExtraInfo();
-
-        var vkInputs = new INPUT[2];
-        vkInputs[0] = new INPUT
+        var vkInputs = new[]
         {
-            type = INPUT_KEYBOARD,
-            U = new InputUnion { ki = new KEYBDINPUT { wVk = vk, dwExtraInfo = extra } }
-        };
-        vkInputs[1] = new INPUT
-        {
-            type = INPUT_KEYBOARD,
-            U = new InputUnion { ki = new KEYBDINPUT { wVk = vk, dwFlags = KEYEVENTF_KEYUP, dwExtraInfo = extra } }
+            BuildVkInput(key, keyUp: false),
+            BuildVkInput(key, keyUp: true)
         };
 
         _ = SendInput((uint)vkInputs.Length, vkInputs, Marshal.SizeOf(typeof(INPUT)));
@@ -131,15 +123,7 @@ public static class NativeInput
             return;
         }
 
-        ushort vk = (ushort)((uint)key & 0xFFFF);
-        var extra = GetMessageExtraInfo();
-
-        var vkInput = new INPUT
-        {
-            type = INPUT_KEYBOARD,
-            U = new InputUnion { ki = new KEYBDINPUT { wVk = vk, dwFlags = 0, dwExtraInfo = extra } }
-        };
-        _ = SendInput(1, [vkInput], Marshal.SizeOf(typeof(INPUT)));
+        _ = SendInput(1, [BuildVkInput(key, keyUp: false)], Marshal.SizeOf(typeof(INPUT)));
     }
 
     /// <summary>
@@ -155,15 +139,7 @@ public static class NativeInput
             return;
         }
 
-        ushort vk = (ushort)((uint)key & 0xFFFF);
-        var extra = GetMessageExtraInfo();
-
-        var vkInput = new INPUT
-        {
-            type = INPUT_KEYBOARD,
-            U = new InputUnion { ki = new KEYBDINPUT { wVk = vk, dwFlags = KEYEVENTF_KEYUP, dwExtraInfo = extra } }
-        };
-        _ = SendInput(1, [vkInput], Marshal.SizeOf(typeof(INPUT)));
+        _ = SendInput(1, [BuildVkInput(key, keyUp: true)], Marshal.SizeOf(typeof(INPUT)));
     }
 
     /// <summary>
@@ -266,4 +242,32 @@ public static class NativeInput
         Keys.NumLock or Keys.Cancel or Keys.PrintScreen or Keys.Divide => true,
         _ => false
     };
+
+    /// <summary>
+    /// Builds a VK-based KEYBDINPUT fallback that includes dwExtraInfo and extended-key flag.
+    /// </summary>
+    private static INPUT BuildVkInput(Keys key, bool keyUp)
+    {
+        ushort vk = (ushort)((uint)key & 0xFFFF);
+
+        uint flags = 0;
+        if (keyUp) flags |= KEYEVENTF_KEYUP;
+        if (IsExtendedKey(key)) flags |= KEYEVENTF_EXTENDEDKEY;
+
+        return new INPUT
+        {
+            type = INPUT_KEYBOARD,
+            U = new InputUnion
+            {
+                ki = new KEYBDINPUT
+                {
+                    wVk = vk,
+                    wScan = 0,
+                    dwFlags = flags,
+                    time = 0,
+                    dwExtraInfo = GetMessageExtraInfo()
+                }
+            }
+        };
+    }
 }
