@@ -7,6 +7,8 @@ namespace App.Utils;
 /// </summary>
 public static class NativeInput
 {
+    private const string User32 = "user32.dll";
+
     [StructLayout(LayoutKind.Sequential)]
     private struct INPUT
     {
@@ -37,13 +39,19 @@ public static class NativeInput
         public IntPtr dwExtraInfo;
     }
 
-    [DllImport("user32.dll", SetLastError = true)]
+    [DllImport(User32, SetLastError = true)]
     private static extern uint SendInput(uint nInputs, INPUT[] pInputs, int cbSize);
+
+    [DllImport(User32)]
+    private static extern uint MapVirtualKey(uint uCode, uint uMapType);
 
     private const uint INPUT_MOUSE = 0;
     private const uint INPUT_KEYBOARD = 1;
-
+    private const uint KEYEVENTF_EXTENDEDKEY = 0x0001;
     private const uint KEYEVENTF_KEYUP = 0x0002;
+    private const uint KEYEVENTF_SCANCODE = 0x0008;
+
+    private const uint MAPVK_VK_TO_VSC = 0;
 
     private const uint MOUSEEVENTF_LEFTDOWN = 0x0002;
     private const uint MOUSEEVENTF_LEFTUP = 0x0004;
@@ -60,27 +68,31 @@ public static class NativeInput
     /// </summary>
     public static void SendKeyPress(Keys key)
     {
-        ushort vk = (ushort)key;
-        var inputs = new INPUT[2];
+        if (key == Keys.None) return;
 
-        inputs[0] = new INPUT
+        if (TryBuildKeyboardInput(key, keyUp: false, out var down) &&
+            TryBuildKeyboardInput(key, keyUp: true, out var up))
+        {
+            var inputs = new[] { down, up };
+            _ = SendInput((uint)inputs.Length, inputs, Marshal.SizeOf(typeof(INPUT)));
+            return;
+        }
+
+        ushort vk = (ushort)((uint)key & 0xFFFF);
+
+        var vkInputs = new INPUT[2];
+        vkInputs[0] = new INPUT
         {
             type = INPUT_KEYBOARD,
-            U = new InputUnion
-            {
-                ki = new KEYBDINPUT { wVk = vk }
-            }
+            U = new InputUnion { ki = new KEYBDINPUT { wVk = vk } }
         };
-        inputs[1] = new INPUT
+        vkInputs[1] = new INPUT
         {
             type = INPUT_KEYBOARD,
-            U = new InputUnion
-            {
-                ki = new KEYBDINPUT { wVk = vk, dwFlags = KEYEVENTF_KEYUP }
-            }
+            U = new InputUnion { ki = new KEYBDINPUT { wVk = vk, dwFlags = KEYEVENTF_KEYUP } }
         };
 
-        _ = SendInput((uint)inputs.Length, inputs, Marshal.SizeOf(typeof(INPUT)));
+        _ = SendInput((uint)vkInputs.Length, vkInputs, Marshal.SizeOf(typeof(INPUT)));
     }
 
     /// <summary>
@@ -88,6 +100,8 @@ public static class NativeInput
     /// </summary>
     public static void ClickMouseButton(Keys mouseKey)
     {
+        if (mouseKey == Keys.None) return;
+
         uint down, up;
         if (mouseKey == Keys.LButton) { down = MOUSEEVENTF_LEFTDOWN; up = MOUSEEVENTF_LEFTUP; }
         else if (mouseKey == Keys.RButton) { down = MOUSEEVENTF_RIGHTDOWN; up = MOUSEEVENTF_RIGHTUP; }
@@ -107,19 +121,19 @@ public static class NativeInput
     {
         if (key == Keys.None) return;
 
-        ushort vk = (ushort)key;
+        if (TryBuildKeyboardInput(key, keyUp: false, out var input))
+        {
+            _ = SendInput(1, [input], Marshal.SizeOf(typeof(INPUT)));
+            return;
+        }
 
-        var inputs = new INPUT[1];
-        inputs[0] = new INPUT
+        ushort vk = (ushort)((uint)key & 0xFFFF);
+        var vkInput = new INPUT
         {
             type = INPUT_KEYBOARD,
-            U = new InputUnion
-            {
-                ki = new KEYBDINPUT { wVk = vk, dwFlags = 0 }
-            }
+            U = new InputUnion { ki = new KEYBDINPUT { wVk = vk, dwFlags = 0 } }
         };
-
-        _ = SendInput((uint)inputs.Length, inputs, Marshal.SizeOf(typeof(INPUT)));
+        _ = SendInput(1, [vkInput], Marshal.SizeOf(typeof(INPUT)));
     }
 
     /// <summary>
@@ -129,19 +143,19 @@ public static class NativeInput
     {
         if (key == Keys.None) return;
 
-        ushort vk = (ushort)key;
+        if (TryBuildKeyboardInput(key, keyUp: true, out var input))
+        {
+            _ = SendInput(1, [input], Marshal.SizeOf(typeof(INPUT)));
+            return;
+        }
 
-        var inputs = new INPUT[1];
-        inputs[0] = new INPUT
+        ushort vk = (ushort)((uint)key & 0xFFFF);
+        var vkInput = new INPUT
         {
             type = INPUT_KEYBOARD,
-            U = new InputUnion
-            {
-                ki = new KEYBDINPUT { wVk = vk, dwFlags = KEYEVENTF_KEYUP }
-            }
+            U = new InputUnion { ki = new KEYBDINPUT { wVk = vk, dwFlags = KEYEVENTF_KEYUP } }
         };
-
-        _ = SendInput((uint)inputs.Length, inputs, Marshal.SizeOf(typeof(INPUT)));
+        _ = SendInput(1, [vkInput], Marshal.SizeOf(typeof(INPUT)));
     }
 
     /// <summary>
@@ -161,10 +175,7 @@ public static class NativeInput
         inputs[0] = new INPUT
         {
             type = INPUT_MOUSE,
-            U = new InputUnion
-            {
-                mi = new MOUSEINPUT { dwFlags = down }
-            }
+            U = new InputUnion { mi = new MOUSEINPUT { dwFlags = down } }
         };
 
         _ = SendInput((uint)inputs.Length, inputs, Marshal.SizeOf(typeof(INPUT)));
@@ -187,12 +198,63 @@ public static class NativeInput
         inputs[0] = new INPUT
         {
             type = INPUT_MOUSE,
-            U = new InputUnion
-            {
-                mi = new MOUSEINPUT { dwFlags = up }
-            }
+            U = new InputUnion { mi = new MOUSEINPUT { dwFlags = up } }
         };
 
         _ = SendInput((uint)inputs.Length, inputs, Marshal.SizeOf(typeof(INPUT)));
     }
+
+    /// <summary>
+    /// Attempts to build the keyboard input. Using virtual key
+    /// as a fallback.
+    /// </summary>
+    private static bool TryBuildKeyboardInput(Keys key, bool keyUp, out INPUT input)
+    {
+        input = default;
+
+        uint vk = (uint)key & 0xFFFF;
+
+        ushort scan = (ushort)MapVirtualKey(vk, 0);
+        if (scan == 0)
+            scan = (ushort)MapVirtualKey(vk, 3);
+
+        if (scan == 0)
+            return false;
+
+        uint flags = KEYEVENTF_SCANCODE;
+        if (keyUp) flags |= KEYEVENTF_KEYUP;
+        if (IsExtendedKey((Keys)vk)) flags |= KEYEVENTF_EXTENDEDKEY;
+
+        input = new INPUT
+        {
+            type = INPUT_KEYBOARD,
+            U = new InputUnion
+            {
+                ki = new KEYBDINPUT
+                {
+                    wVk = 0,
+                    wScan = scan,
+                    dwFlags = flags,
+                    time = 0,
+                    dwExtraInfo = IntPtr.Zero
+                }
+            }
+        };
+
+        return true;
+    }
+
+    /// <summary>
+    /// Extended keys need KEYEVENTF_EXTENDEDKEY when using scan codes.
+    /// </summary>
+    /// <param name="key">The key</param>
+    /// <returns></returns>
+    private static bool IsExtendedKey(Keys key) => key switch
+    {
+        Keys.Insert or Keys.Delete or Keys.Home or Keys.End or Keys.PageUp or Keys.PageDown => true,
+        Keys.Up or Keys.Down or Keys.Left or Keys.Right => true,
+        Keys.RControlKey or Keys.RMenu => true, // right ctrl/alt
+        Keys.NumLock or Keys.Cancel or Keys.PrintScreen or Keys.Divide => true,
+        _ => false
+    };
 }

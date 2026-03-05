@@ -63,26 +63,66 @@ partial class MainForm
         {
             if (!IsHandleCreated) return;
 
-            try { UnregisterHotKey(Handle, Win32Hotkey.HOTKEY_ID); } catch { }
+            UnregisterGlobalHotkeys();
 
-            bool ok = RegisterHotKey(Handle, Win32Hotkey.HOTKEY_ID, Win32Hotkey.MOD_NONE, (uint)key);
-            if (!ok)
+            var mods = new[]
             {
-                if (key != AppDefault.HotKey)
+            Win32Hotkey.MOD_NONE,
+            Win32Hotkey.MOD_SHIFT,
+            Win32Hotkey.MOD_CONTROL,
+            Win32Hotkey.MOD_ALT,
+            Win32Hotkey.MOD_SHIFT | Win32Hotkey.MOD_CONTROL,
+            Win32Hotkey.MOD_SHIFT | Win32Hotkey.MOD_ALT,
+            Win32Hotkey.MOD_CONTROL | Win32Hotkey.MOD_ALT,
+            Win32Hotkey.MOD_SHIFT | Win32Hotkey.MOD_CONTROL | Win32Hotkey.MOD_ALT
+            };
+
+            bool anyOk = false;
+
+            for (int i = 0; i < mods.Length; i++)
+            {
+                int id = Win32Hotkey.HOTKEY_ID + i;
+                bool ok = RegisterHotKey(Handle, id, mods[i], (uint)key);
+                anyOk |= ok;
+            }
+
+            if (!anyOk && key != AppDefault.HotKey)
+            {
+                hotKey = AppDefault.HotKey;
+                keybindButton.Text = hotKey.ToString();
+
+                for (int i = 0; i < mods.Length; i++)
                 {
-                    bool fallback = RegisterHotKey(Handle, Win32Hotkey.HOTKEY_ID, Win32Hotkey.MOD_NONE, (uint)AppDefault.HotKey);
-                    if (fallback)
-                    {
-                        hotKey = AppDefault.HotKey;
-                        keybindButton.Text = hotKey.ToString();
-                        MessageBox.Show(
-                            "That hotkey is already in use by another app. Reverted to F8.",
-                            "Hotkey in use", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    }
+                    int id = Win32Hotkey.HOTKEY_ID + i;
+                    _ = RegisterHotKey(Handle, id, mods[i], (uint)hotKey);
                 }
+
+                MessageBox.Show(
+                    "That hotkey is already in use by another app. Reverted to F8.",
+                    "Hotkey in use", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
-        catch { /* do nothing */ }
+        catch
+        {
+            // ignore
+        }
+    }
+
+    /// <summary>
+    /// Unregisters the global hotkey in the app.
+    /// </summary>
+    private void UnregisterGlobalHotkeys()
+    {
+        try
+        {
+            if (!IsHandleCreated) return;
+
+            for (int i = 0; i < 8; i++)
+            {
+                try { UnregisterHotKey(Handle, Win32Hotkey.HOTKEY_ID + i); } catch { }
+            }
+        }
+        catch { }
     }
 
     #endregion
@@ -207,11 +247,30 @@ partial class MainForm
     /// </summary>
     private void ApplyRunningUiState(bool running)
     {
-        if (running) runTimer.Start();
-        else runTimer.Stop();
-
-        if (running && !holdTargetCheck.Checked) inputCountTimer.Start();
-        else inputCountTimer.Stop();
+        if (running)
+        {
+            if (sequenceModeCheck.Checked)
+            {
+                inputCountTimer.Interval = TimeUtils.ToMilliseconds(intervalInput.Value);
+                inputCountTimer.Start();
+            }
+            else
+            {
+                if (!holdTargetCheck.Checked)
+                {
+                    inputCountTimer.Interval = TimeUtils.ToMilliseconds(intervalInput.Value);
+                    inputCountTimer.Start();
+                }
+                else
+                {
+                    inputCountTimer.Stop();
+                }
+            }
+        }
+        else
+        {
+            inputCountTimer.Stop();
+        }
 
         // Top bar items
         startStopButton.Text = running ? AppDefault.StopBtnLabel : AppDefault.StartBtnLabel;
@@ -498,8 +557,9 @@ partial class MainForm
     /// </summary>
     private void DoSingleTargetTick(object sender, EventArgs e)
     {
-
-        if (holdTargetCheck.Checked) return;
+        if (targetKey == Keys.None) return;
+        if (holdTargetCheck.Checked)
+            return;
 
         PerformTargetInput();
         _ = IncrementCountAndMaybeStop(sender, e);

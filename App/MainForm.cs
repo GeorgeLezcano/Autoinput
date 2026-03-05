@@ -30,6 +30,7 @@ public partial class MainForm : Form
         InitializeComponent();
         SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint, true);
         UpdateStyles();
+        KeyPreview = true;
     }
 
     /// <summary>
@@ -124,7 +125,7 @@ public partial class MainForm : Form
     protected override void OnHandleDestroyed(EventArgs e)
     {
         try { scheduleTimer?.Stop(); scheduleTimer = null; } catch { }
-        try { UnregisterHotKey(Handle, Win32Hotkey.HOTKEY_ID); } catch { }
+        UnregisterGlobalHotkeys();
         base.OnHandleDestroyed(e);
     }
 
@@ -133,12 +134,62 @@ public partial class MainForm : Form
     /// </summary>
     protected override void WndProc(ref Message m)
     {
-        if (m.Msg == Win32Hotkey.WM_HOTKEY && m.WParam == Win32Hotkey.HOTKEY_ID)
+        if (m.Msg == Win32Hotkey.WM_HOTKEY)
         {
-            StartStopButton_Click(startStopButton, EventArgs.Empty);
-            return;
+            int id = m.WParam.ToInt32();
+            if (id >= Win32Hotkey.HOTKEY_ID && id < Win32Hotkey.HOTKEY_ID + 8)
+            {
+                StartStopButton_Click(startStopButton, EventArgs.Empty);
+                return;
+            }
         }
         base.WndProc(ref m);
+    }
+
+    /// <inheritdoc/>
+    protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+    {
+        if (isHotKeyBinding || isTargetKeyBinding)
+        {
+            var key = keyData & Keys.KeyCode;
+
+            if (key == Keys.Escape)
+            {
+                if (isHotKeyBinding) CancelHotkeyBinding();
+                if (isTargetKeyBinding) CancelTargetBinding();
+                return true;
+            }
+
+            if (isHotKeyBinding)
+            {
+                hotKey = key;
+                keybindButton.Text = hotKey.ToString();
+                isHotKeyBinding = false;
+                SetBindingStyle(keybindButton, false);
+                RegisterGlobalHotkey(hotKey);
+                return true;
+            }
+
+            if (isTargetKeyBinding)
+            {
+                if (key == hotKey)
+                {
+                    MessageBox.Show(
+                        "That key is already used as the Start/Stop hotkey. Pick a different target key.",
+                        "Key conflict", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return true;
+                }
+
+                targetKey = key;
+                targetKeyButton.Text = targetKey.ToString();
+                isTargetKeyBinding = false;
+                DisableMouseBinding();
+                SetBindingStyle(targetKeyButton, false);
+                return true;
+            }
+        }
+
+        return base.ProcessCmdKey(ref msg, keyData);
     }
 
     #endregion
@@ -182,13 +233,14 @@ public partial class MainForm : Form
             }
             inputCountTimer.Interval = TimeUtils.ToMilliseconds(intervalInput.Value);
             _sequenceStepIndex = 0;
+            ReleaseAllHeldInputs();
         }
 
         if (togglingOn)
         {
             _sequenceStepIndex = 0;
 
-            if (holdTargetCheck.Checked && !_isTargetHeldDown && targetKey != Keys.None)
+            if (!sequenceModeCheck.Checked && holdTargetCheck.Checked && targetKey != Keys.None)
             {
                 SendDown(targetKey);
                 _isTargetHeldDown = true;
@@ -214,7 +266,9 @@ public partial class MainForm : Form
 
         if (DateTime.Now >= startDate.Value)
         {
-            if (holdTargetCheck.Checked && !_isTargetHeldDown && targetKey != Keys.None)
+            ReleaseAllHeldInputs(); 
+
+            if (!sequenceModeCheck.Checked && holdTargetCheck.Checked && targetKey != Keys.None)
             {
                 SendDown(targetKey);
                 _isTargetHeldDown = true;
@@ -226,7 +280,7 @@ public partial class MainForm : Form
             _sequenceStepIndex = 0;
 
             inputCountTimer.Interval = TimeUtils.ToMilliseconds(intervalInput.Value);
-            if (!holdTargetCheck.Checked)
+            if (sequenceModeCheck.Checked || !holdTargetCheck.Checked)
                 inputCountTimer.Start();
 
             startStopButton.Text = AppDefault.StopBtnLabel;
@@ -381,7 +435,7 @@ public partial class MainForm : Form
         {
             keybindButton.Text = "Press Any Key (Esc to cancel)...";
             SetBindingStyle(keybindButton, true);
-            try { UnregisterHotKey(Handle, Win32Hotkey.HOTKEY_ID); } catch { }
+            UnregisterGlobalHotkeys();
         }
         else
         {

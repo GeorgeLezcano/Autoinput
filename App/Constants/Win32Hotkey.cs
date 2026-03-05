@@ -19,5 +19,20 @@ internal static class Win32Hotkey
     /// No modifier keys (Shift/Ctrl/Alt/Win).
     /// </summary>
     public const uint MOD_NONE = 0x0000;
+
+    /// <summary>
+    /// Alt modifier key.
+    /// </summary>
+    public const uint MOD_ALT = 0x0001;
+
+    /// <summary>
+    /// Control modifier key.
+    /// </summary>
+    public const uint MOD_CONTROL = 0x0002;
+
+    /// <summary>
+    /// Shift Modifier key.
+    /// </summary>
+    public const uint MOD_SHIFT = 0x0004;
 }
 
