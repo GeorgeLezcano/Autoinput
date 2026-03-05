@@ -45,13 +45,14 @@ public static class NativeInput
     [DllImport(User32)]
     private static extern uint MapVirtualKey(uint uCode, uint uMapType);
 
+    [DllImport(User32)]
+    private static extern IntPtr GetMessageExtraInfo();
+
     private const uint INPUT_MOUSE = 0;
     private const uint INPUT_KEYBOARD = 1;
     private const uint KEYEVENTF_EXTENDEDKEY = 0x0001;
     private const uint KEYEVENTF_KEYUP = 0x0002;
     private const uint KEYEVENTF_SCANCODE = 0x0008;
-
-    private const uint MAPVK_VK_TO_VSC = 0;
 
     private const uint MOUSEEVENTF_LEFTDOWN = 0x0002;
     private const uint MOUSEEVENTF_LEFTUP = 0x0004;
@@ -79,17 +80,18 @@ public static class NativeInput
         }
 
         ushort vk = (ushort)((uint)key & 0xFFFF);
+        var extra = GetMessageExtraInfo();
 
         var vkInputs = new INPUT[2];
         vkInputs[0] = new INPUT
         {
             type = INPUT_KEYBOARD,
-            U = new InputUnion { ki = new KEYBDINPUT { wVk = vk } }
+            U = new InputUnion { ki = new KEYBDINPUT { wVk = vk, dwExtraInfo = extra } }
         };
         vkInputs[1] = new INPUT
         {
             type = INPUT_KEYBOARD,
-            U = new InputUnion { ki = new KEYBDINPUT { wVk = vk, dwFlags = KEYEVENTF_KEYUP } }
+            U = new InputUnion { ki = new KEYBDINPUT { wVk = vk, dwFlags = KEYEVENTF_KEYUP, dwExtraInfo = extra } }
         };
 
         _ = SendInput((uint)vkInputs.Length, vkInputs, Marshal.SizeOf(typeof(INPUT)));
@@ -108,9 +110,11 @@ public static class NativeInput
         else if (mouseKey == Keys.MButton) { down = MOUSEEVENTF_MIDDLEDOWN; up = MOUSEEVENTF_MIDDLEUP; }
         else return;
 
+        var extra = GetMessageExtraInfo();
+
         var inputs = new INPUT[2];
-        inputs[0] = new INPUT { type = INPUT_MOUSE, U = new InputUnion { mi = new MOUSEINPUT { dwFlags = down } } };
-        inputs[1] = new INPUT { type = INPUT_MOUSE, U = new InputUnion { mi = new MOUSEINPUT { dwFlags = up } } };
+        inputs[0] = new INPUT { type = INPUT_MOUSE, U = new InputUnion { mi = new MOUSEINPUT { dwFlags = down, dwExtraInfo = extra } } };
+        inputs[1] = new INPUT { type = INPUT_MOUSE, U = new InputUnion { mi = new MOUSEINPUT { dwFlags = up, dwExtraInfo = extra } } };
         _ = SendInput((uint)inputs.Length, inputs, Marshal.SizeOf(typeof(INPUT)));
     }
 
@@ -128,10 +132,12 @@ public static class NativeInput
         }
 
         ushort vk = (ushort)((uint)key & 0xFFFF);
+        var extra = GetMessageExtraInfo();
+
         var vkInput = new INPUT
         {
             type = INPUT_KEYBOARD,
-            U = new InputUnion { ki = new KEYBDINPUT { wVk = vk, dwFlags = 0 } }
+            U = new InputUnion { ki = new KEYBDINPUT { wVk = vk, dwFlags = 0, dwExtraInfo = extra } }
         };
         _ = SendInput(1, [vkInput], Marshal.SizeOf(typeof(INPUT)));
     }
@@ -150,10 +156,12 @@ public static class NativeInput
         }
 
         ushort vk = (ushort)((uint)key & 0xFFFF);
+        var extra = GetMessageExtraInfo();
+
         var vkInput = new INPUT
         {
             type = INPUT_KEYBOARD,
-            U = new InputUnion { ki = new KEYBDINPUT { wVk = vk, dwFlags = KEYEVENTF_KEYUP } }
+            U = new InputUnion { ki = new KEYBDINPUT { wVk = vk, dwFlags = KEYEVENTF_KEYUP, dwExtraInfo = extra } }
         };
         _ = SendInput(1, [vkInput], Marshal.SizeOf(typeof(INPUT)));
     }
@@ -171,11 +179,13 @@ public static class NativeInput
 
         if (down == 0) return;
 
+        var extra = GetMessageExtraInfo();
+
         var inputs = new INPUT[1];
         inputs[0] = new INPUT
         {
             type = INPUT_MOUSE,
-            U = new InputUnion { mi = new MOUSEINPUT { dwFlags = down } }
+            U = new InputUnion { mi = new MOUSEINPUT { dwFlags = down, dwExtraInfo = extra } }
         };
 
         _ = SendInput((uint)inputs.Length, inputs, Marshal.SizeOf(typeof(INPUT)));
@@ -194,19 +204,20 @@ public static class NativeInput
 
         if (up == 0) return;
 
+        var extra = GetMessageExtraInfo();
+
         var inputs = new INPUT[1];
         inputs[0] = new INPUT
         {
             type = INPUT_MOUSE,
-            U = new InputUnion { mi = new MOUSEINPUT { dwFlags = up } }
+            U = new InputUnion { mi = new MOUSEINPUT { dwFlags = up, dwExtraInfo = extra } }
         };
 
         _ = SendInput((uint)inputs.Length, inputs, Marshal.SizeOf(typeof(INPUT)));
     }
 
     /// <summary>
-    /// Attempts to build the keyboard input. Using virtual key
-    /// as a fallback.
+    /// Attempts to build the keyboard input. Uses scan codes; returns false to fall back to VK.
     /// </summary>
     private static bool TryBuildKeyboardInput(Keys key, bool keyUp, out INPUT input)
     {
@@ -236,7 +247,7 @@ public static class NativeInput
                     wScan = scan,
                     dwFlags = flags,
                     time = 0,
-                    dwExtraInfo = IntPtr.Zero
+                    dwExtraInfo = GetMessageExtraInfo()
                 }
             }
         };
@@ -247,8 +258,6 @@ public static class NativeInput
     /// <summary>
     /// Extended keys need KEYEVENTF_EXTENDEDKEY when using scan codes.
     /// </summary>
-    /// <param name="key">The key</param>
-    /// <returns></returns>
     private static bool IsExtendedKey(Keys key) => key switch
     {
         Keys.Insert or Keys.Delete or Keys.Home or Keys.End or Keys.PageUp or Keys.PageDown => true,
