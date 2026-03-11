@@ -20,6 +20,10 @@ internal static class Program
             MessageBox.Show("AutoInput is already running.", "AutoInput", MessageBoxButtons.OK, MessageBoxIcon.Information);
             return;
         }
+
+        //TODO Consider using this instead of SystemAware for higher resolution. 
+        // This comes with a UI adjustments to fit text and buttons.
+        //Application.SetHighDpiMode(HighDpiMode.PerMonitorV2);
         Application.SetHighDpiMode(HighDpiMode.SystemAware);
 
         ApplicationConfiguration.Initialize();
